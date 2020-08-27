@@ -1,0 +1,62 @@
+<%- include('../partials/adminHeader'); %>
+<div class="container input-fields">
+    <h4 class="page-title">Pages</h4>
+    <br>
+    <table class="striped centered">
+        <thead>
+            <tr class="home">
+                <th>Order</th>
+                <th>Page</th>
+            </tr> </thead>
+        <tbody class="move">
+            <% pages.forEach(function(page){ %>
+                <tr id="id_<%= page._id %>" class="<%= page.slug %>">
+                    <% if(page.slug == "home") {%>
+                        <td><i class="material-icons icon-grey">lock_outline</i></td>
+                    <% } else {%>
+                        <td><i class="material-icons icon-grey">reorder</i></td>
+                    <% } %>
+                    <td><%= page.title %></td>
+                    <td><a class='dropdown-trigger' href='#' data-target='pageOptions'><i class="material-icons icon-grey">more_horiz</i></a></td>
+                    <ul id='pageOptions' class='dropdown-content'>
+                        <li><a href="/admin/pages/edit-page/<%= page.id %>" class="blue-grey-text"><i class="material-icons">edit</i>Edit</a></li>
+                        <% if(page.slug != "home") {%>
+                            <li><a class="confirmDeletion blue-grey-text" href="/admin/pages/delete-page/<%= page.id %>"><i
+                                        class="material-icons">delete</i>Remove</a></li>
+                            <% } %>
+                        
+                    </ul>
+                </tr>
+                
+            <% }) %>
+        </tbody>
+    </table>
+
+</div>
+
+
+
+<div class="fixed-action-btn">
+    <a href="/admin/pages/add-page" class="btn-floating btn-large waves-effect waves-light deep-purple tooltipped" 
+    data-position="left" data-tooltip="Add a new page"><i
+            class="material-icons">add</i></a>
+</div>
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
+    integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=" crossorigin="anonymous"></script>
+<script>
+    $('tbody').sortable({
+        
+            items: "tr:not('.home')",
+            placeholder: "ui-state-hightlight",
+            update: function () {
+                let ids = $('tbody').sortable("serialize")
+                let url = "/admin/pages/reorder-pages"
+
+                $.post(url, ids);
+            }
+
+        });
+</script>
+
+<%- include('../partials/adminFooter'); %>

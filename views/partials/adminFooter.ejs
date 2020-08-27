@@ -1,0 +1,32 @@
+</main>
+<footer class="page-footer teal accent-4">
+    <div class="footer-copyright teal">
+        <div class="container">
+            © ashwinkanchana
+        </div>
+    </div>
+</footer>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/21.0.0/classic/ckeditor.js"></script>
+<script src="/js/index.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+         M.AutoInit();
+    });
+</script>
+
+    <%- messages('messages', locals) %>
+    <% if (errors) { %>
+    <% errors.forEach(function (error) { %>
+    <script>
+        M.toast({ html: '<%= error.msg %>',
+                displayLength: 6000,
+                classes: 'red rounded' })
+    </script>
+    <% }); %>
+    <% } %>
+</body>
+
+</html>

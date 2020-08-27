@@ -1,0 +1,59 @@
+ body {
+     display: flex;
+     min-height: 100vh;
+     flex-direction: column;
+ }
+
+ main {
+     flex: 1 0 auto;
+ }
+
+ .brand-logo {
+     margin-left: 1vw;
+ }
+
+ a.brand-logo {
+     font-size: medium;
+ }
+
+ i.icon-grey {
+     color: #6e6e6e;
+ }
+
+ tbody.move {
+     cursor: move;
+ }
+
+ .ui-state-hightlight {
+     border: 2px dashed rgb(32, 32, 32);
+ }
+
+ .sidenav {
+     padding: 12px;
+ }
+
+ *:focus {
+     outline: none;
+ }
+
+ .input-fields {
+     margin-bottom: 5vh;
+ }
+
+ .page-title {
+     font-size: xx-large;
+     font-weight: 600;
+ }
+
+ .ck-editor__editable {
+     min-height: 300px !important;
+ }
+
+ #imgPreview {
+     margin: 20px;
+     max-width: 150px;
+ }
+
+ #productTableImage {
+     max-width: 150px;
+ }

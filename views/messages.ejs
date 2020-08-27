@@ -1,0 +1,13 @@
+<% Object.keys(messages).forEach(function (type) { %>
+<% messages[type].forEach(function (message) { %>
+        <script>
+            M.toast({
+                html: ' <%= message %>',
+                displayLength: 6000,
+                classes: '<%= type %> rounded'
+            })
+        </script>
+    <% }) %>
+<% }) %>
+
+
