@@ -1,7 +1,7 @@
 {
   "name": "ecommerce",
   "version": "1.0.0",
-  "description": "",
+  "description": "ecommerce webapp with admin panel, payment, access-control and multimode authentication",
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js -e js,ejs,css,env",
