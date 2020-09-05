@@ -1,84 +1,86 @@
 <%- include('../partials/adminHeader'); %>
-    <div class="container input-fields">
+<div class="container input-fields">
+    <br>
+    <a href="/admin/products" class="waves-effect waves-teal btn-flat btn-floating "><i
+            class="material-icons icon-grey">arrow_back</i></a>
+    <span class="page-title">Add a product</span>
+    <br>
+    <br>
+    <form method="POST" action="/admin/products/add-product" enctype="multipart/form-data">
+
+        <div class="input-field form-group">
+            <i class="material-icons prefix">title</i>
+            <input id="icon_prefix" type="text" name="title" class="form-control" value="<%= title %>"
+                autocomplete="off">
+            <label for="icon_prefix">Title</label>
+        </div>
         <br>
-        <a href="/admin/products" class="waves-effect waves-teal btn-flat btn-floating "><i
-                class="material-icons icon-grey">arrow_back</i></a>
-        <span class="page-title">Add a product</span>
+        <div class="row">
+            <div class="input-field form-group col s6">
+                <i class="material-icons prefix">attach_money</i>
+                <input id="icon_prefix" type="number" step=".01" min="0" name="price" class="form-control"
+                    value="<%= price %>" autocomplete="off">
+                <label for="icon_prefix">Price</label>
+            </div>
+            <div class="input-field form-group col s6">
+                <i class="material-icons prefix">filter_list</i>
+                <select class="form-control" name="category">
+                    <option value="" disabled selected>Choose</option>
+                    <% categories.forEach(function(cat){ %>
+                    <option value="<%= cat.slug %>" <% if (cat.slug == category) { %> selected <% } %>>
+                        <%= cat.title %>
+                    </option>
+                    <% })%>
+                </select>
+                <label for="category">Category</label>
+            </div>
+        </div>
         <br>
+        <div class="input-field form-group">
+            <i class="form-control material-icons prefix">description</i>
+            <textarea id="desc" name="desc" class="materialize-textarea"
+                placeholder="Add a description"><%= desc %></textarea>
+            <label for="desc">Description</label>
+        </div>
         <br>
-        <form method="POST" action="/admin/products/add-product" enctype="multipart/form-data">
-
-            <div class="input-field form-group">
-                <i class="material-icons prefix">title</i>
-                <input id="icon_prefix" type="text" name="title" class="form-control" value="<%= title %>" autocomplete="off">
-                <label for="icon_prefix">Title</label>
+        <div class="file-field input-field form-group">
+            <div class="btn">
+                <i class="material-icons left">image</i>
+                <span>Photo</span>
+                <input type="file" name="image" id="img">
             </div>
-            <br>
-            <div class="row">
-                <div class="input-field form-group col s6">
-                    <i class="material-icons prefix">attach_money</i>
-                    <input id="icon_prefix" type="number" step=".01" min="0" name="price" class="form-control" value="<%= price %>"
-                        autocomplete="off">
-                    <label for="icon_prefix">Price</label>
-                </div>
-                <div class="input-field form-group col s6">
-                    <i class="material-icons prefix">filter_list</i>
-                    <select class="form-control" name="category">
-                        <option value="" disabled selected>Choose</option>
-                        <% categories.forEach(function(cat){ %>
-                            <option value="<%= cat.slug %>"><%= cat.title %></option>
-                        <% })%>
-                    </select>
-                    <label for="category">Category</label>
-                </div>
+            <div class="file-path-wrapper">
+                <input class="file-path validate form-control" name="image" id="img" autocomplete="off" type="text"
+                    placeholder="Upload a photo">
             </div>
-            <br>
-            <div class="input-field form-group">
-                
-                <i class="form-control material-icons prefix">description</i>
-                <textarea id="desc" name="desc" class="materialize-textarea">
-                    <%= desc %>
-                </textarea>
-                <label for="desc">Description</label> 
-            </div>    
-            <br>
-            <div class="file-field input-field form-group">
-                <div class="btn">
-                    <i class="material-icons left">image</i>
-                    <span>Photo</span>
-                    <input type="file" name="image" id="img" >
-                </div>
-                <div class="file-path-wrapper">
-                    <input class="file-path validate form-control" name="image" id="img" autocomplete="off" type="text" placeholder="Upload a photo">
-                </div>
-            </div>
-            <div class="center-align">
-                <img width="100" src="#" alt="" id="imgPreview">
-            </div>
-            
-
-            <div class="fixed-action-btn">
-                <button class=" btn-floating btn-large waves-effect waves-light deep-purple tooltipped" data-position="left"
-                    data-tooltip="Save"><i class="material-icons">save</i>Save</button>
-            </div>
-        </form>
-    </div>
+        </div>
+        <div class="center-align">
+            <img width="100" src="#" alt="" id="imgPreview">
+        </div>
 
 
-    <script>
-        function readURL(input){
-            if(input.files && input.files[0]){
-                const reader = new FileReader()
-                reader.onload = function(e){
-                    $('#imgPreview').attr('src', e.target.result).width(200)
-                }
-                reader.readAsDataURL(input.files[0])
+        <div class="fixed-action-btn">
+            <button class=" btn-floating btn-large waves-effect waves-light deep-purple tooltipped" data-position="left"
+                data-tooltip="Save"><i class="material-icons">save</i>Save</button>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader()
+            reader.onload = function (e) {
+                $('#imgPreview').attr('src', e.target.result).width(200)
             }
+            reader.readAsDataURL(input.files[0])
         }
+    }
 
-        $('#img').change(function(){
-            readURL(this)
-        })
-    </script>
+    $('#img').change(function () {
+        readURL(this)
+    })
+</script>
 
-<%- include('../partials/adminFooter'); %> 
+<%- include('../partials/adminFooter'); %>

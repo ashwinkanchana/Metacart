@@ -1,0 +1,162 @@
+<%- include('./partials/header'); %>
+
+
+
+<div class="container">
+
+    <a class="waves-effect waves-light btn modal-trigger" href="#auth-modal">Login</a>
+
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <div class="card-tabs">
+
+                <ul class="tabs tabs-fixed-width">
+                    <li class="tab">
+                        <a href="#loginTab" id="login">Login</a>
+                    </li>
+                    <li class="tab">
+                        <a href="#signupTab" id="signup">Signup</a>
+                    </li>
+            </div>
+
+            </ul>
+
+        </div>
+        <div class="card-content">
+            <div class="google center-align">
+                <img src="/images/google_signin.png" alt="">
+            </div>
+            <div id="loginTab">
+                <!-- LOGIN -->
+                <div class="row">
+                    <div class="col s10 offset-s1 m8 offset-m2">
+                        <form action="/auth/login" method="POST">
+
+                            <div class="input-field form-group">
+                                <i class="material-icons prefix">mail_outline</i>
+                                <input id="username" type="email" class="form-control" name="username"
+                                    autocomplete="off" <% if (typeof emailLogin !== 'undefined') { %>
+                                 value="<%= emailLogin %> "
+                                <% } %>>
+                                <label for="username">Email</label>
+                            </div>
+
+                            <table>
+                                <tr class="loginTableRow">
+                                    <td>
+                                        <div class="input-field form-group">
+                                            <i class="material-icons prefix">lock_outline</i>
+                                            <input id="password" type="password" name="password"
+                                                class="form-control password" autocomplete="off">
+                                            <label for="password">Password</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <i class="material-icons small  icon-grey togglePassword">visibility_off</i>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="center-align form-group">
+                                <div class="row">
+                                    <button type="submit"
+                                        class="waves-effect waves-light btn center-align form-control">
+                                        Login
+                                    </button>
+                                </div>
+                                <div class="row">
+                                    <a href="auth/password-reset"
+                                        class="waves-effect waves-teal btn-flat center-align">Forgot Passoword?</a>
+                                </div>
+
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+            <div id="signupTab">
+                <!-- SIGNUP -->
+                <div class="row">
+                    <div class="col s10 offset-s1 m8 offset-m2">
+                        <form action="/auth/signup" method="POST">
+
+                            <div class="input-field form-group">
+                                <i class="material-icons prefix">person_outline</i>
+                                <input id="name" type="text" class="form-control" name="name" autocomplete="off" <% if (typeof name !== 'undefined') { %>
+                                 value="<%= name %>"
+                                <% } %> >
+                                <label for="name">Full Name</label>
+                            </div>
+                            <div class="input-field form-group">
+                                <i class="material-icons prefix">mail_outline</i>
+                                <input id="email" type="email" class="form-control" name="email" autocomplete="off" <% if (typeof email !== 'undefined') { %>
+                                 value="<%= email %> "
+                                <% } %> >
+                                <label for="email">Email</label>
+                            </div>
+                            <table class="form-group">
+                                <tr class="loginTableRow form-group">
+                                    <td class="form-group">
+                                        <div class="input-field form-group">
+                                            <i class="material-icons prefix">lock_outline</i>
+                                            <input id="newpassword" type="password" name="password"
+                                                class="form-control passwordNew" autocomplete="off">
+                                            <label for="newpassword">Password</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <i class="material-icons small icon-grey togglePasswordNew">visibility_off</i>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="center-align form-group">
+                                <button type="submit" class="waves-effect waves-light btn center-align form-control">
+                                    Signup
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</div>
+<%- include('./partials/footer'); %>
+
+
+<script>
+    console.log('<%=active_tab%>')
+    $(document).ready(function () {
+        $('.modal').modal({
+            onOpenStart() {
+                console.log("Open Start");
+                setTimeout(() => {
+                    document.getElementById("<%=active_tab%>").click();
+                }, 200);
+            }
+        });
+    });
+</script>
+
+
+
+<script>
+    $(document).ready(function () {
+        {
+            $('.modal').modal({
+                onOpenStart() {
+                    setTimeout(() => {
+                        document.getElementById("<%=active_tab%>").click();
+                    }, 200);
+                }
+            });
+            const openModal = "<%=open_modal%>"
+            if (openModal === "true") {
+                $('.modal').modal('open');
+            }
+        }
+    });
+</script>

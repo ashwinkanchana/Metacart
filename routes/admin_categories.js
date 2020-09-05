@@ -54,9 +54,19 @@ router.post('/add-category', titleValidator, (req, res) => {
                     if (err) {
                         return console.log(err)
                     }
+
+                    Category.find({}).exec(function (err, categories) {
+                        if (err) {
+                            console.log(err)
+                        } else {
+                            req.app.locals.categories = categories
+                        }
+                    })
+
+                    req.flash('green', `Successfully added ${title} category`)
+                    res.redirect('/admin/categories')
                 })
-                req.flash('green', `Successfully added ${title} category`)
-                res.redirect('/admin/categories')
+               
             }
         })
     }
@@ -112,9 +122,20 @@ router.post('/edit-category/:id', titleValidator, (req, res) => {
                         if (err) {
                             return console.log(err)
                         }
+
+                        Category.find({}).exec(function (err, categories) {
+                            if (err) {
+                                console.log(err)
+                            } else {
+                                req.app.locals.categories = categories
+                            }
+                        })
+
+
+                        req.flash('green', `Successfully modified as ${title}`)
+                        res.redirect('/admin/categories')
                     })
-                    req.flash('green', `Successfully modified as ${title}`)
-                    res.redirect('/admin/categories')
+                    
                 })
 
             }
@@ -129,6 +150,16 @@ router.get('/delete-category/:id', (req, res) => {
         if (err) {
             return console.log(err)
         }
+
+        Category.find({}).exec(function (err, categories) {
+            if (err) {
+                console.log(err)
+            } else {
+                req.app.locals.categories = categories
+            }
+        })
+
+
         req.flash('grey darken-4', `Successfully deleted ${category.title}`)
         res.redirect('/admin/categories')
     })

@@ -1,0 +1,174 @@
+<%- include('../partials/adminHeader'); %>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/basic.css"
+    integrity="sha512-Ucip2staDcls3OuwEeh5s9rRVYBsCA4HRr18+qd0Iz3nYpnfUeCIMh/82aHKeYgdaXGebmi9vcREw7YePXsutQ=="
+    crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/dropzone.css"
+    integrity="sha512-CmjeEOiBCtxpzzfuT2remy8NP++fmHRxR3LnsdQhVXzA3QqRMaJ3heF9zOB+c1lCWSwZkzSOWfTn1CdqgkW3EQ=="
+    crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/min/dropzone.min.js"
+    integrity="sha512-9WciDs0XP20sojTJ9E7mChDXy6pcO0qHpwbEJID1YVavz2H6QBz5eLoDD8lseZOb2yGT8xDNIV7HIe1ZbuiDWg=="
+    crossorigin="anonymous"></script>
+
+
+<div class="container input-fields">
+    <br>
+    <a href="/admin/products" class="waves-effect waves-teal btn-flat btn-floating "><i
+            class="material-icons icon-grey">arrow_back</i></a>
+    <span class="page-title">Edit product</span>
+    <br>
+    <br>
+    <form method="POST" action="/admin/products/edit-product/<%= id %>" enctype="multipart/form-data">
+
+        <div class="input-field form-group">
+            <i class="material-icons prefix">title</i>
+            <input id="icon_prefix" type="text" name="title" class="form-control" value="<%= title %>"
+                autocomplete="off">
+            <label for="icon_prefix">Title</label>
+        </div>
+        <br>
+        <div class="row">
+            <div class="input-field form-group col s6">
+                <i class="material-icons prefix">attach_money</i>
+                <input id="icon_prefix" type="number" step=".01" min="0" name="price" class="form-control"
+                    value="<%= price %>" autocomplete="off">
+                <label for="icon_prefix">Price</label>
+            </div>
+            <div class="input-field form-group col s6">
+                <i class="material-icons prefix">filter_list</i>
+                <select class="form-control" name="category">
+                    <option value="" disabled>Choose</option>
+                    <% categories.forEach(function(cat){ %>
+                    <option value="<%= cat.slug %>" <% if (cat.slug == category) { %> selected <% } %>><%= cat.title %>
+                    </option>
+                    <% })%>
+                </select>
+                <label for="category">Category</label>
+            </div>
+        </div>
+        <br>
+        <div class="input-field form-group">
+
+            <i class="form-control material-icons prefix">description</i>
+            <textarea id="desc" name="desc" class="materialize-textarea"><%= desc %></textarea>
+            <label for="desc">Description</label>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col m6">
+                <div class="file-field input-field form-group">
+                    <div class="btn">
+                        <i class="material-icons left">image</i>
+                        <span>Upload Photo</span>
+                        <input type="file" name="image" id="img">
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate form-control" name="image" id="img" autocomplete="off" type="text"
+                            placeholder="Upload a photo">
+                    </div>
+                </div>
+                <div class="center-align">
+                    <img width="100" src="#" alt="" id="imgPreview">
+                </div>
+            </div>
+            <div class="col m6">
+                <div class="row">
+                    <div class="col s6 offset-s3 m6 offset-m3">
+                        <div class="card">
+                            <div class="card-image row">
+                                <% if (image == "") { %>
+                                <img class="col s12" src="/images/noimage.png" alt="">
+                                <% } else {%>
+                                <img class="col s12" src="/product_images/<%= id %>/<%= image %>" alt="">
+                                <% } %>
+                            </div>
+                            <div class="card-content">
+                                <label for="">Current photo</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+        <br>
+       
+
+        <input type="hidden" name="pimage" value="<%= image %>">
+        <div class="fixed-action-btn">
+            <button class=" btn-floating btn-large waves-effect waves-light deep-purple tooltipped" data-position="left"
+                data-tooltip="Save"><i class="material-icons">save</i>Save</button>
+        </div>
+    </form>
+</div>
+<hr>
+<br>
+<div class="container">
+    <h5 class="center-align">Product photos</h5>
+    <div class="row">
+        <% galleryImages.forEach(image => { %>
+        <% if (image != "thumbs") { %>
+        <div class="col s6 m4 l3">
+            <div class="card">
+                <div class="card-image row galleryCard">
+                    <img class="col s12" src="/product_images/<%= id %>/gallery/thumbs/<%= image %>" alt=""
+                        onerror="this.onerror=null; this.src='/images/noimage.png'">
+                </div>
+                <div class="card-action">
+                    <a class="confirmDeletion" href="/admin/products/delete-image/<%= image %>?id=<%= id %>"><i class="material-icons icon-grey">delete</i></a>
+                </div>
+            </div>
+        </div>
+        <% } %>
+        <% }) %>
+    </div>
+</div>
+<br>
+<br>
+<div class="container" id="dropzoneForm">
+    <form action="/admin/products/product-gallery/<%= id %>" method="POST" enctype="multipart/form-data"
+        class="dropzone" id="dropzoneForm">
+        <div class="fallback">
+            <input type="file" name="file" multiple>
+            <input type="submit" value="Upload">
+        </div>
+    </form>
+</div>
+<br>
+<br>
+
+
+<script>
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader()
+            reader.onload = function (e) {
+                $('#imgPreview').attr('src', e.target.result).width(200)
+            }
+            reader.readAsDataURL(input.files[0])
+        }
+    }
+
+    $('#img').change(function () {
+        readURL(this)
+    })
+
+
+
+    //Image Dropzone
+    Dropzone.options.dropzoneForm = {
+        url: "/admin/products/product-gallery/<%= id %>",
+        acceptedFiles: "image/*",
+        maxFilesize: 1,//1 mb
+        init: function () {
+            this.on("queuecomplete", function (file) {
+                setTimeout(function () {
+                    location.reload();
+                }, 1000);
+            });
+        }
+    };
+
+</script>
+
+<%- include('../partials/adminFooter'); %>

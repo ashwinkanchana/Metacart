@@ -1,49 +1,256 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title> <%= title %> </title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <% if (typeof title !== 'undefined') { %>
+    <title><%= title %></title>
+    <% } else{%>
+    <title>Metacart</title>
+    <% } %>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+
+    <link rel="shortcut icon" href="https://twemoji.maxcdn.com/2/svg/1f6d2.svg" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Navbar</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
-            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <nav class="nav-extended">
+        <div class="nav-wrapper teal">
+            <a href="/" class="brand-logo"><i class="material-icons">shopping_cart</i>Metacart</a>
+            <a href="/" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <% if (typeof pages !== 'undefined') { %>
+                <% pages.forEach(page => { %>
+                <li>
+                    <% if (page.slug=="home") { %>
+                    <a href="/"><%=page.title%></a>
+                    <% }else{ %>
 
-        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    <a href="/<%= page.slug %>"><%=page.title%> </a>
+
+                    <% } %>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
+                <% }) %>
+                <% } %>
+                <% if (typeof user !== 'undefined') { %>
+                <li>
+                    <a href="/auth/logout">
+                        Logout (<%=user.name%>)
+                    </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                <% } else { %>
+                <li>
+                    <a href="/auth/login">Login</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">Dropdown</a>
-                    <div class="dropdown-menu" aria-labelledby="dropdown01">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
+                <li>
+                    <a href="/auth/signup">Signup</a>
+                </li>
+                <% } %>
+                <% if (typeof user !== 'undefined' && user.admin == '1') { %>
+                <li>
+                    <a href="/admin/pages">
+                        Admin panel
+                    </a>
+                </li>
+                <% } %>
+                <li>
+                    <a href="/cart/checkout">
+                        <div class="chip">
+                            My Cart(
+                            <% if(typeof cart !== "undefined"){ %>
+                            <%=cart.length%>
+                            <%} else {%>
+                            0
+                            <%}%>)
+                        </div>
+                    </a>
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-                <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-            </form>
         </div>
     </nav>
-    <main role="main" class="flex-shrink-0">
-        <div class="container">
-            <%- messages('messages', locals) %>
+
+    <ul class="sidenav" id="mobile-demo">
+        <ul class="collapsible">
+            <li>
+                <div class="collapsible-header"><i class="material-icons">insert_drive_file</i>Pages</div>
+                <div class="collapsible-body">
+                    <ul class="collection">
+                        <% if (typeof pages !== 'undefined') { %>
+                            <% pages.forEach(page => { %>
+                            <div class="container">
+                                <% if (page.slug=="home") { %>
+                <li class="collection-item">
+                    <a href="/"><%=page.title%></a>
+                </li>
+                <% }else{ %>
+                <li class="collection-item">
+                    <a href="<%= page.slug %>"><%=page.title%> </a>
+                </li>
+                <% } %>
+
         </div>
-    </main>
+        <% }) %>
+        <% } %>
+        </ul>
+
+        </div>
+        </li>
+        <li>
+            <div class="collapsible-header"><i class="material-icons">filter_list</i>Categories
+            </div>
+            <div class="collapsible-body">
+                <ul class="collection">
+                    <div class="container">
+                        <li class="collection-item">
+                            <a href="/products">All products</a>
+                        </li>
+                    </div>
+                    <% if (typeof categories !== 'undefined') { %>
+                    <% categories.forEach(c => { %>
+                    <div class="container">
+                        <li class="collection-item">
+                            <a href="/products/<%= c.slug %> "> <%= c.title %> </a>
+                        </li>
+                    </div>
+                    <% }) %>
+                    <% } %>
+                </ul>
+            </div>
+        </li>
+        <li>
+            <div class="collapsible-header">
+                <i class="material-icons">shopping_cart</i>
+                <a href="/cart/checkout">
+                    My Cart
+                    <div class="chip">
+                        <% if(typeof cart !== "undefined"){ %>
+                        <%=cart.length%>
+                        <%} else {%>
+                        0
+                        <%}%>
+                        
+                    </div>
+                </a>
+            </div>
+        </li>
+        <% if (typeof user !== 'undefined') { %>
+        <li>
+            <div class="collapsible-header">
+                <i class="material-icons">exit_to_app</i>
+                <a href="/auth/logout">
+                    Logout (<%=user.name%>)
+                </a>
+            </div>
+        </li>
+        <% } else { %>
+        <li>
+            <div class="collapsible-header">
+                <i class="material-icons">lock_open</i>
+                <a href="/auth/login">
+                    Login
+                </a>
+            </div>
+        </li>
+        <li>
+            <div class="collapsible-header">
+                <i class="material-icons">account_circle</i>
+                <a href="/auth/signup">
+                    Signup
+                </a>
+            </div>
+        </li>
+        <% } %>
+
+        <% if (typeof user !== 'undefined' && user.admin == '1') { %>
+        <li>
+            <div class="collapsible-header">
+                <i class="material-icons">security</i>
+                <a href="/admin/pages">
+                    Admin panel
+                </a>
+            </div>
+        </li>
+        <% } %>
+        </ul>
+        </ul>
+        <main>
+            <br>
+            <div class="row">
+                <div class="col s12 m4 l3">
+                    <ul class="collapsible expandable">
+                        <li class="active">
+                            <div class="collapsible-header">
+                                <i class="material-icons right-align right">expand_more</i>
+                                Categories
+                            </div>
+                            <div class="collapsible-body">
+                                <ul class="collection">
+                                    <li class="collection-item">
+                                        <a href="/products">All products</a>
+                                    </li>
+                                    <% if (typeof categories !== 'undefined') { %>
+                                        <% categories.forEach(c => { %>
+                                        <li class="collection-item">
+                                            <a href="/products/<%= c.slug %> "> <%= c.title %> </a>
+                                        </li>
+                                        <% }) %>
+                                    <% } %>
+                                </ul>
+                            </div>
+                        </li>
+                        <!-- #################REMOVE FROM HERE#################### -->
+                        <li>
+                            <div class="collapsible-header">
+                                <i class="material-icons right-align right">expand_more</i>
+                                Sort
+                            </div>
+                            <div class="collapsible-body">
+                                <ul class="collection">
+                                    <li class="collection-item">
+                                        <a href="#">Price High to Low</a>
+                                    </li>
+                                    <li class="collection-item">
+                                        <a href="#">Price Low to High</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="collapsible-header">
+                                <i class="material-icons right-align right">expand_more</i>
+                                Filter
+                            </div>
+                            <div class="collapsible-body">
+
+                                <!-- INNER COLLAPSIBLE START-->
+                                <ul class="collapsible expandable">
+                                    <li>
+                                        <div class="collapsible-header"><i class="material-icons">filter_drama</i>First
+                                        </div>
+                                        <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+                                    </li>
+                                    <li>
+                                        <div class="collapsible-header"><i class="material-icons">place</i>Second</div>
+                                        <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+                                    </li>
+                                    <li>
+                                        <div class="collapsible-header"><i class="material-icons">whatshot</i>Third
+                                        </div>
+                                        <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+                                    </li>
+                                </ul>
+                                <!-- INNER COLLAPSIBLE END -->
+
+                            </div>
+                        </li>
+                        <!-- #################REMOVE TILL HERE#################### -->
+                    </ul>
+                </div>

@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 })
 
 // GET add page
-router.get('/add-page', (req, res) => {
+router.get('/add-page',  (req, res) => {
     let title = ''
     let slug = ''
     let content = ''
@@ -63,19 +63,25 @@ router.post('/add-page', titleContentValidator, (req, res) => {
                     if (err) {
                         return console.log(err)
                     }
+
+                    Page.find({}).sort({ sorting: 1 }).exec(function (err, pages) {
+                        if (err) {
+                            console.log(err)
+                        } else {
+                            req.app.locals.pages = pages
+                        }
+                    })
+
+                    req.flash('green', `Successfully added ${title} page`)
+                    res.redirect('/admin/pages')
                 })
-                req.flash('green', `Successfully added ${title} page`)
-                res.redirect('/admin/pages')
             }
         })
     }
 })
 
-
-
-// POST reorder pages
-router.post('/reorder-pages', (req, res) => {
-    const ids = req.body['id[]']
+//Sort pages function
+function sortPages(ids, callback){
     let count = 0;
     for (let i = 0; i < ids.length; i++) {
         let id = ids[i]
@@ -88,10 +94,29 @@ router.post('/reorder-pages', (req, res) => {
                     if (err) {
                         console.log(err)
                     }
+                    ++count
+                    if(count >= ids.length){
+                        callback()
+                    }
                 })
             })
         })(count)
     }
+}
+
+
+// POST reorder pages
+router.post('/reorder-pages', (req, res) => {
+    const ids = req.body['id[]']
+    sortPages(ids, function(){
+        Page.find({}).sort({ sorting: 1 }).exec(function (err, pages) {
+            if (err) {
+                console.log(err)
+            } else {
+                req.app.locals.pages = pages
+            }
+        })
+    })
 })
 
 // GET edit page
@@ -154,9 +179,18 @@ router.post('/edit-page/:id', titleContentValidator, (req, res) => {
                         if (err) {
                             return console.log(err)
                         }
+
+                        Page.find({}).sort({ sorting: 1 }).exec(function (err, pages) {
+                            if (err) {
+                                console.log(err)
+                            } else {
+                                req.app.locals.pages = pages
+                            }
+                        })
+
+                        req.flash('green', `Successfully modified ${title} page`)
+                        res.redirect('/admin/pages/')
                     })
-                    req.flash('green', `Successfully modified ${title} page`)
-                    res.redirect('/admin/pages/' )
                 })
 
             }
@@ -171,6 +205,15 @@ router.get('/delete-page/:id', (req, res) => {
         if (err) {
             return console.log(err)
         }
+
+        Page.find({}).sort({ sorting: 1 }).exec(function (err, pages) {
+            if (err) {
+                console.log(err)
+            } else {
+                req.app.locals.pages = pages
+            }
+        })
+
         req.flash('grey darken-4', `Successfully deleted ${page.title} page`)
         res.redirect('/admin/pages')
     })

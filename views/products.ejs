@@ -1,0 +1,20 @@
+<%- include('./partials/header'); %>
+<div class="col s12 m8 l9">
+    <blockquote>
+        <h5 class="page-title"><%= title %></h5>
+    </blockquote>
+    <div class="row products">
+        <% products.forEach(p => { %>
+        <div class="col s6 m4 l3 p">
+            <a class="pa" href="/products/<%= p.category %>/<%= p.slug %>">
+                <img class="pimage" src="/product_images/<%= p.id %>/<%= p.image %>" alt="">
+            </a>
+            <a href="/products/<%= p.category %>/<%= p.slug %>"> <h5><%= p.title %></h5> </a>
+            <div class="chip">
+                • <b>₹<%= parseFloat(p.price).toFixed(2)  %></b>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+</div>
+<%- include('./partials/footer'); %>

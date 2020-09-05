@@ -50,10 +50,20 @@
  }
 
  #imgPreview {
-     margin: 20px;
-     max-width: 150px;
+    margin: 20px;
+    vertical-align: middle;
  }
 
+
  #productTableImage {
-     max-width: 150px;
+    width: 150px;
+ }
+
+ img {
+    text-align: center;
+    max-width: 100%;
+ }
+
+ .galleryCard {
+     height: 25vh;
  }

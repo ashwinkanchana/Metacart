@@ -1,0 +1,81 @@
+<%- include('./partials/header'); %>
+
+<div class="col s12 m8 l9">
+    <div class="row">
+        <div class="container">
+            <% if (typeof cart !== "undefined") { %>
+                <h3 class="page-title">My Cart</h3>
+            <table class="centered highlight align-middle">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th> </th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+            
+                <tbody>
+                    <% let total = 0 %>
+                    <% cart.forEach(p => { %>
+                    <% let sub = parseFloat(p.quantity * p.price).toFixed(2) %>
+                    <% total += +sub %> 
+                    <tr>
+                        <td>
+                            <img class="cpi" src="<%= p.image %>" alt="">
+                        </td>
+                        <td>
+                            <%= p.title %>
+                        </td>
+                        <td>
+                            ₹<%=parseFloat(p.price).toFixed(2)%>
+                        </td>
+                        <td>
+                            <%= p.quantity %>
+                        </td>
+                        <td>
+                            <a href="/cart/update/<%= p.title %>?action=add">+</a>
+                            &nbsp;
+                            <a href="/cart/update/<%= p.title %>?action=remove">-</a>
+                            &nbsp;
+                            <a href="/cart/update/<%= p.title %>?action=clear">x</a>
+                            &nbsp;
+            
+                        </td>
+                        <td>
+                            <b>₹<%=parseFloat(sub).toFixed(2)%></b>
+                        </td>
+                    </tr>
+                    <% }) %>
+                    <tr>
+                        <td colspan="6">
+                            <b> Total: ₹<%=parseFloat(total).toFixed(2)%></b>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <a href="/cart/clear" class="waves-effect waves-light btn red lighten-1 clearCart"><i class="material-icons left">clear_all</i>Clear cart</a>
+        <a href="/cart/payment" class="waves-effect waves-light btn buynow"><i class="material-icons left">shopping_basket</i>Checkout</a>
+
+            <% } else {%>
+            <h3 class="center-align">Your cart is empty</h3>
+            <% }  %>
+        </div>
+    </div>
+</div>
+    
+<script>
+    $(function(){
+        $('a.clearCart').on('click', function (e) {
+            if (!confirm('Clear all products from cart?'))
+                return false
+        })
+    })
+</script>
+
+
+
+<%- include('./partials/footer'); %>

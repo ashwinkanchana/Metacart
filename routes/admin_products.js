@@ -28,12 +28,14 @@ router.get('/add-product', (req, res) => {
     let title = ''
     let desc = ''
     let price = ''
+    let category = ''
 
     Category.find(function (err, categories) {
         res.render('admin/add_product', {
             title,
             desc,
             categories,
+            category,
             price
         })
     })
@@ -42,7 +44,7 @@ router.get('/add-product', (req, res) => {
 
 // POST add product
 router.post('/add-product', titleDescPriceImageValidator, (req, res) => {
-  
+
     const image = req.body.image
     const title = req.body.title
     const desc = req.body.desc
@@ -58,6 +60,7 @@ router.post('/add-product', titleDescPriceImageValidator, (req, res) => {
                 title,
                 desc,
                 categories,
+                category,
                 price
             })
         })
@@ -71,6 +74,7 @@ router.post('/add-product', titleDescPriceImageValidator, (req, res) => {
                         title,
                         desc,
                         categories,
+                        category,
                         price
                     })
                 })
@@ -92,11 +96,11 @@ router.post('/add-product', titleDescPriceImageValidator, (req, res) => {
                     mkdirp.sync(`/public/product_images/${product._id}`)
                     mkdirp.sync(`public/product_images/${product._id}/gallery`)
                     mkdirp.sync(`public/product_images/${product._id}/gallery/thumbs`)
-                    if(image != ''){
+                    if (image != '') {
                         let productImage = req.files.image
                         const path = `public/product_images/${product._id}/${image}`
-                        productImage.mv(path, (err)=>{
-                            if(err){
+                        productImage.mv(path, (err) => {
+                            if (err) {
                                 return console.log(err)
                             }
                         })
@@ -104,7 +108,7 @@ router.post('/add-product', titleDescPriceImageValidator, (req, res) => {
                     req.flash('green', `Successfully added ${product.title}`)
                     res.redirect('/admin/products')
                 })
-                
+
             }
         })
     }
@@ -112,109 +116,184 @@ router.post('/add-product', titleDescPriceImageValidator, (req, res) => {
 
 
 
-// POST reorder pages
-router.post('/reorder-pages', (req, res) => {
-    const ids = req.body['id[]']
-    let count = 0;
-    for (let i = 0; i < ids.length; i++) {
-        let id = ids[i]
-        count++;
-        //Updating DB inside closure becouse Node is asynchronous
-        (function (count) {
-            Page.findById(id, function (err, page) {
-                page.sorting = count;
-                page.save(function (err) {
+// GET edit product
+router.get('/edit-product/:id', (req, res) => {
+
+    let errors;
+    if (req.session.errors)
+        errors = req.session.errors;
+    req.session.errors = null;
+
+    Category.find((err, categories) => {
+
+        Product.findById(req.params.id, (err, product) => {
+            if (err) {
+                console.log(err);
+                res.redirect('/admin/products')
+            } else {
+                const galleryDir = `public/product_images/${product._id}/gallery`
+                let galleryImages = null;
+                fs.readdir(galleryDir, (err, files) => {
                     if (err) {
                         console.log(err)
                     }
-                })
-            })
-        })(count)
-    }
-})
+                    else {
+                        galleryImages = files
 
-// GET edit page
-router.get('/edit-page/:id', (req, res) => {
-    Page.findById(req.params.id, function (err, page) {
-        if (err) {
-            return console.log(err)
-        }
-        res.render('admin/edit_page', {
-            title: page.title,
-            slug: page.slug,
-            content: page.content,
-            id: page._id
+                        res.render('admin/edit_product', {
+                            errors,
+                            id: product._id,
+                            title: product.title,
+                            desc: product.desc,
+                            price: parseFloat(product.price).toFixed(2),
+                            image: product.image,
+                            category: product.category.replace(/\s+/g, '-').toLowerCase(),
+                            categories,
+                            galleryImages
+                        })
+                    }
+                })
+            }
         })
     })
 })
 
-// POST edit page
-router.post('/edit-page/:id', [
-    check('title', 'Title is required').trim().not().isEmpty(),
-    check('content', 'Content is required').trim().not().isEmpty()
-], (req, res) => {
-    const title = req.body.title
-    const content = req.body.content
+// POST edit product
+router.post('/edit-product/:id', titleDescPriceImageValidator, (req, res) => {
     const id = req.params.id
-    let slug = req.body.slug.replace(/\s+/g, '-').toLowerCase()
-    if (slug == "")
-        slug = title.replace(/\s+/g, '-').toLowerCase()
-    const errors = validationResult(req).array();
+    const image = req.body.image
+    const title = req.body.title
+    const desc = req.body.desc
+    const price = req.body.price
+    const category = req.body.category
+    const pimage = req.body.pimage
+    const slug = title.replace(/\s+/g, '-').toLowerCase()
+    const errors = validationResult(req).array()
     if (errors.length > 0) {
-        console.log('errors')
-        res.render('admin/edit_page', {
-            errors,
-            title,
-            slug,
-            content,
-            id
+        Category.find(function (err, categories) {
+            req.session.errors = errors;
+            res.redirect(`/admin/products/edit-product/${id}`)
         })
-    }
-    else {
-        console.log('no errors')
-        //$ne -> _id not eqauls id
-        Page.findOne({ slug, _id: { '$ne': id } }, function (err, page) {
-            if (page) {
-                req.flash('red', 'Page slug exists please use a different slug')
-                res.render('admin/edit_page', {
-                    title,
-                    slug,
-                    content,
-                    id
+    } else {
+        Product.findOne({
+            slug,
+            _id: { '$ne': id }
+        }, function (err, p) {
+            if (err)
+                console.log(err)
+            if (p) {
+                Category.find(function (err, categories) {
+                    req.flash('red', 'Product title exists, choose different title')
+                    res.redirect(`admin/products/edit_product/${id}`)
                 })
             } else {
-
-                Page.findById(id, function (err, page) {
+                Product.findById(id, (err, p) => {
                     if (err) {
-                        return console.log(err)
+                        console.log(err)
                     }
-                    page.title = title
-                    page.slug = slug
-                    page.content = content
-
-                    page.save(function (err) {
+                    p.title = title,
+                        p.slug = slug,
+                        p.desc = desc,
+                        p.price = parseFloat(price).toFixed(2);
+                    p.category = category
+                    if (image != "") {
+                        p.image = image
+                    }
+                    p.save(function (err) {
                         if (err) {
-                            return console.log(err)
+                            console.log(err)
                         }
-                    })
-                    req.flash('green', `Successfully modified ${title} page`)
-                    res.redirect('/admin/pages/')
-                })
+                        if (image != "") {
+                            if (pimage != "") {
+                                fs.remove(`public/product_images/${id}/${pimage}`, function (err) {
+                                    if (err) {
+                                        console.log(err)
+                                    }
+                                })
+                            }
+                            let productImage = req.files.image
+                            const path = `public/product_images/${id}/${image}`
+                            productImage.mv(path, function (err) {
+                                if (err) {
+                                    return console.log(err)
+                                }
+                            })
+                        }
 
+                        req.flash('green', `Successfully modified ${p.title}`)
+                        res.redirect(`/admin/products`)
+                    })
+                })
             }
+
         })
+
     }
 })
 
 
-// GET delete page
-router.get('/delete-page/:id', (req, res) => {
-    Page.findByIdAndRemove(req.params.id, function (err, page) {
-        if (err) {
-            return console.log(err)
+// POST product gallery
+router.post('/product-gallery/:id', (req, res) => {
+    console.log("here")
+    console.log(req.files)
+    const productImage = req.files.file
+    const id = req.params.id
+    const path = `public/product_images/${id}/gallery/${req.files.file.name}`
+    const thumbsPath = `public/product_images/${id}/gallery/thumbs/${req.files.file.name}`
+
+    productImage.mv(path, (err) => {
+        if (err){
+            console.log(err)
+            res.sendStatus(400);
         }
-        req.flash('grey darken-4', `Successfully deleted ${page.title} page`)
-        res.redirect('/admin/pages')
+        resizeImg(fs.readFileSync(path),{
+            width:200,
+            height:150
+        }).then(function(buf){
+            fs.writeFileSync(thumbsPath,buf)
+        })
+    })
+    res.sendStatus(200);
+})
+
+// GET delete product image
+router.get('/delete-image/:image', (req, res) => {
+    const id = req.query.id
+    const img = req.params.image
+    const originalImage = `public/product_images/${id}/gallery/${img}`
+    const thumbImage = `public/product_images/${id}/gallery/thumbs/${img}`
+
+    fs.remove(originalImage, function(err){
+        if(err){
+            console.log(err)
+        }else{
+            fs.remove(thumbImage, function(err){
+                if(err){
+                    console.log(err)
+                }else{
+                    req.flash('grey darken-4', `Successfully removed an image`)
+                    res.redirect(`/admin/products/edit-product/${id}`)
+                }
+            })
+        }
+    })
+})
+
+
+
+// GET delete product
+router.get('/delete-product/:id', (req, res) => {
+    const id = req.params.id
+    const path = `public/product_images/${id}`
+    fs.remove(path, function(err){
+        if(err){
+            console.log(err)
+        } else{
+            Product.findByIdAndRemove(id, function(err, p){
+                req.flash('grey darken-4', `Successfully removed a ${p.title}`)
+                res.redirect(`/admin/products/`)    
+            })
+        }
     })
 })
 
