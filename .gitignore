@@ -2,5 +2,5 @@
 .png
 .jpg
 .jpeg
-product_images
+/public/product_images
 node_modules
