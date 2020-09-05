@@ -1,6 +1,2 @@
 .env
-.png
-.jpg
-.jpeg
-/public/product_images
 node_modules
