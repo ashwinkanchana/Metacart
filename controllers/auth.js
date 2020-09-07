@@ -20,7 +20,7 @@ module.exports = {
     },
 
     ensureAdmin: function (req, res, next) {
-        if (req.isAuthenticated() && res.locals.user.admin == 1) {
+        if (req.isAuthenticated() && req.user.admin == 1) {
             return next()
         }
         else {

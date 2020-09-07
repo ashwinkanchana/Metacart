@@ -46,7 +46,8 @@ app.use(session({
     secret: process.env.EXPRESS_SESSION_SECRET,
     resave: true,
     saveUninitialized: true,
-    // cookie: { secure: true }
+    //cookie: { secure: true }
+    //flash will not work with cookie 
 }))
 
 //Set global error variable

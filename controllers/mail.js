@@ -41,6 +41,34 @@ exports.sendAccountActivationEmail = function (req, res, user, status) {
                 open_modal: false
             })
         })
-}
+},
+
+    exports.sendForgotPasswordEmail = function (req, res, user) {
+        const token = jwt.sign({
+            token: user.password_reset
+        }, process.env.JWT_PASSWORD_RESET, { expiresIn: '1d' })
+        const emailData = {
+            from: process.env.EMAIL_FROM,
+            fromname: 'MetaCart',
+            to: user.email,
+            subject: `Password reset link`,
+            html: `<h4>please use the following link to reset your password</h4>
+                                            <p>${process.env.CLIENT_URL}/auth/reset-password/${token}</p><hr>
+                                            <p>This link will expire in 24 hours</p>`
+        }
+
+        sendgrid.send(emailData)
+            .then(sent => {
+                req.flash('grey darken-4', `Password reset link has been sent to ${user.email}`)
+                res.render('forgot_password')
+            })
+            .catch(err => {
+                req.flash('red', 'Something went wrong at our end!')
+                res.render('forgot_password')
+            })
+    }
+
+
+
 
 

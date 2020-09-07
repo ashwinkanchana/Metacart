@@ -1,4 +1,4 @@
-<%- include('./partials/header'); %>
+<%- include('./partials/header_minimal'); %>
 
 
 
@@ -35,7 +35,7 @@
                             <div class="input-field form-group">
                                 <i class="material-icons prefix">mail_outline</i>
                                 <input id="username" type="email" class="form-control" name="username"
-                                    autocomplete="off" <% if (typeof emailLogin !== 'undefined') { %>
+                                     <% if (typeof emailLogin !== 'undefined') { %>
                                  value="<%= emailLogin %> "
                                 <% } %>>
                                 <label for="username">Email</label>
@@ -47,7 +47,7 @@
                                         <div class="input-field form-group">
                                             <i class="material-icons prefix">lock_outline</i>
                                             <input id="password" type="password" name="password"
-                                                class="form-control password" autocomplete="off">
+                                                class="form-control password" >
                                             <label for="password">Password</label>
                                         </div>
                                     </td>
@@ -64,7 +64,7 @@
                                     </button>
                                 </div>
                                 <div class="row">
-                                    <a href="auth/password-reset"
+                                    <a href="/auth/forgot-password"
                                         class="waves-effect waves-teal btn-flat center-align">Forgot Passoword?</a>
                                 </div>
 
@@ -159,4 +159,33 @@
             }
         }
     });
+</script>
+
+
+
+<script>
+    const togglePassword = document.querySelector('.togglePassword');
+        const password = document.querySelector('.password');
+        togglePassword.addEventListener('click', function (e) {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type)
+            if (this.textContent === "visibility_off") {
+                this.textContent = "visibility"
+            }
+            else if (this.textContent === "visibility") {
+                this.textContent = "visibility_off"
+            }
+        })
+        const togglePasswordNew = document.querySelector('.togglePasswordNew');
+        const passwordNew = document.querySelector('.passwordNew');
+        togglePasswordNew.addEventListener('click', function (e) {
+            const type = passwordNew.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordNew.setAttribute('type', type)
+            if (this.textContent === "visibility_off") {
+                this.textContent = "visibility"
+            }
+            else if (this.textContent === "visibility") {
+                this.textContent = "visibility_off"
+            }
+        })
 </script>

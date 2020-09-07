@@ -107,7 +107,8 @@ function sortPages(ids, callback){
 
 // POST reorder pages
 router.post('/reorder-pages', (req, res) => {
-    const ids = req.body['id[]']
+    const ids = req.body['id']
+    console.log("ids -> ",ids)
     sortPages(ids, function(){
         Page.find({}).sort({ sorting: 1 }).exec(function (err, pages) {
             if (err) {

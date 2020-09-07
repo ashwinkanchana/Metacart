@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
             console.log(err)
         res.render('index', {
             pages,
-            title: page.title,
+            title: 'Metacart',
             content: page.content,
         })
     })

@@ -8,7 +8,6 @@ const Product = require('../models/product')
 const Category = require('../models/category')
 const { titleDescPriceImageValidator } = require('../validators/admin_product')
 
-
 // GET products index
 router.get('/', (req, res) => {
     let count;
@@ -118,7 +117,6 @@ router.post('/add-product', titleDescPriceImageValidator, (req, res) => {
 
 // GET edit product
 router.get('/edit-product/:id', (req, res) => {
-
     let errors;
     if (req.session.errors)
         errors = req.session.errors;

@@ -12,13 +12,11 @@ module.exports = function (passport) {
             console.log(`passport ${user} `)
             if(!user){
                 return done(null, false, {
-                    message: 'Email not registered'
+                    message: 'Email is not registered'
                 })
             }
             if(user){
-                console.log(`passport compare `)
                 bcrypt.compare(password, user.password, (err, isMatch)=> {
-                    console.log('ismatch' + isMatch)
                     if (err){
                         console.log(err)
                     }
@@ -26,7 +24,7 @@ module.exports = function (passport) {
                         return done(null, user)
                     }else{
                         return done(null, false, {
-                            message: 'Password incorrect'
+                            message: 'Password is incorrect'
                         })
                     }
                     

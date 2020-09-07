@@ -8,10 +8,12 @@ const cryptoRandomString = require('crypto-random-string')
 const User = require('../models/user')
 
 const { ensureGuest, ensureAuthenticated } = require('../controllers/auth')
-const { loginValidator, signupValidator } = require('../validators/auth')
+const { loginValidator, signupValidator,
+    forgotPasswordValidator,
+    resetPasswordValidator } = require('../validators/auth')
 
 //Email dispatch controller
-const { sendAccountActivationEmail } = require('../controllers/mail')
+const { sendAccountActivationEmail, sendForgotPasswordEmail } = require('../controllers/mail')
 
 
 // GET auth page
@@ -108,56 +110,40 @@ router.post('/signup', ensureGuest, signupValidator, (req, res) => {
 // GET account activation
 router.get('/activate/:jwt_token', ensureGuest, (req, res) => {
     const jwt_token = req.params.jwt_token
-    if (jwt_token) {
-        jwt.verify(jwt_token, process.env.JWT_ACCOUNT_ACTIVATION, function (err, decoded) {
-            if (err) {
-                console.log('Activation token error', err)
-                req.flash('red', `Link is either expired or invalid, Please login again to get new activation link`)
-                res.render('auth', {
-                    active_tab: 'login',
-                    open_modal: false
-                })
-            } else {
-                const { token } = jwt.decode(jwt_token)
-                User.findOne({ email_verification: token }, (err, user) => {
-                    if (err) {
-                        console.log(err)
+    jwt.verify(jwt_token, process.env.JWT_ACCOUNT_ACTIVATION, function (err, decoded) {
+        if (err) {
+            console.log('Activation token error', err)
+            req.flash('red', `Link is either expired or invalid, Please login again to get new activation link`)
+            res.redirect('/auth')
+        } else {
+            const { token } = jwt.decode(jwt_token)
+            User.findOne({ email_verification: token }, (err, user) => {
+                if (err) {
+                    console.log(err)
+                }
+                if (user) {
+                    const filter = { email_verification: token };
+                    const update = {
+                        email_verification: null,
+                        verified: true
                     }
-                    if (user) {
-                        const filter = { email_verification: token };
-                        const update = {
-                            email_verification: null,
-                            verified: true
+                    User.findOneAndUpdate(filter, update, (err, user) => {
+                        if (err) {
+                            console.log(err)
                         }
-                        User.findOneAndUpdate(filter, update, (err, user) => {
-                            if (err) {
-                                console.log(err)
-                            }
-                            req.flash('green', `Account activated successfully`)
-                            res.render('auth', {
-                                active_tab: 'login',
-                                open_modal: true
-                            })
-                        });
+                        req.flash('green', `Account activated successfully`)
+                        res.redirect('/auth/login')
+                    });
 
-                    } else {
-                        req.flash('red', `Link is either expired or invalid, Please signup to get new activation link`)
-                        res.render('auth', {
-                            active_tab: 'signup',
-                            open_modal: false
-                        })
-                    }
-                })
+                } else {
+                    console.log("user not found")
+                    req.flash('red', `Invalid activation link, Please signup to get new activation link`)
+                    res.redirect('/auth')
+                }
+            })
 
-            }
-        })
-    } else {
-        req.flash('red', `Link is either expired or invalid`)
-        res.render('auth', {
-            active_tab: 'signup',
-            open_modal: false
-        })
-    }
+        }
+    })
 })
 
 
@@ -210,13 +196,106 @@ router.post('/login', ensureGuest, loginValidator, (req, res, next) => {
 
 
 
-
 // GET logout
 router.get('/logout', ensureAuthenticated, (req, res) => {
     req.logOut()
     req.flash('grey darken-4', 'Successfully Logged out')
     res.redirect('/auth/login')
 })
+
+
+
+// GET password reset page
+router.get('/forgot-password', ensureGuest, (req, res) => {
+    res.render('forgot_password')
+})
+
+// POST password reset request
+router.post('/forgot-password', ensureGuest, forgotPasswordValidator, (req, res) => {
+    const email = req.body.email
+    const errors = validationResult(req).array();
+    if (errors.length > 0) {
+        res.render('forgot_password', {
+            errors
+        })
+    }
+    else {
+        const filter = { email }
+        const update = { password_reset: cryptoRandomString({ length: 32, type: 'alphanumeric' }) };
+        User.findOneAndUpdate(filter, update, { new: true }, (err, user) => {
+            if (err) {
+                console.log(err)
+            }
+            if (!user) {
+                req.flash('red', `Email not registered`)
+                res.render('forgot_password')
+            }
+            if (user) {
+                sendForgotPasswordEmail(req, res, user)
+            }
+        });
+    }
+})
+
+
+// GET password reset page
+router.get('/reset-password/:jwt', ensureGuest, (req, res) => {
+    const token_jwt = req.params.jwt
+    res.render('reset_password', {
+        token: token_jwt
+    })
+})
+
+// POST password reset
+router.post('/reset-password', ensureGuest, resetPasswordValidator, (req, res) => {
+    const token_jwt = req.body.token
+    const errors = validationResult(req).array();
+    if (errors.length > 0) {
+        res.render('reset_password', {
+            errors,
+            token: token_jwt
+        })
+    } else {
+        jwt.verify(token_jwt, process.env.JWT_PASSWORD_RESET, function (err, decoded) {
+            if (err) {
+                console.log('Password reset token error', err)
+                req.flash('red', `Link is either expired or invalid, Please use a fresh link`)
+                res.redirect('/auth/login')
+            } else {
+                const { token } = jwt.decode(token_jwt)
+                const password = req.body.password
+                bcrypt.genSalt(10, function (err, salt) {
+                    bcrypt.hash(password, salt, function (err, hash) {
+                        if (err) {
+                            console.log(err)
+                        } else {
+                            const filter = { password_reset: token }
+                            const update = { password_reset: null, password: hash };
+                            User.findOneAndUpdate(filter, update, { new: true }, (err, user) => {
+                                if (err) {
+                                    console.log(err)
+                                    req.flash('red', `Something went wrong`)
+                                    res.redirect('/auth')
+                                }
+                                if (user) {
+                                    req.flash('green', `Successfully changed password`)
+                                    res.redirect('/auth/login')
+                                }
+                                else {
+                                    console.log("User not found by reset token")
+                                    req.flash('red', `Link is either expired or invalid, Please use a fresh link`)
+                                    res.redirect('/auth/login')
+                                }
+                            });
+                        }
+                    });
+                });
+
+            }
+        })
+    }
+})
+
 
 
 module.exports = router 
