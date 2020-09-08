@@ -60,7 +60,7 @@ exports.sendAccountActivationEmail = function (req, res, user, status) {
         sendgrid.send(emailData)
             .then(sent => {
                 req.flash('grey darken-4', `Password reset link has been sent to ${user.email}`)
-                res.render('forgot_password')
+                res.redirect('/auth')
             })
             .catch(err => {
                 req.flash('red', 'Something went wrong at our end!')

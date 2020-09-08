@@ -3,7 +3,8 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require("cors")
 const session = require('express-session')
-const expressValidator = require('express-validator')
+const mongoose = require('mongoose')
+const MongoStore = require('connect-mongo')(session)
 const fileUpload = require('express-fileupload')
 const passport = require('passport')
 const chalk = require('chalk')
@@ -14,13 +15,15 @@ dotenv.config({ path: './config/.env' });
 
 const Page = require('./models/page')
 const Category = require('./models/category')
-const { ensureAdmin } = require('./controllers/auth')
+const { ensureAuthenticated ,ensureAdmin } = require('./controllers/auth')
 
-//Connect to DB
-require('./config/database')
 
 // Init app
 const app = express();
+
+//Connect to DB
+require('./config/database')(app)
+
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -46,6 +49,7 @@ app.use(session({
     secret: process.env.EXPRESS_SESSION_SECRET,
     resave: true,
     saveUninitialized: true,
+    store: new MongoStore({ mongooseConnection: mongoose.connection })
     //cookie: { secure: true }
     //flash will not work with cookie 
 }))
@@ -70,6 +74,7 @@ app.use(passport.session())
 app.get('*', (req, res, next)=>{
     res.locals.cart = req.session.cart
     res.locals.user = req.user
+    res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     next()
 })
 
@@ -117,7 +122,13 @@ app.use(function (req, res, next) {
 });
 
 const port = process.env.PORT || 3000
-app.listen(port, () => {
-    console.log(chalk.bgGreen.black(`Server up on port ${port}`))
-})
 
+
+app.on('ready', function () {
+    app.listen(port, () => {
+        console.log(chalk.bgGreen.black(`Server up on ${port}`))
+    })
+}); 
+
+
+module.exports = app;

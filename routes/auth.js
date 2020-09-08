@@ -41,6 +41,19 @@ router.get('/signup', ensureGuest, (req, res) => {
     })
 })
 
+
+
+// GET google oauth
+router.get('/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] }))
+
+
+// GET google oauth callback
+router.get('/google/callback', passport.authenticate('google', {
+    failureRedirect: '/auth/login',
+    successRedirect: '/'
+}))
+
 // POST signup
 router.post('/signup', ensureGuest, signupValidator, (req, res) => {
     const name = req.body.name
@@ -186,7 +199,7 @@ router.post('/login', ensureGuest, loginValidator, (req, res, next) => {
                             res.redirect('/auth/login')
                         }
                         req.flash('grey darken-4', `Hi ${user.name}!`)
-                        res.redirect('/home')
+                        res.redirect('/')
                     })
                 }
             }
@@ -200,7 +213,12 @@ router.post('/login', ensureGuest, loginValidator, (req, res, next) => {
 router.get('/logout', ensureAuthenticated, (req, res) => {
     req.logOut()
     req.flash('grey darken-4', 'Successfully Logged out')
-    res.redirect('/auth/login')
+    res.locals.cart = undefined
+    res.locals.user = undefined
+    res.render('auth', {
+        active_tab: 'login',
+        open_modal: true
+    })
 })
 
 

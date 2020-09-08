@@ -24,7 +24,9 @@
         </div>
         <div class="card-content">
             <div class="google center-align">
-                <img src="/images/google_signin.png" alt="">
+                <a href="/auth/google">
+                    <img src="/images/google_signin.png" alt="">
+                </a>
             </div>
             <div id="loginTab">
                 <!-- LOGIN -->
@@ -35,9 +37,7 @@
                             <div class="input-field form-group">
                                 <i class="material-icons prefix">mail_outline</i>
                                 <input id="username" type="email" class="form-control" name="username"
-                                     <% if (typeof emailLogin !== 'undefined') { %>
-                                 value="<%= emailLogin %> "
-                                <% } %>>
+                                    <% if (typeof emailLogin !== 'undefined') { %> value="<%= emailLogin %> " <% } %>>
                                 <label for="username">Email</label>
                             </div>
 
@@ -47,7 +47,7 @@
                                         <div class="input-field form-group">
                                             <i class="material-icons prefix">lock_outline</i>
                                             <input id="password" type="password" name="password"
-                                                class="form-control password" >
+                                                class="form-control password">
                                             <label for="password">Password</label>
                                         </div>
                                     </td>
@@ -83,16 +83,14 @@
 
                             <div class="input-field form-group">
                                 <i class="material-icons prefix">person_outline</i>
-                                <input id="name" type="text" class="form-control" name="name" autocomplete="off" <% if (typeof name !== 'undefined') { %>
-                                 value="<%= name %>"
-                                <% } %> >
+                                <input id="name" type="text" class="form-control" name="name" autocomplete="off"
+                                    <% if (typeof name !== 'undefined') { %> value="<%= name %>" <% } %>>
                                 <label for="name">Full Name</label>
                             </div>
                             <div class="input-field form-group">
                                 <i class="material-icons prefix">mail_outline</i>
-                                <input id="email" type="email" class="form-control" name="email" autocomplete="off" <% if (typeof email !== 'undefined') { %>
-                                 value="<%= email %> "
-                                <% } %> >
+                                <input id="email" type="email" class="form-control" name="email" autocomplete="off"
+                                    <% if (typeof email !== 'undefined') { %> value="<%= email %> " <% } %>>
                                 <label for="email">Email</label>
                             </div>
                             <table class="form-group">
@@ -165,27 +163,27 @@
 
 <script>
     const togglePassword = document.querySelector('.togglePassword');
-        const password = document.querySelector('.password');
-        togglePassword.addEventListener('click', function (e) {
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type)
-            if (this.textContent === "visibility_off") {
-                this.textContent = "visibility"
-            }
-            else if (this.textContent === "visibility") {
-                this.textContent = "visibility_off"
-            }
-        })
-        const togglePasswordNew = document.querySelector('.togglePasswordNew');
-        const passwordNew = document.querySelector('.passwordNew');
-        togglePasswordNew.addEventListener('click', function (e) {
-            const type = passwordNew.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordNew.setAttribute('type', type)
-            if (this.textContent === "visibility_off") {
-                this.textContent = "visibility"
-            }
-            else if (this.textContent === "visibility") {
-                this.textContent = "visibility_off"
-            }
-        })
+    const password = document.querySelector('.password');
+    togglePassword.addEventListener('click', function (e) {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type)
+        if (this.textContent === "visibility_off") {
+            this.textContent = "visibility"
+        }
+        else if (this.textContent === "visibility") {
+            this.textContent = "visibility_off"
+        }
+    })
+    const togglePasswordNew = document.querySelector('.togglePasswordNew');
+    const passwordNew = document.querySelector('.passwordNew');
+    togglePasswordNew.addEventListener('click', function (e) {
+        const type = passwordNew.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordNew.setAttribute('type', type)
+        if (this.textContent === "visibility_off") {
+            this.textContent = "visibility"
+        }
+        else if (this.textContent === "visibility") {
+            this.textContent = "visibility_off"
+        }
+    })
 </script>
