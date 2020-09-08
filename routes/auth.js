@@ -77,12 +77,18 @@ router.post('/signup', ensureGuest, signupValidator, (req, res) => {
             }
             if (user) {
                 if (user.verified) {
-                    req.flash('grey darken-4', 'Account already exists, Please login')
-                    res.render('auth', {
-                        emailLogin: email,
-                        active_tab: 'login',
-                        open_modal: true
-                    })
+                    if(user.identifier == 'google'){
+                        req.flash('grey darken-4', 'Account alreay exists , Please signin via Google')
+                        res.redirect('/auth/login')                       
+                    }else{
+                        req.flash('grey darken-4', 'Account already exists, Please login')
+                        res.render('auth', {
+                            emailLogin: email,
+                            active_tab: 'login',
+                            open_modal: true
+                        })
+                    }   
+                    
                 } else {
                     const status = 'SECOND_SIGNUP_UNVERIFIED_ACCOUNT'
                     sendAccountActivationEmail(req, res, user, status)

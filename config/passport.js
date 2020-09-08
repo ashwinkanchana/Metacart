@@ -25,12 +25,18 @@ module.exports = function (passport) {
                     if (isMatch) {
                         return done(null, user)
                     } else {
-                        return done(null, false, {
-                            message: 'Password is incorrect'
-                        })
+                        if (user.identifier == 'google') {
+                            return done(null, false, {
+                                message: 'Please Signin via Google or set a new Password using Forgot password'
+                            })
+                        }else{
+                            return done(null, false, {
+                                message: 'Password is incorrect'
+                            })
+                        }         
                     }
-
                 })
+
             }
         })
     }))
@@ -44,59 +50,59 @@ module.exports = function (passport) {
             callbackURL: '/auth/google/callback',
             proxy: true
         },
-        (accessToken, refreshToken, profile, done) => {
-            const email = profile.emails[0].value
-            User.findOne({ email }, async (err, user) => {
-                if (err) {
-                    console.log(err)
-                }
-                if (user) {
-                    if (!user.google_id){
-                        const update = {
-                            verified: true,
-                            google_id: profile.id,
-                            email_verification: null
-                        }
-                        User.findOneAndUpdate({ email }, update, { new: true }, (err, user) => {
-                            if (err) {
-                                console.log(err)
-                            }
-                            if (!user) {
-                                req.flash('red', `Something went wrong`)
-                                res.redirect('/auth')
-                            }
-                            if (user) {
-                                done(null, user)
-                            }
-                        })
-                    }else{
-                        done(null, user)
+            (accessToken, refreshToken, profile, done) => {
+                const email = profile.emails[0].value
+                User.findOne({ email }, async (err, user) => {
+                    if (err) {
+                        console.log(err)
                     }
-                }
-                if (!user) {
-                    //Generate random password for google user
-                    const password = cryptoRandomString({ length: 32, type: 'alphanumeric' })
-                    bcrypt.genSalt(10, function (err, salt) {
-                        bcrypt.hash(password, salt, async (err, hash) => {
-                            if (err) {
-                                console.log(err)
-                            } else {
-                                const newUser = {
-                                    name: profile.displayName,
-                                    email,
-                                    password: hash,
-                                    verified: true,
-                                    google_id: profile.id,
-                                    identifier: 'google',
-                                }
-                                const savedUser = await User.create(newUser)
-                                done(null, savedUser)
+                    if (user) {
+                        if (!user.google_id) {
+                            const update = {
+                                verified: true,
+                                google_id: profile.id,
+                                email_verification: null
                             }
+                            User.findOneAndUpdate({ email }, update, { new: true }, (err, user) => {
+                                if (err) {
+                                    console.log(err)
+                                }
+                                if (!user) {
+                                    req.flash('red', `Something went wrong`)
+                                    res.redirect('/auth')
+                                }
+                                if (user) {
+                                    done(null, user)
+                                }
+                            })
+                        } else {
+                            done(null, user)
+                        }
+                    }
+                    if (!user) {
+                        //Generate random password for google user
+                        const password = cryptoRandomString({ length: 32, type: 'alphanumeric' })
+                        bcrypt.genSalt(10, function (err, salt) {
+                            bcrypt.hash(password, salt, async (err, hash) => {
+                                if (err) {
+                                    console.log(err)
+                                } else {
+                                    const newUser = {
+                                        name: profile.displayName,
+                                        email,
+                                        password: hash,
+                                        verified: true,
+                                        google_id: profile.id,
+                                        identifier: 'google',
+                                    }
+                                    const savedUser = await User.create(newUser)
+                                    done(null, savedUser)
+                                }
+                            })
                         })
-                    })
-                }
+                    }
+                })
             })
-        })
     )
 
 
