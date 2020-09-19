@@ -53,7 +53,6 @@ app.use(session({
 //Set global error variable
 app.locals.errors = null
 
-
 // Express Messages middleware
 app.use(require('connect-flash')());
 app.use(function (req, res, next) {
