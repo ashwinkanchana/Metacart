@@ -1,0 +1,43 @@
+{
+  "name": "ecommerce",
+  "version": "1.0.0",
+  "description": "ecommerce webapp with admin panel, payment, access-control and multimode authentication",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js -e js,ejs,css,env",
+    "start": "node app.js"
+  },
+  "keywords": [],
+  "author": "ashwinkanchana",
+  "license": "ISC",
+  "dependencies": {
+    "@sendgrid/mail": "^7.2.5",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "chalk": "^4.1.0",
+    "connect-flash": "^0.1.1",
+    "cors": "^2.8.5",
+    "crypto-random-string": "^3.3.0",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.2.0",
+    "express-messages": "^1.0.1",
+    "express-mysql-session": "^2.1.4",
+    "express-session": "^1.17.1",
+    "express-validator": "^6.6.1",
+    "fs-extra": "^9.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "mkdirp": "^1.0.4",
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
+    "passport": "^0.4.1",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
+    "resize-img": "^2.0.0",
+    "shortid": "^2.2.15"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}

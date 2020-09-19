@@ -1,0 +1,42 @@
+<%- include('../partials/adminHeader'); %>
+<div class="container input-fields">
+    <br>
+    <a href="/admin/pages" class="waves-effect waves-teal btn-flat btn-floating "><i
+            class="material-icons icon-grey">arrow_back</i></a>
+    <span class="page-title">Edit page</span>
+    <br>
+    <br>
+    <form method="POST" action="/admin/pages/edit-page/<%= id %>">
+            <div class="input-field form-group">
+                <i class="material-icons prefix">title</i>
+                <input id="icon_prefix" type="text" name="title" class="form-control" value="<%= title %>"
+                    autocomplete="off">
+                <label for="icon_prefix">Title</label>
+            </div>
+            <br>
+            <div class="input-field form-group">
+                <i class="material-icons prefix">link</i>
+                <input id="icon_prefix" type="text" name="slug" class="form-control" value="<%= slug %>"
+                    autocomplete="off">
+                <label for="icon_prefix">Slug</label>
+            </div>
+            <br>
+            <div class="row">
+                <div class="form-group col s10 m12 ">
+                    <label for="">Content</label>
+                    <textarea class="form-control" id="wysiwyg" name="content">
+                            <%= content %>
+                        </textarea>
+                </div>
+        </div>
+
+        <div class="fixed-action-btn">
+            <button class=" btn-floating btn-large waves-effect waves-light deep-purple tooltipped" data-position="left"
+                data-tooltip="Save"><i class="material-icons">save</i>Save</button>
+        </div>
+</div>
+</form>
+</div>
+
+
+<%- include('../partials/adminFooter'); %>

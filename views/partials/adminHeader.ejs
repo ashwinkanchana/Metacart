@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Admin Panel</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/adminStyles.css">
+    <link rel="shortcut icon" href="https://twemoji.maxcdn.com/v/13.0.1/72x72/1f527.png" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <nav class="nav-extended">
+        <div class="nav-wrapper teal">
+            <a href="/admin/pages" class="brand-logo"><i class="material-icons">shopping_cart</i>Admin Panel</a>
+            <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li>
+                    <a href="/">
+                        <i class="material-icons tooltipped" data-position="bottom" data-tooltip="Home">home</i></a>
+                </li>
+                <li>
+                    <a href="/admin/pages">
+                        <i class="material-icons tooltipped" data-position="bottom" data-tooltip="Pages">insert_drive_file
+</i></a>
+                </li>
+                <li><a href="/admin/categories">
+                        <i class="material-icons tooltipped" data-position="bottom"
+                            data-tooltip="Categories">filter_list</i></a></li>
+                <li><a href="/admin/products">
+                        <i class="material-icons tooltipped" data-position="bottom"
+                            data-tooltip="Products">shopping_basket</i></a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <ul class="sidenav" id="mobile-demo">
+        <li><a href="/admin/pages">
+                <i class="material-icons">label</i>Pages</a></li>
+        <li><a href="/admin/categories">
+                <i class="material-icons">filter_list</i>Catergories</a></li>
+        <li><a href="/admin/products">
+                <i class="material-icons">shopping_basket</i>Products</a></li>
+    </ul>
+    <main>

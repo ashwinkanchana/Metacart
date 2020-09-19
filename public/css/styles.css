@@ -1,0 +1,110 @@
+ body {
+     display: flex;
+     min-height: 100vh;
+     flex-direction: column;
+ }
+
+ main {
+     flex: 1 0 auto;
+ }
+
+ .brand-logo {
+     margin-left: 1vw;
+ }
+
+ a.brand-logo {
+     font-size: medium;
+ }
+
+ .pimage {
+     max-width: 150px;
+ }
+
+ a.pa {
+     display: inline-block;
+     height: 160px;
+ }
+
+ .row.products .p {
+     margin-top: 20px;
+     margin-bottom: 20px;
+ }
+
+ img.spi {
+     width: 100%;
+ }
+
+ ul.gallery li {
+     display: inline-block;
+     margin: 20px;
+     list-style: none;
+ }
+
+ img.cpi {
+     width: 100px;
+ }
+
+ table.checkout tr td:last-child {
+     text-align: right;
+ }
+
+ .togglePassword {
+     -webkit-user-select: none;
+     /* Safari */
+     -ms-user-select: none;
+     /* IE 10+ and Edge */
+     user-select: none;
+     /* Standard syntax */
+ }
+
+ .togglePasswordNew {
+     -webkit-user-select: none;
+     /* Safari */
+     -ms-user-select: none;
+     /* IE 10+ and Edge */
+     user-select: none;
+     /* Standard syntax */
+ }
+
+ .loginTableRow {
+     outline: none;
+     border: none;
+ }
+
+ i.icon-grey {
+     color: rgb(119, 119, 119);
+ }
+
+ .menu-icon {
+     color: rgb(42, 126, 194);
+ }
+
+ .tabs {
+     overflow: hidden
+ }
+
+ .google {
+     width: 50%;
+     margin: 0 auto;
+ }
+
+ .search-field {
+     margin: 20px;
+ }
+
+ li a {
+     color: #212121;
+ }
+
+ a h5 {
+     color: #212121;
+ }
+
+
+ *:focus {
+     outline: none;
+ }
+
+ .vertical-card-img {
+     max-width: 50px;
+ }

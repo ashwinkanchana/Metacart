@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <% if (typeof title !== 'undefined') { %>
+    <title><%= title %></title>
+    <% } else{%>
+    <title>Metacart</title>
+    <% } %>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+
+    <link rel="shortcut icon" href="https://twemoji.maxcdn.com/2/svg/1f6d2.svg" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+
+</head>
+
+<body>
+    <div class="navbar-fixed">
+        <nav>
+            <div class="nav-wrapper white">
+                <a href="/" class="brand-logo black-text"><i class="material-icons">shopping_cart</i>Metacart</a>
+                <a href="/" data-target="mobile-demo" class="sidenav-trigger"><i
+                        class="material-icons menu-icon">menu</i></a>
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a class="dropdown-trigger blue-grey-text text-darken-1" href="#"
+                            data-target="categories-dropdown">Categories
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-trigger blue-grey-text text-darken-1" href="#"
+                            data-target="account-dropdown"><% if (typeof user !== 'undefined') { %>
+                            <%=user.fullname%>
+                            <% } else { %>
+                            Account
+                            <% } %><i class="material-icons right">arrow_drop_down</i>
+                        </a>
+                    </li>
+
+
+                    <!-- Dropdown Structure -->
+                    <ul id="account-dropdown" class="dropdown-content">
+                        <% if (typeof user !== 'undefined') { %>
+                        <li>
+                            <a class="blue-grey-text text-darken-1" href="/auth/logout">
+                                <i class="material-icons small">exit_to_app</i>
+                                Logout
+                            </a>
+                        </li>
+                        <% } else { %>
+                        <li>
+                            <a class="blue-grey-text text-darken-1" href="/auth/login"><i class="material-icons">lock_open</i>Login</a>
+                        </li>
+                        <li>
+                            <a class="blue-grey-text text-darken-1" href="/auth/signup"><i class="material-icons">account_circle</i>Signup</a>
+                        </li>
+                        <% } %>
+                        <li class="divider" tabindex="-1"></li>
+                        <% if (typeof user !== 'undefined' && user.role == 'admin') { %>
+                        <li>
+                            <a class="blue-grey-text text-darken-1" href="/admin/pages">
+                                <i class="material-icons small">security</i>Admin panel
+                            </a>
+                        </li>
+                        <% } %>
+                    </ul>
+                    <!-- Dropdown Structure -->
+                    <ul id="categories-dropdown" class="dropdown-content">
+                        <li>
+                            <a class="blue-grey-text text-darken-1" href="/products">All products</a>
+                        </li>
+                        <% if (typeof categories !== 'undefined') { %>
+                        <% categories.forEach(c => { %>
+                        <li>
+                            <a class="blue-grey-text text-darken-1" href="/products/<%= c.slug %> "> <%= c.title %> </a>
+                        </li>
+                        <% }) %>
+                        <% } %>
+                    </ul>
+
+                    <li>
+                        <a href="/cart/checkout">
+                            <div class="chip grey lighten-3">
+                                My Cart(
+                                <% if(typeof cart !== 'undefined'){ %>
+                                <%=cart.length%>
+                                <%} else {%>
+                                0
+                                <%}%>)
+                        </div>
+                    </a>
+                </li>
+            </ul>
+    </div>
+
+    </nav>
+    </div>
+
+    
+
+    <ul class="sidenav" id="mobile-demo">
+        <ul class="collapsible">
+            <!-- <li>
+                <div class="collapsible-header"><i class="material-icons">insert_drive_file</i>Pages</div>
+                <div class="collapsible-body">
+                    <ul class="collection">
+                        <% if (typeof pages !== 'undefined') { %>
+                                <% pages.forEach(page => { %>
+                                <div class="container">
+                                    <% if (page.slug=="home") { %>
+                    <li class="collection-item">
+                        <a href="/"><%=page.title%></a>
+                    </li>
+                    <% }else{ %>
+                    <li class="collection-item">
+                        <a href="<%= page.slug %>"><%=page.title%> </a>
+                    </li>
+                    <% } %>
+
+            </div>
+            <% }) %>
+            <% } %>
+            </ul>
+
+    </div>
+    </li>-->
+    <li>
+        <div class="collapsible-header">
+            <i class="material-icons">home</i>
+            <a href="/">
+                Home
+            </a>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header"><i class="material-icons">filter_list</i>Categories
+        </div>
+        <div class="collapsible-body">
+            <ul class="collection">
+                <div class="container">
+                    <li class="collection-item">
+                        <a href="/products">All products</a>
+                    </li>
+                </div>
+                <% if (typeof categories !== 'undefined') { %>
+                <% categories.forEach(c => { %>
+                <div class="container">
+                    <li class="collection-item">
+                        <a href="/products/<%= c.slug %> "> <%= c.title %> </a>
+                    </li>
+                </div>
+                <% }) %>
+                <% } %>
+            </ul>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header">
+            <i class="material-icons">shopping_cart</i>
+            <a href="/cart/checkout">
+                My Cart
+                <div class="chip">
+                    <% if(typeof cart !== 'undefined'){ %>
+                    <%=cart.length%>
+                    <%} else {%>
+                    0
+                    <%}%>
+                                        
+                                    </div>
+                                </a>
+                            </div>
+                        </li>
+                        <% if (typeof user !== 'undefined') { %>
+    <li>
+        <div class="collapsible-header">
+            <i class="material-icons">exit_to_app</i>
+            <a href="/auth/logout">
+                Logout (<%=user.fullname%>)
+            </a>
+        </div>
+    </li>
+    <% } else { %>
+    <li>
+        <div class="collapsible-header">
+            <i class="material-icons">lock_open</i>
+            <a href="/auth/login">
+                Login
+            </a>
+        </div>
+    </li>
+    <li>
+        <div class="collapsible-header">
+            <i class="material-icons">account_circle</i>
+            <a href="/auth/signup">
+                Signup
+            </a>
+        </div>
+    </li>
+    <% } %>
+
+    <% if (typeof user !== 'undefined' && user.role == 'admin') { %>
+    <li>
+        <div class="collapsible-header">
+            <i class="material-icons">security</i>
+            <a href="/admin/pages">
+                Admin panel
+            </a>
+        </div>
+    </li>
+    <% } %>
+    </ul>
+    </ul>
+    <main>
+        <div class="row">
+            <br>
+            <div class="col s12 m4 l3">
+                <ul class="collapsible expandable">
+                    <li class="active">
+                        <div class="collapsible-header">
+                            <i class="material-icons right-align right">expand_more</i>
+                            Categories
+                        </div>
+                        <div class="collapsible-body">
+                            <ul class="collection">
+                                <li class="collection-item">
+                                    <a href="/products">All products</a>
+                                </li>
+                                <% if (typeof categories !== 'undefined') { %>
+                                <% categories.forEach(c => { %>
+                                <li class="collection-item">
+                                    <a href="/products/<%= c.slug %> "> <%= c.title %> </a>
+                                </li>
+                                <% }) %>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </li>
+                    <!-- #################REMOVE FROM HERE#################### -->
+                    <li>
+                        <div class="collapsible-header">
+                            <i class="material-icons right-align right">expand_more</i>
+                            Sort
+                        </div>
+                        <div class="collapsible-body">
+                            <ul class="collection">
+                                <li class="collection-item">
+                                    <a href="#">Price High to Low</a>
+                                </li>
+                                <li class="collection-item">
+                                    <a href="#">Price Low to High</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <!-- #################REMOVE TILL HERE#################### -->
+                </ul>
+            </div>

@@ -1,0 +1,79 @@
+</main>
+<footer class="page-footer grey lighten-5">
+    <div class="container">
+        <div class="row">
+            <div class="col l4  s12">
+                <h5 class="grey-text text-darken-4">Pages</h5>
+                <ul>
+                    <% if (typeof pages !== 'undefined') { %>
+                    <% pages.forEach(page => { %>
+                    <li>
+                        <% if (page.slug=="home") { %>
+                        <a  class="grey-text text-darken-2" href="/"><%=page.title%></a>
+                        <% }else{ %>
+
+                        <a class="grey-text text-darken-2" href="/<%= page.slug %>"><%=page.title%> </a>
+
+                        <% } %>
+                    </li>
+                    <% }) %>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="footer-copyright blue-grey darken-2 ">
+        <div class="container">
+            <span class="white-text ">© 2020 Copyright</span>
+            <a class="white-text right" href="#">GitHub</a>
+        </div>
+    </div>
+</footer>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/21.0.0/classic/ckeditor.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script src="/js/index.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        M.AutoInit();
+        var elem = document.querySelector('.collapsible.expandable');
+        var instance = M.Collapsible.init(elem, {
+            accordion: false
+        });
+
+        var dropdown = document.querySelectorAll('.dropdown-trigger');
+        var instances = M.Dropdown.init(dropdown, {
+            constrainWidth: false,
+            hover: true,
+            coverTrigger: false
+        });
+
+        var slider = document.querySelectorAll('.slider');
+        var instances = M.Slider.init(slider, {
+            interval: 3000,
+            indicators: false,
+            height: 200
+        });
+        
+    });
+</script>
+
+
+<%- messages('messages', locals) %>
+<% if (errors) { %>
+<% errors.forEach(function (error) { %>
+<script>
+    M.toast({
+        html: '<%= error.msg %>',
+        displayLength: 6000,
+        classes: 'red rounded'
+    })
+</script>
+<% }); %>
+<% } %>
+</body>
+
+</html>

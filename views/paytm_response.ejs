@@ -1,0 +1,43 @@
+<%- include('./partials/header_minimal'); %>
+
+
+    <div class="row">
+        <div class="container">
+            <div class="receipt">
+                <!--    <% if (resultData == 'true') { %>
+                <center><h1>validation succesfull</h1></center>
+                <% }else
+                { %>
+                <center><h1>validation unsuccesfull</h1></center>
+                <% } %>-->
+                <table class="table-receipt">
+                    <thead>
+                        <tr>
+                            <th class="th-header" colspan="2">PAYMENT RECEIPT
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            
+                        <% for (name in responseData) {
+                    %>
+                        <% if(name !== "CHECKSUMHASH"){ %>
+                        <tr>
+                            <td class="td-title"><%= name %></td>
+                            <td class="td-content"><%= responseData[name] %></td>
+                        </tr>
+                        <% } %>
+                        <% } %>
+                        <tr>
+                            <td class="td-bottom" colspan="2">Thank you!.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+<%- include('./partials/footer'); %>

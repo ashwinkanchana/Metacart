@@ -1,0 +1,55 @@
+<%- include('../partials/adminHeader'); %>
+<div class="container input-fields">
+    <h4 class="page-title">Products</h4>
+    <br>
+
+    <% if(count > 0) {%>
+        <table class="striped centered responsive-table">
+            <thead>
+                <tr class="home">
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Image</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% products.forEach(function(product){ %>
+                <tr>
+                    <td><%= product.title %></td>
+                    <td><%= product.category %></td>
+                    <td> <b> ₹<%= parseFloat(product.price).toFixed(2) %> </b> </td>
+                    <td>
+                        <% if(product.image == "") {%>
+                        <img id="productTableImage" src="/images/noimage.png" alt="No image">
+                        <% }else{%>
+                        <img id="productTableImage" src="/product_images/<%= product.id %>/<%= product.image %>" alt="<%= product.title %>">
+                        <% } %>
+                    </td>
+                    <td><a class='dropdown-trigger' href='#' data-target='pageOptions'><i
+                                class="material-icons icon-grey">more_horiz</i></a></td>
+                    <ul id='pageOptions' class='dropdown-content'>
+                        <li><a href="/admin/products/edit-product/<%= product.id %>" class="blue-grey-text"><i
+                                    class="material-icons">edit</i>Edit</a></li>
+                        <li><a class="confirmDeletion blue-grey-text" href="/admin/products/delete-product/<%= product.id %>"><i
+                                    class="material-icons">delete</i>Remove</a></li>
+                    </ul>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% } else {%>
+        <div>
+            <h5 class="center-align grey-accent-4-text">It's so empty here...</h5>
+        </div>
+    <%}%>
+
+    
+</div> 
+
+<div class="fixed-action-btn">
+    <a href="/admin/products/add-product" class="btn-floating btn-large waves-effect waves-light deep-purple tooltipped"
+        data-position="left" data-tooltip="Add a new product"><i class="material-icons">add</i></a>
+</div>
+
+<%- include('../partials/adminFooter'); %>

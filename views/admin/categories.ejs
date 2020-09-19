@@ -1,0 +1,37 @@
+<%- include('../partials/adminHeader'); %>
+<div class="container input-fields">
+    <h4 class="page-title">Categories</h4>
+    <br>
+    <table class="striped centered">
+        <thead>
+            <tr>
+                <th>Category</th>
+            </tr> </thead>
+        <tbody>
+            <% categories.forEach(function(cat){ %>
+                <tr>
+                    <td><%= cat.title %></td>
+                    <td><a class='dropdown-trigger' href='#' data-target='pageOptions'><i class="material-icons icon-grey">more_horiz</i></a></td>
+                    <ul id='pageOptions' class='dropdown-content'>
+
+                        <li><a href="/admin/categories/edit-category/<%= cat.id %>" class="blue-grey-text"><i class="material-icons">edit</i>Edit</a></li>
+                        
+                        <li><a class="confirmDeletion blue-grey-text " href="/admin/categories/delete-category/<%= cat.id %>"><i
+                                        class="material-icons">delete</i>Remove</a></li>
+                    </ul>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>
+
+
+
+<div class="fixed-action-btn">
+    <a href="/admin/categories/add-category" class="btn-floating btn-large waves-effect waves-light deep-purple tooltipped" 
+    data-position="left" data-tooltip="Add a new category"><i
+            class="material-icons">add</i></a>
+</div>
+
+
+<%- include('../partials/adminFooter'); %>

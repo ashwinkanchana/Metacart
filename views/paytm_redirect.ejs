@@ -1,0 +1,23 @@
+<html>
+<head>
+    <title>Payment</title>
+</head>
+<body>
+    <center>
+        <h3>Please do not refresh this page</h3>
+    </center>
+    <form method="post" action='<%= paytm %>' name="f1">
+        <table>
+            <tbody>
+                <% for (name in resultData) { %>
+                <input type="hidden" name='<%= name %>' value='<%= resultData[name] %>'>
+                <% } %>
+            </tbody>
+        </table>
+        <script type="text/javascript">
+            document.f1.submit();
+        </script>
+    </form>
+</body>
+
+</html>
