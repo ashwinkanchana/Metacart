@@ -66,8 +66,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 
-app.get('*', (req, res, next) => {
-    console.log(req.session)
+app.get('*',async(req, res, next) => {
     res.locals.cart = req.session.cart
     res.locals.user = req.user
     res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
@@ -84,9 +83,16 @@ if (process.env.NODE_ENV === 'development') {
 (async () => {
     const pagesQuery = 'SELECT title, slug, content FROM page ORDER BY page.sorting'
     const categoryQuery = 'SELECT id, title, slug FROM category'
+    const searchTermsQuery = 'SELECT id, title, image FROM product;'
     try {
         app.locals.pages = await pool.query(pagesQuery)
         app.locals.categories = await pool.query(categoryQuery)
+        const products = await pool.query(searchTermsQuery)
+        let searchTerms = {}
+        products.forEach(p => {
+            searchTerms[`${p.title}`] = `/product_images/${p.id}/${p.image}`
+        });
+        app.locals.searchTerms = searchTerms
     } catch (error) {
         console.log(error)
     }
@@ -101,6 +107,7 @@ app.use('/admin/products', ensureAdmin, require('./routes/admin_products'))
 app.use('/products', require('./routes/products'))
 app.use('/cart', require('./routes/cart'))
 app.use('/auth', require('./routes/auth'))
+app.use('/search', require('./routes/search'))
 app.use('/', require('./routes/pages'))
 
 

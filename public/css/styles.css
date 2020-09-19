@@ -12,6 +12,25 @@
      margin-left: 1vw;
  }
 
+ .input-field input[type=search] {
+    height: 64px !important;
+ }
+
+ nav .input-field label.active i {
+     color: #546e7a;
+ }
+
+ #autocomplete-label {
+     -webkit-transform: translateY(0px) !important;
+     transform: translateY(0px) !important;
+ }
+
+ #autocomplete-label-mobile {
+     -webkit-transform: translateY(0px) !important;
+     transform: translateY(0px) !important;
+ }
+
+ 
  a.brand-logo {
      font-size: medium;
  }
@@ -88,10 +107,6 @@
      margin: 0 auto;
  }
 
- .search-field {
-     margin: 20px;
- }
-
  li a {
      color: #212121;
  }
@@ -99,7 +114,6 @@
  a h5 {
      color: #212121;
  }
-
 
  *:focus {
      outline: none;

@@ -29,6 +29,19 @@
                 <a href="/" data-target="mobile-demo" class="sidenav-trigger"><i
                         class="material-icons menu-icon">menu</i></a>
                 <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li>
+                        <div class="nav-wrapper">
+                            <form action="/search" method="POST">
+                                <div class="input-field">
+                                    <input class="autocomplete" id="search" name="q" type="search" autocomplete="off"
+                                        placeholder="Search products" />
+                                    <label id="autocomplete-label" class="label-icon" for="search"><i
+                                            class="material-icons">search</i></label>
+                                    <i class="material-icons">close</i>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
                     <li><a class="dropdown-trigger blue-grey-text text-darken-1" href="#"
                             data-target="categories-dropdown">Categories
                         </a>
@@ -105,31 +118,20 @@
     
 
     <ul class="sidenav" id="mobile-demo">
-        <ul class="collapsible">
-            <!-- <li>
-                <div class="collapsible-header"><i class="material-icons">insert_drive_file</i>Pages</div>
-                <div class="collapsible-body">
-                    <ul class="collection">
-                        <% if (typeof pages !== 'undefined') { %>
-                                <% pages.forEach(page => { %>
-                                <div class="container">
-                                    <% if (page.slug=="home") { %>
-                    <li class="collection-item">
-                        <a href="/"><%=page.title%></a>
-                    </li>
-                    <% }else{ %>
-                    <li class="collection-item">
-                        <a href="<%= page.slug %>"><%=page.title%> </a>
-                    </li>
-                    <% } %>
-
+        <nav>
+            <div class="nav-wrapper white">
+                <form action="/search" method="POST">
+                    <div class="input-field">
+                        <input class="autocomplete" id="search" name="q" type="search" autocomplete="off"
+                            placeholder="Search products" />
+                        <label id="autocomplete-label-mobile" class="label-icon" for="search"><i
+                                class="material-icons">search</i></label>
+                        <i class="material-icons">close</i>
+                    </div>
+                </form>
             </div>
-            <% }) %>
-            <% } %>
-            </ul>
-
-    </div>
-    </li>-->
+        </nav>
+        <ul class="collapsible">
     <li>
         <div class="collapsible-header">
             <i class="material-icons">home</i>

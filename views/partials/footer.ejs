@@ -39,6 +39,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         M.AutoInit();
+        var initData = JSON.parse('<%-JSON.stringify(searchTerms)%>');
         var elem = document.querySelector('.collapsible.expandable');
         var instance = M.Collapsible.init(elem, {
             accordion: false
@@ -56,6 +57,14 @@
             interval: 3000,
             indicators: false,
             height: 200
+        });
+
+
+        var elems = document.querySelectorAll('.autocomplete');
+        var instances = M.Autocomplete.init(elems, {
+            data: initData,
+            minLength: 1,
+            limit: 5
         });
         
     });
