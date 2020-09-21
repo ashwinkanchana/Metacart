@@ -17,6 +17,13 @@
     <link rel="shortcut icon" href="https://twemoji.maxcdn.com/2/svg/1f6d2.svg" type="image/x-icon">
     <script src="https://code.jquery.com/jquery-3.5.1.js"
         integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.2/nouislider.css"
+        integrity="sha512-30YMvFlZRwPH3TcDlPWZofkzGwIwDAKshEue1qWet2yWEQ4Y/X+WnV1aTuNldE3Hbpcl5Zz4PxoXJKMMQvBHGQ=="
+        crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.2/nouislider.min.js"
+        integrity="sha512-hwgsSKm7cPjNHLACxyMGVRrd7cH+wveyYM1ZxWxxbCZd/pXdMukyuIrrCjt2I7iLsmYDk02B1ZUcarEv1A3RVQ=="
+        crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
 
 </head>
@@ -31,7 +38,7 @@
                 <ul id="nav-mobile" class="right hide-on-med-and-down">
                     <li>
                         <div class="nav-wrapper">
-                            <form action="/search" method="POST">
+                            <form action="/search/products" method="POST" id="search-nav">
                                 <div class="input-field">
                                     <input class="autocomplete" id="search" name="q" type="search" autocomplete="off"
                                         placeholder="Search products" />
@@ -68,10 +75,12 @@
                         </li>
                         <% } else { %>
                         <li>
-                            <a class="blue-grey-text text-darken-1" href="/auth/login"><i class="material-icons">lock_open</i>Login</a>
+                            <a class="blue-grey-text text-darken-1" href="/auth/login"><i
+                                    class="material-icons">lock_open</i>Login</a>
                         </li>
                         <li>
-                            <a class="blue-grey-text text-darken-1" href="/auth/signup"><i class="material-icons">account_circle</i>Signup</a>
+                            <a class="blue-grey-text text-darken-1" href="/auth/signup"><i
+                                    class="material-icons">account_circle</i>Signup</a>
                         </li>
                         <% } %>
                         <li class="divider" tabindex="-1"></li>
@@ -120,7 +129,7 @@
     <ul class="sidenav" id="mobile-demo">
         <nav>
             <div class="nav-wrapper white">
-                <form action="/search" method="POST">
+                <form action="/search/products" method="POST"  id="search-nav2">
                     <div class="input-field">
                         <input class="autocomplete" id="search" name="q" type="search" autocomplete="off"
                             placeholder="Search products" />
@@ -151,16 +160,16 @@
                     </li>
                 </div>
                 <% if (typeof categories !== 'undefined') { %>
-                <% categories.forEach(c => { %>
-                <div class="container">
+                                <% categories.forEach(c => { %>
+                                <div class="container">
                     <li class="collection-item">
                         <a href="/products/<%= c.slug %> "> <%= c.title %> </a>
                     </li>
-                </div>
-                <% }) %>
-                <% } %>
+            </div>
+            <% }) %>
+            <% } %>
             </ul>
-        </div>
+    </div>
     </li>
     <li>
         <div class="collapsible-header">

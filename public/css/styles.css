@@ -13,7 +13,7 @@
  }
 
  .input-field input[type=search] {
-    height: 64px !important;
+     height: 64px !important;
  }
 
  nav .input-field label.active i {
@@ -30,7 +30,6 @@
      transform: translateY(0px) !important;
  }
 
- 
  a.brand-logo {
      font-size: medium;
  }
@@ -121,4 +120,16 @@
 
  .vertical-card-img {
      max-width: 50px;
+ }
+
+ #filter-modal {
+     min-height: 85% !important;
+ }
+
+ #FAB {
+     border-radius: 36px;
+ }
+
+ .noUi-handle-touch-area {
+     z-index: 5;
  }

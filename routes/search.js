@@ -6,9 +6,9 @@ const { pool } = require('../config/database')
 
 
 // POST search term
-router.post('/', searchValidator, async (req, res) => {
+router.post('/products', searchValidator, async (req, res) => {
     const q = req.body.q
-    console.log(q)
+    console.log("sever: "+q)
     try {
         const errors = validationResult(req).array();
         if (errors.length > 0) {

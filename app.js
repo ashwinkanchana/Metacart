@@ -104,10 +104,10 @@ app.use('/admin/categories', ensureAdmin, require('./routes/admin_categories'))
 app.use('/admin/products', ensureAdmin, require('./routes/admin_products'))
 
 //user routes
+app.use('/search', require('./routes/search'))
 app.use('/products', require('./routes/products'))
 app.use('/cart', require('./routes/cart'))
 app.use('/auth', require('./routes/auth'))
-app.use('/search', require('./routes/search'))
 app.use('/', require('./routes/pages'))
 
 

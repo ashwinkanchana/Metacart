@@ -17,94 +17,100 @@
     <link rel="shortcut icon" href="https://twemoji.maxcdn.com/2/svg/1f6d2.svg" type="image/x-icon">
     <script src="https://code.jquery.com/jquery-3.5.1.js"
         integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Dogfalo/materialize@master/extras/noUiSlider/nouislider.css"/>
+    <script src="https://cdn.jsdelivr.net/gh/Dogfalo/materialize@master/extras/noUiSlider/nouislider.min.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
 
 </head>
 
 <body>
     <main>
-    <div class="navbar-fixed">
-        <nav>
-            <div class="nav-wrapper white">
-                <a href="/" class="brand-logo black-text"><i class="material-icons">shopping_cart</i>Metacart</a>
-                <a href="/" data-target="mobile-demo" class="sidenav-trigger"><i
-                        class="material-icons menu-icon">menu</i></a>
-                <ul id="nav-mobile" class="right hide-on-med-and-down">
-                    <li>
-                        <div class="nav-wrapper">
-                            <form action="/search" method="POST">
-                                <div class="input-field">
-                                    <input class="autocomplete" id="search" name="q" type="search" autocomplete="off"
-                                        placeholder="Search products" />
-                                    <label id="autocomplete-label" class="label-icon" for="search"><i class="material-icons">search</i></label>
-                                    <i class="material-icons">close</i>
-                                </div>
-                            </form>
-                        </div>
-                    </li>
-                    <li><a class="dropdown-trigger blue-grey-text text-darken-1" href="#"
-                            data-target="categories-dropdown">Categories
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-trigger blue-grey-text text-darken-1" href="#"
-                            data-target="account-dropdown"><% if (typeof user !== 'undefined') { %>
-                            <%=user.fullname%>
+        <div class="navbar-fixed">
+            <nav>
+                <div class="nav-wrapper white">
+                    <a href="/" class="brand-logo black-text"><i class="material-icons">shopping_cart</i>Metacart</a>
+                    <a href="/" data-target="mobile-demo" class="sidenav-trigger"><i
+                            class="material-icons menu-icon">menu</i></a>
+                    <ul id="nav-mobile" class="right hide-on-med-and-down">
+                        <li>
+                            <div class="nav-wrapper">
+                                <form action="/search/products" method="POST" id="search-nav">
+                                    <div class="input-field">
+                                        <input class="autocomplete" id="search-header" name="q" type="search"
+                                            autocomplete="off" placeholder="Search products" />
+                                        <label id="autocomplete-label" class="label-icon" for="search-header"><i
+                                                class="material-icons">search</i></label>
+                                        <i class="material-icons">close</i>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
+                        <li><a class="dropdown-trigger blue-grey-text text-darken-1" href="#"
+                                data-target="categories-dropdown">Categories
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-trigger blue-grey-text text-darken-1" href="#"
+                                data-target="account-dropdown"><% if (typeof user !== 'undefined') { %>
+                                <%=user.fullname%>
+                                <% } else { %>
+                                Account
+                                <% } %><i class="material-icons right">arrow_drop_down</i>
+                            </a>
+                        </li>
+                        <!-- Dropdown Structure -->
+                        <ul id="account-dropdown" class="dropdown-content">
+                            <% if (typeof user !== 'undefined') { %>
+                            <li>
+                                <a class="blue-grey-text text-darken-1" href="/auth/logout">
+                                    <i class="material-icons small">exit_to_app</i>
+                                    Logout
+                                </a>
+                            </li>
                             <% } else { %>
-                            Account
-                            <% } %><i class="material-icons right">arrow_drop_down</i>
-                        </a>
-                    </li>
-                    <!-- Dropdown Structure -->
-                    <ul id="account-dropdown" class="dropdown-content">
-                        <% if (typeof user !== 'undefined') { %>
-                        <li>
-                            <a class="blue-grey-text text-darken-1" href="/auth/logout">
-                                <i class="material-icons small">exit_to_app</i>
-                                Logout
-                            </a>
-                        </li>
-                        <% } else { %>
-                        <li>
-                            <a class="blue-grey-text text-darken-1" href="/auth/login"><i class="material-icons">lock_open</i>Login</a>
-                        </li>
-                        <li>
-                            <a class="blue-grey-text text-darken-1" href="/auth/signup"><i class="material-icons">account_circle</i>Signup</a>
-                        </li>
-                        <% } %>
-                        <li class="divider" tabindex="-1"></li>
-                        <% if (typeof user !== 'undefined' && user.role == 'admin') { %>
-                        <li>
-                            <a class="blue-grey-text text-darken-1" href="/admin/pages">
-                                <i class="material-icons small">security</i>Admin panel
-                            </a>
-                        </li>
-                        <% } %>
-                    </ul>
+                            <li>
+                                <a class="blue-grey-text text-darken-1" href="/auth/login"><i
+                                        class="material-icons">lock_open</i>Login</a>
+                            </li>
+                            <li>
+                                <a class="blue-grey-text text-darken-1" href="/auth/signup"><i
+                                        class="material-icons">account_circle</i>Signup</a>
+                            </li>
+                            <% } %>
+                            <li class="divider" tabindex="-1"></li>
+                            <% if (typeof user !== 'undefined' && user.role == 'admin') { %>
+                            <li>
+                                <a class="blue-grey-text text-darken-1" href="/admin/pages">
+                                    <i class="material-icons small">security</i>Admin panel
+                                </a>
+                            </li>
+                            <% } %>
+                        </ul>
 
-                    <!-- Dropdown Structure -->
-                    <ul id="categories-dropdown" class="dropdown-content">
-                        <li>
-                            <a class="blue-grey-text text-darken-1" href="/products">All products</a>
-                        </li>
-                        <% if (typeof categories !== 'undefined') { %>
-                        <% categories.forEach(c => { %>
-                        <li>
-                            <a class="blue-grey-text text-darken-1" href="/products/<%= c.slug %> "> <%= c.title %> </a>
-                        </li>
-                        <% }) %>
-                        <% } %>
-                    </ul>
+                        <!-- Dropdown Structure -->
+                        <ul id="categories-dropdown" class="dropdown-content">
+                            <li>
+                                <a class="blue-grey-text text-darken-1" href="/products">All products</a>
+                            </li>
+                            <% if (typeof categories !== 'undefined') { %>
+                            <% categories.forEach(c => { %>
+                            <li>
+                                <a class="blue-grey-text text-darken-1" href="/products/<%= c.slug %> "> <%= c.title %>
+                                </a>
+                            </li>
+                            <% }) %>
+                            <% } %>
+                        </ul>
 
-                    <li>
-                        <a href="/cart/checkout">
-                            <div class="chip grey lighten-3">
-                                My Cart(
-                                <% if(typeof cart !== 'undefined'){ %>
-                                <%=cart.length%>
-                                <%} else {%>
-                                0
-                                <%}%>)
+                        <li>
+                            <a href="/cart/checkout">
+                                <div class="chip grey lighten-3">
+                                    My Cart(
+                                    <% if(typeof cart !== 'undefined'){ %>
+                                    <%=cart.length%>
+                                    <%} else {%>
+                                    0
+                                    <%}%>)
                             </div>
                         </a>
                     </li>
@@ -118,11 +124,11 @@
     <ul class="sidenav" id="mobile-demo">
         <nav>
             <div class="nav-wrapper white">
-                <form action="/search" method="POST">
+                <form action="/search/products" method="POST" id="search-nav2">
                     <div class="input-field">
-                        <input class="autocomplete" id="search" name="q" type="search" autocomplete="off"
+                        <input class="autocomplete" id="search-mobile" name="q" type="search" autocomplete="off"
                             placeholder="Search products" />
-                        <label id="autocomplete-label-mobile" class="label-icon" for="search"><i class="material-icons">search</i></label>
+                        <label id="autocomplete-label-mobile" class="label-icon" for="search-mobile"><i class="material-icons">search</i></label>
                         <i class="material-icons">close</i>
                     </div>
                 </form>
@@ -148,70 +154,70 @@
                             </li>
                         </div>
                         <% if (typeof categories !== 'undefined') { %>
-                        <% categories.forEach(c => { %>
-                        <div class="container">
-                            <li class="collection-item">
-                                <a href="/products/<%= c.slug %> "> <%= c.title %> </a>
-                            </li>
-                        </div>
-                        <% }) %>
-                        <% } %>
-                    </ul>
+                                    <% categories.forEach(c => { %>
+                                    <div class="container">
+                        <li class="collection-item">
+                            <a href="/products/<%= c.slug %> "> <%= c.title %> </a>
+                        </li>
                 </div>
-            </li>
-            <li>
-                <div class="collapsible-header">
-                    <i class="material-icons">shopping_cart</i>
-                    <a href="/cart/checkout">
-                        My Cart
-                        <div class="chip">
-                            <% if(typeof cart !== 'undefined'){ %>
-                            <%=cart.length%>
-                            <%} else {%>
-                            0
-                            <%}%>
+                <% }) %>
+                <% } %>
+                </ul>
+        </div>
+        </li>
+        <li>
+            <div class="collapsible-header">
+                <i class="material-icons">shopping_cart</i>
+                <a href="/cart/checkout">
+                    My Cart
+                    <div class="chip">
+                        <% if(typeof cart !== 'undefined'){ %>
+                        <%=cart.length%>
+                        <%} else {%>
+                        0
+                        <%}%>
                                                 
                                             </div>
                                         </a>
                                     </div>
                                 </li>
                                 <% if (typeof user !== 'undefined') { %>
-            <li>
+        <li>
             <div class="collapsible-header">
                 <i class="material-icons">exit_to_app</i>
                 <a href="/auth/logout">
                     Logout (<%=user.fullname%>)
                 </a>
             </div>
-            </li>
-            <% } else { %>
-            <li>
-                <div class="collapsible-header">
-                    <i class="material-icons">lock_open</i>
-                    <a href="/auth/login">
-                        Login
-                    </a>
-                </div>
-            </li>
-            <li>
-                <div class="collapsible-header">
-                    <i class="material-icons">account_circle</i>
-                    <a href="/auth/signup">
-                        Signup
-                    </a>
-                </div>
-            </li>
-            <% } %>
+        </li>
+        <% } else { %>
+        <li>
+            <div class="collapsible-header">
+                <i class="material-icons">lock_open</i>
+                <a href="/auth/login">
+                    Login
+                </a>
+            </div>
+        </li>
+        <li>
+            <div class="collapsible-header">
+                <i class="material-icons">account_circle</i>
+                <a href="/auth/signup">
+                    Signup
+                </a>
+            </div>
+        </li>
+        <% } %>
 
-            <% if (typeof user !== 'undefined' && user.role == 'admin') { %>
-            <li>
-                <div class="collapsible-header">
-                    <i class="material-icons">security</i>
-                    <a href="/admin/pages">
-                        Admin panel
-                    </a>
-                </div>
-            </li>
-            <% } %>
+        <% if (typeof user !== 'undefined' && user.role == 'admin') { %>
+        <li>
+            <div class="collapsible-header">
+                <i class="material-icons">security</i>
+                <a href="/admin/pages">
+                    Admin panel
+                </a>
+            </div>
+        </li>
+        <% } %>
         </ul>
-    </ul>
+        </ul>
