@@ -84,7 +84,11 @@
                             <div class="input-field form-group">
                                 <i class="material-icons prefix">person_outline</i>
                                 <input id="name" type="text" class="form-control" name="name" autocomplete="off"
-                                    <% if (typeof name !== 'undefined') { %> value="<%= name %>" <% } %>>
+                                    <% if (typeof name !== 'undefined') { %>
+                                        <% if(name != "CHECKSUMHASH"){%>
+                                         value="<%= name %>"
+                                        <% } %>
+                                          <% } %>>
                                 <label for="name">Full Name</label>
                             </div>
                             <div class="input-field form-group">

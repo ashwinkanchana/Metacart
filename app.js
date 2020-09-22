@@ -1,4 +1,6 @@
 const path = require('path')
+const https = require('https');
+const fs = require('fs');
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require("cors")
@@ -51,7 +53,6 @@ app.use(session({
     saveUninitialized: true,
     store: new MySQLStore(db_credential),
     cookie: { sameSite:"none", secure:true, maxAge: 5200000 }
-    //flash will not work with cookie 
 }))
 
 //Set global error variable
@@ -123,8 +124,20 @@ app.use(function (req, res, next) {
 const port = process.env.PORT || 3000
 
 
-app.listen(port, async () => {
-    console.log(chalk.bgGreen.black(`Server up on ${port}`))
-})
+if(process.env.NODE_ENV == 'development'){
+    //Use self signed SSL certificate for localhost 
+    const server = https.createServer({
+        key: fs.readFileSync('./config/localhost+2-key.pem'),
+        cert: fs.readFileSync('./config/localhost+2.pem'),
+        requestCert: false,
+        rejectUnauthorized: false,
+    }, app).listen(port, async () => {
+        console.log(chalk.bgGreen.black(`Server up on ${port}`))
+    })
+}else{
+    app.listen(port, async () => {
+        console.log(chalk.bgGreen.black(`Server up on ${port}`))
+    })
+}
 
 module.exports = app;

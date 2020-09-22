@@ -71,6 +71,7 @@ router.get('/add/:product', async (req, res) => {
 
 // GET checkout page
 router.get('/checkout', async (req, res) => {
+    
     if (!req.session.cart || req.session.cart.length == 0) {
         req.flash('grey darken-4', 'Your cart is empty')
         res.redirect('/products')
@@ -261,6 +262,7 @@ router.post("/paytm-response", (req, res) => {
         paytm => {
             console.log(paytm)
             if (paytm.STATUS == 'TXN_SUCCESS') {
+                res.render('paytm_response');
                 //Decrement ordered items stock
                 //insert order records to db
                 //Clear cart items from session
@@ -285,20 +287,15 @@ router.post("/paytm-response", (req, res) => {
                 // const values = [[orderID, userEmail, mergedArray.length, transactionAmount]]
                 // const status = await pool.query(query, values)
 
-
-
             } else {
                 //view transaction failure message
-
+                res.render('paytm_response', {
+                    title: 'Order',
+                    resultData: "false",
+                    responseData: paytm
+                });
             }
 
-
-
-            res.render('paytm_response', {
-                title: 'Order',
-                resultData: "true",
-                responseData: paytm
-            });
         },
         error => {
             res.send(error);
