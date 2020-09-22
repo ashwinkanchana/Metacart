@@ -1,45 +1,42 @@
 <%- include('./partials/header'); %>
-
-
-<div class="col s12 m8 l9">
+<div class="container">
+    <br>
     <div class="row">
-        <h5 class="page-header"><%= p.title %> </h5>
-
         <div class="col s12 m6 l5">
-            <img class="spi" src="/product_images/<%= p.id %>/<%= p.image %>" alt="">
-
+            <img class="product-main-image" src="/product_images/<%= p.id %>/<%= p.image %>" alt="">
         </div>
         <div class="col s12 m7">
-
-            <% if (p.stock != 0 ) { %>
-                <% if (cart && cart.some(el => el.id === p.id)) { %>
-                    <a href="/cart/checkout" class="waves-effect waves-light btn"><i
-                            class="material-icons left">shopping_cart</i>Go to cart</a>
-                <% }else{ %>
-                    <a href="/cart/add/<%= p.id %>" class="waves-effect waves-light btn"><i
+            
+                    <h4 class="page-header"><%= p.title %> </h4>
+                    <% if (p.stock != 0 ) { %>
+                    <% if (cart && cart.some(el => el.id === p.id)) { %>
+                    <a href="/cart/checkout" class="waves-effect waves-light btn-large"><i
+                            class="material-icons left">shopping_cart</i>Go
+                        to cart</a>
+                    <% }else{ %>
+                    <a href="/cart/add/<%= p.id %>" class="waves-effect waves-light btn-large"><i
                             class="material-icons left">add_shopping_cart</i>Add to cart</a>
-                <% } %> 
-            <% } else{ %>
-            <h6 class="red-text"> <b>Currently out of stock</b></h6>
-            <a href="#" class="waves-effect waves-light btn disabled"><i
-                    class="material-icons left">add_shopping_cart</i>Add to cart</a>
-            <% } %>
-            <p><b> ₹<%= parseFloat(p.price).toFixed(2) %></b> </p>
-
-
+                    <% } %>
+                    <% } else{ %>
+                    <h6 class="red-text"> <b>Currently out of stock</b></h6>
+                    <a href="#" class="waves-effect waves-light btn disabled"><i class="material-icons left">add_shopping_cart</i>Add to
+                        cart</a>
+                    <% } %>
+                    <h5><b> ₹<%= parseFloat(p.price).toFixed(2) %></b> </h5>
         </div>
-        <div class="col s12">
-            <ul class="gallery">
-                <% galleryImages.forEach(image => { %>
-                <% if (image != "thumbs") { %>
-                <li>
-                    <a data-fancybox="gallery" href="/product_images/<%= p.id %>/gallery/<%= image %>">
-                        <img src="/product_images/<%= p.id %>/gallery/thumbs/<%= image %>" alt=""></a>
-                </li>
-                <% } %>
-                <% }) %>
-            </ul>
+    </div>
+    <div class="row">
+        <% galleryImages.forEach(image => { %>
+        <% if (image != "thumbs") { %>
+        <div class="col s3">
+            <a data-fancybox="gallery" href="/product_images/<%= p.id %>/gallery/<%= image %>">
+                <img class="product-image-thumb" src="/product_images/<%= p.id %>/gallery/thumbs/<%= image %>"
+                    alt=""></a>
         </div>
+        <% } %>
+        <% }) %>
+    </div>
+    <div class="row">
         <div class="col s12">
             <div class="container">
                 <h6>Product Details</h6>
@@ -48,8 +45,6 @@
         </div>
     </div>
 </div>
-</div>
-</div>
-</div>
+
 
 <%- include('./partials/footer'); %>

@@ -6,7 +6,7 @@ const cryptoRandomString = require('crypto-random-string')
 //PayTM payment gateway
 const { initPayment, responsePayment } = require('../paytm/services/index')
 const { isAuthenticated, ensureAuthenticated } = require('../controllers/auth')
-const { updateCartDB, clearCartDB} = require('../controllers/cart')
+const { updateCartDB, clearCartDB } = require('../controllers/cart')
 const { accessSync } = require('fs-extra')
 const { query } = require('express')
 const { deserializeUser } = require('passport')
@@ -43,16 +43,16 @@ router.get('/add/:product', async (req, res) => {
                     })
                 }
             }
-            if(isAuthenticated(req)){
+            if (isAuthenticated(req)) {
                 const addToCartQuery = `INSERT INTO cart (user_id, product_id, quantity) VALUES(${mysql.escape(req.user.id)}, ${mysql.escape(product.id)}, 1)`
                 updateCartDB(req, addToCartQuery, (err, status) => {
-                    if(err){
+                    if (err) {
                         console.log(err)
                     }
                     req.flash('grey darken-4', `Added ${product.title} to cart`)
                     res.redirect('back')
                 })
-            }else{
+            } else {
                 req.flash('grey darken-4', `Added ${product.title} to cart`)
                 res.redirect('back')
             }
@@ -75,7 +75,6 @@ router.get('/checkout', async (req, res) => {
         req.flash('grey darken-4', 'Your cart is empty')
         res.redirect('/products')
     } else {
-        console.log(req.session.cart)
         const sessionCart = req.session.cart
         let cartItemIds = []
         sessionCart.forEach(item => {
@@ -85,9 +84,8 @@ router.get('/checkout', async (req, res) => {
         const query = 'SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id WHERE product.id IN (?)';
         const filter = [cartItemIds]
         const productRows = await pool.query(query, filter)
-        console.log(productRows)
         let mergedArray = []
-        sessionCart.forEach((item, index)=>{
+        sessionCart.forEach((item, index) => {
             const product = productRows.find(row => row.id === item.id);
             let mergedItem = {
                 ...product,
@@ -97,7 +95,7 @@ router.get('/checkout', async (req, res) => {
             mergedItem.image = `/product_images/${mergedItem.id}/${mergedItem.image}`
             mergedArray.push(mergedItem)
         })
-      
+
         res.render('checkout', {
             title: 'Checkout',
             cart: mergedArray
@@ -111,7 +109,7 @@ router.get('/update/:product', (req, res) => {
     const productID = req.params.product
     const cart = req.session.cart
     const action = req.query.action
-    if(req.isAuthenticated())
+    if (req.isAuthenticated())
         userID = req.user.id
     else userID = -1
     let updateQuery = ''
@@ -124,11 +122,11 @@ router.get('/update/:product', (req, res) => {
                     break
                 case "remove":
                     cart[i].quantity--;
-                    if (cart[i].quantity < 1){
+                    if (cart[i].quantity < 1) {
                         cart.splice(i, 1)
-                        updateQuery = `DELETE FROM cart WHERE product_id = ${mysql.escape(productID)} AND user_id = ${mysql.escape(userID)};`   
+                        updateQuery = `DELETE FROM cart WHERE product_id = ${mysql.escape(productID)} AND user_id = ${mysql.escape(userID)};`
                     }
-                    else{
+                    else {
                         updateQuery = `UPDATE cart SET quantity = quantity - 1 WHERE user_id = ${mysql.escape(userID)}`
                     }
                     break
@@ -144,7 +142,7 @@ router.get('/update/:product', (req, res) => {
         }
     }
     if (isAuthenticated(req)) {
-        if(userID != -1){
+        if (userID != -1) {
             updateCartDB(req, updateQuery, (err, status) => {
                 if (err) {
                     console.log(err)
@@ -152,7 +150,7 @@ router.get('/update/:product', (req, res) => {
                 req.flash('grey darken-4', `Cart updated`)
                 res.redirect('/cart/checkout')
             })
-        }else{
+        } else {
             req.flash('grey darken-4', `Cart updated`)
             res.redirect('/cart/checkout')
         }
@@ -189,8 +187,9 @@ router.get('/clear', (req, res) => {
 
 
 //GET PayTM payment gateway
-router.get("/payment",ensureAuthenticated, async (req, res) => {
+router.get("/payment", ensureAuthenticated, async (req, res) => {
     let transactionAmount = 0;
+    const orderID = cryptoRandomString({ length: 16, type: 'numeric' })
     const cart = req.session.cart
     if (typeof cart != "undefined" && cart.length > 0) {
         let filter = []
@@ -198,24 +197,21 @@ router.get("/payment",ensureAuthenticated, async (req, res) => {
             filter.push(cartItem.id)
         });
         filter = [filter, req.user.id]
-        console.log(filter)
         const query = 'SELECT id, title, stock, price FROM product WHERE id IN (?);'
         const products = await pool.query(query, filter)
-        console.log(products)
-        
+
+
         //Check stocks and prevent overbooking
         let flash = []
         let mergedArray = []
         cart.forEach(cartItem => {
             const dbProduct = products.find(dbItem => dbItem.id === cartItem.id);
-            console.log(`${dbProduct.stock} units of ${dbProduct.title} available`)
-            console.log("order  " + cartItem.quantity)
-            if (dbProduct.stock <= 0){
+            if (dbProduct.stock <= 0) {
                 flash.push(`${dbProduct.title} is out of stock`)
             }
-            else if(dbProduct.stock - cartItem.quantity < 0){
+            else if (dbProduct.stock - cartItem.quantity < 0) {
                 flash.push(`Only ${dbProduct.stock} units of ${dbProduct.title} is available`)
-            }else{
+            } else {
                 let subTotal = parseFloat(cartItem.quantity * dbProduct.price).toFixed(2)
                 transactionAmount += +parseFloat(subTotal).toFixed(2)
                 let mergedItem = {
@@ -225,19 +221,21 @@ router.get("/payment",ensureAuthenticated, async (req, res) => {
                 mergedArray.push(mergedItem)
             }
         });
-        if(flash.length > 0){
+        if (flash.length > 0) {
             req.flash('grey darken-4', flash)
             res.redirect('/cart/checkout')
-        }else{
-
-            const orderID = cryptoRandomString({ length: 16, type: 'numeric' })
-            const userEmail = req.user.email
-            const query = 'INSERT INTO orders (order_id, user_email, product_count, txnamount) VALUES (?);'
-            const values = [[orderID, userEmail, mergedArray.length, transactionAmount]]
+        } else {
+            const userID = req.user.id
+            const query = 'INSERT INTO orders (order_id, user_id, product_count, txnamount) VALUES (?);'
+            const values = [[orderID, userID, mergedArray.length, transactionAmount]]
             const status = await pool.query(query, values)
-            console.log(status)
-
-            initPayment(orderID, userEmail, transactionAmount).then(
+            const query2 = 'INSERT INTO order_item (order_id, product_id, purchase_price, quantity) VALUES ?;'
+            let order_items = []
+            mergedArray.forEach(item => {
+                order_items.push([orderID, item.id, item.price, item.quantity])
+            })
+            const status2 = await pool.query(query2, [order_items])
+            initPayment(orderID, `${userID}`, transactionAmount).then(
                 redirectData => {
                     res.render("paytm_redirect", {
                         title: 'Payment',
@@ -260,21 +258,46 @@ router.get("/payment",ensureAuthenticated, async (req, res) => {
 
 router.post("/paytm-response", (req, res) => {
     responsePayment(req.body).then(
-        success => {
-            console.log("paytm success")
-            console.log(success)
-            
+        paytm => {
+            console.log(paytm)
+            if (paytm.STATUS == 'TXN_SUCCESS') {
+                //Decrement ordered items stock
+                //insert order records to db
+                //Clear cart items from session
+                //clear cart items from DB 
 
-            //if(paytment is success)
-            //Decrement ordered items stock
-            //insert order records to db
-            //Clear cart items from session
-            //clear cart items from DB
+                // SELECT user.fullname, orders.user_id, cart.product_id
+                // FROM user
+                // INNER JOIN orders ON orders.user_id = user.id
+                // INNER JOIN cart ON orders.user_id = cart.user_id;
+
+                // const query = `select id, fullname FROM user WHERE user_id = (SELECT user_id FROM orders WHERE order_id = '${mysql.escape(paytm.ORDERID)}');`
+                // pool.query(query, (err, rows) => {
+                //     if (err) {
+                //         console.log(err)
+                //     }
+                //     console.log(rows)
+                // })
+                // console.log("---------------PAYTTM REQ-------------------")
+                // console.log(status)
+
+                // const query = 'INSERT INTO orders (order_id, user_email, product_count, txnamount) VALUES (?);'
+                // const values = [[orderID, userEmail, mergedArray.length, transactionAmount]]
+                // const status = await pool.query(query, values)
+
+
+
+            } else {
+                //view transaction failure message
+
+            }
+
+
 
             res.render('paytm_response', {
                 title: 'Order',
                 resultData: "true",
-                responseData: success
+                responseData: paytm
             });
         },
         error => {

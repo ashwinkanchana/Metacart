@@ -48,24 +48,24 @@
      margin-bottom: 20px;
  }
 
- img.spi {
+ .product-main-image {
      width: 100%;
  }
 
- ul.gallery li {
-     display: inline-block;
-     margin: 20px;
-     list-style: none;
+ .product-image-thumb {
+     margin: 5px;
+     max-width: 80px;
  }
 
- img.cpi {
-     width: 100px;
+ .cart-product-image {
+     width: 100%;
  }
 
- table.checkout tr td:last-child {
-     text-align: right;
+ .cart-card{
+     margin: 6px;
+     padding: 6px;
  }
-
+ 
  .togglePassword {
      -webkit-user-select: none;
      /* Safari */

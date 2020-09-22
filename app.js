@@ -20,10 +20,14 @@ const app = express();
 
 //Get DB pool
 const { pool, db_credential } = require('./config/database')
+const { ENGINE_METHOD_NONE } = require('constants')
+const { fail } = require('assert')
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs')
+
+
 
 // Set public folder
 app.use(express.static(path.join(__dirname, '/public')));
@@ -45,8 +49,8 @@ app.use(session({
     secret: process.env.EXPRESS_SESSION_SECRET,
     resave: true,
     saveUninitialized: true,
-    store: new MySQLStore(db_credential)
-    //cookie: { secure: true }
+    store: new MySQLStore(db_credential),
+    cookie: { sameSite:"none", secure:true, maxAge: 5200000 }
     //flash will not work with cookie 
 }))
 

@@ -1,76 +1,82 @@
 </main>
 <div class="fixed-action-btn">
-    <a href="#filter-modal" id="FAB" class="waves-effect waves-light modal-trigger btn-large purple lighten-1">Filters</a>
+    <a href="#filter-modal" id="FAB"
+        class="waves-effect waves-light modal-trigger btn-large purple lighten-1">Filters</a>
     <!-- <a href="#filter-modal" class="btn-floating btn-large waves-effect waves-light modal-trigger"><i class="material-icons">sort</i></a> -->
 </div>
 
 <!-- Modal Structure -->
 <div id="filter-modal" class="modal bottom-sheet modal-fixed-footer">
-    <div class="modal-content">
-        <h5>Filter and Sort</h5>
-        <p>Browse exactly what you want</p>
-        <div class="row">
-            <br>
-            <div class="input-field col s12 m8 offset-m2">
-                <select>
-                    <option value="" disabled selected>Category</option>
-                    <% if (typeof categories !== 'undefined') { %>
-                    <% categories.forEach(c => { %>
-                    <li class="collection-item">
-                        <option value="<%= c.slug %>"><%= c.title %></option>
-                    </li>
-                    <% }) %>
-                    <% } %>
-                </select>
-                <label>Product Category</label>
-            </div>
-            <br><br><br>
-            <div class="col s12 m8 offset-m2">
-                <label>Price range</label>
+    <form action="/search/filter" method="POST">
+        <div class="modal-content">
+            <h5>Filter and Sort</h5>
+            <p>Browse exactly what you want</p>
+            <div class="row">
                 <br>
-                <div id="range">
+                <div class="input-field col s12 m8 offset-m2 form-group">
+                    <select class="form-control" name="category">
+                        <option value="all" disabled selected>All</option>
+                        <% if (typeof categories !== 'undefined') { %>
+                        <% categories.forEach(c => { %>
+                        <li class="collection-item">
+                            <option value="<%= c.slug %>"><%= c.title %></option>
+                        </li>
+                        <% }) %>
+                        <% } %>
+                    </select>
+                    <label>Product Category</label>
                 </div>
-                <br>
-                <span id="price-min">₹ Minimum</span>
-                <span><strong> - </strong></span>
-                <span id="price-max">₹ Maximum</span>
-            </div>
-            <br><br><br>
-            <div class="col s12 m8 offset-m2">
-                <br>
-                <label>Sort</label>
-                <p>
-                    <label>
-                        <input name="sort" type="radio" checked />
-                        <span>Relevance</span>
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        <input name="sort" type="radio" />
-                        <span>Popularity</span>
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        <input name="sort" type="radio" />
-                        <span>Price: Low to High</span>
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        <input name="sort" type="radio" />
-                        <span>Price: High to Low</span>
-                    </label>
-                </p>
+                <br><br><br>
+                <input class="form-control" type="hidden" name="price-min" id="range-min" value="">
+                <input class="form-control" type="hidden" name="price-max" id="range-max" value="">
+                <div class="col s12 m8 offset-m2 form-group">
+                    <label>Price range</label>
+                    <br>
+                    <div id="range">
+                    </div>
+                    <br>
+                    <span id="price-min">₹ Minimum</span>
+                    <span><strong> - </strong></span>
+                    <span id="price-max">₹ Maximum</span>
+                </div>
+                <br><br><br>
+                <div class="col s12 m8 offset-m2 form-group">
+                    <br>
+                    <label>Sort</label>
+                    <p>
+                        <label>
+                            <input class="form-control" value="relevance" name="sort" type="radio" checked />
+                            <span>Relevance</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input class="form-control" value="popularity" name="sort" type="radio" />
+                            <span>Popularity</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input class="form-control" value="low-to-high" name="sort" type="radio" />
+                            <span>Price: Low to High</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input class="form-control" value="high-to-low" name="sort" type="radio" />
+                            <span>Price: High to Low</span>
+                        </label>
+                    </p>
 
+                </div>
             </div>
+
         </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="modal-close waves-effect btn-flat">Cancel</a>
-        <a href="#!" class="modal-close waves-effect waves-teal btn-flat">Apply</a>
-    </div>
+        <div class="modal-footer form-group">
+            <a href="#" class="modal-close waves-effect btn-flat">Cancel</a>
+            <button type="submit" class="modal-close waves-effect waves-teal btn-flat form-control">Apply</button>
+        </div>
+    </form>
 </div>
 
 <footer class="page-footer grey lighten-5">
@@ -152,6 +158,11 @@
             }
         });
 
+        var carousel= M.Carousel.init({
+            fullWidth: true,
+            indicators: true
+        });
+
 
         var selects = document.querySelectorAll('select');
         var instances = M.FormSelect.init(selects, {});
@@ -175,6 +186,8 @@
         range.noUiSlider.on('update', function (values, handle) {
             priceMin.innerHTML = `₹${parseInt(values[0])}`
             priceMax.innerHTML = `₹${parseInt(values[1])}`
+            document.getElementById("range-min").value = values[0]
+            document.getElementById("range-max").value = values[1]
         });
 
 

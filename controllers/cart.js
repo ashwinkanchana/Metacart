@@ -11,8 +11,6 @@ exports.mergeCartOnLogin = async function (req, user, next) {
             })
             const query = 'INSERT INTO cart (user_id, product_id, quantity) VALUES ? ON DUPLICATE KEY UPDATE quantity = VALUES(quantity);'
             const mergeCart = await pool.query(query, sessionCart)
-            console.log("merge cart")
-            console.log(mergeCart)
         }
         let newCart = []
         const query = 'SELECT * FROM cart WHERE user_id = ?;'

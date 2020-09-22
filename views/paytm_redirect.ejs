@@ -1,11 +1,42 @@
 <html>
+
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Payment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="shortcut icon" href="https://twemoji.maxcdn.com/2/svg/1f6d2.svg" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
 </head>
+
 <body>
-    <center>
-        <h3>Please do not refresh this page</h3>
-    </center>
+    <style>
+        body {
+            background-image: url("/images/redirect-background.svg");
+            background-position: center;
+            background-repeat: no-repeat; 
+            background-size: cover;
+        }
+        .center {
+            margin: auto;
+            width: 50%;
+            padding: 10px;
+        }
+        .center-text {
+            text-align: center;
+        }
+    </style>
+    <div class="center">
+        <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+        <lottie-player class="center" src="https://assets8.lottiefiles.com/packages/lf20_MoPFJl.json" background="transparent" speed="1"
+            style="width: 200px; height: 200px;" loop autoplay></lottie-player>
+        <h5 class="center-text">Please do not refresh this page</h5>
+        <div class="center">
+            <img class="center-vertical" src="https://img.icons8.com/color/48/000000/paytm.png" />
+        </div>
+    </div>
+
+
     <form method="post" action='<%= paytm %>' name="f1">
         <table>
             <tbody>

@@ -256,7 +256,6 @@ router.post('/forgot-password', ensureGuest, forgotPasswordValidator, async (req
             console.log(status)
             if (status[0].affectedRows == 1) {
                 const user = status[1][0];
-                console.log("user-->" + user)
                 sendForgotPasswordEmail(req, res, user)
             } else {
                 //User not found
@@ -311,7 +310,6 @@ router.post('/reset-password', ensureGuest, resetPasswordValidator, (req, res) =
                                     req.flash('red', `Something went wrong`)
                                     res.redirect('/auth')
                                 }
-                                console.log(status)
                                 if (status.affectedRows == 1) {
                                     req.flash('green', `Successfully changed password`)
                                     res.redirect('/auth/login')

@@ -1,78 +1,82 @@
-<%- include('./partials/header_minimal'); %>
+<%- include('./partials/header'); %>
 
-<div class="row">
-    <div class="container">
-        <% if (typeof cart !== "undefined") { %>
+
+<% if (typeof cart !== "undefined") { %>
+    <div class="row">
+        <div class="col offset-s1 offset-m1">
         <h5 class="page-title">My Cart</h5>
-        <table class="centered align-middle">
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th> </th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <% let total = 0 %>
-                <% cart.forEach(p => { %>
-                <% let sub = parseFloat(p.quantity * p.price).toFixed(2) %>
-                <% total += +sub %>
-                <tr>
-                    <td>
+        </div>
+    </div>
+<% let total = 0 %>
+<div class="row">
+    <% cart.forEach(p => { %>
+    <% let sub = parseFloat(p.quantity * p.price).toFixed(2) %>
+    <% total += +sub %>
+    <div class="col s12 m6 offset-m1">
+        <div class="card-panel cart-card">
+            <div class="row">
+                <div class="col s6 m4">
+                    <div class="row">
+                        <div class="col s12">
+                            <a href="/products/<%= p.category %>/<%= p.slug %> ">
+                                <img class="cart-product-image " src="<%= p.image %>" alt="">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s6 m7 offset-m1">
+                    <div class="row">
                         <a href="/products/<%= p.category %>/<%= p.slug %> ">
-                            <img class="cpi" src="<%= p.image %>" alt="">
+                            <h5><%= p.title %></h5>
                         </a>
-                    </td>
-                    <td>
-                        <a href="/products/<%= p.category %>/<%= p.slug %> ">
-                            <%= p.title %>
-                        </a>
-                    </td>
-                    <td>
                         ₹<%=parseFloat(p.price).toFixed(2)%>
-                    </td>
-                    <td>
-                        <%= p.quantity %>
-                    </td>
-                    <td>
-                        <a class="tooltipped" data-position="top" data-tooltip="Add one"
-                            href="/cart/update/<%= p.id %>?action=add"><i class="material-icons icon-grey">add</i></a>
-                        &nbsp;
-                        <a class="tooltipped" data-position="top" data-tooltip="Remove one"
-                            href="/cart/update/<%= p.id %>?action=remove"><i
-                                class="material-icons icon-grey">remove</i></a>
-                        &nbsp;
-                        <a href="/cart/update/<%= p.id %>?action=clear">Remove</a>
-                        &nbsp;
-
-                    </td>
-                    <td>
-                        <b>₹<%=parseFloat(sub).toFixed(2)%></b>
-                    </td>
-                </tr>
-                <% }) %>
-                <tr>
-                    <td colspan="6">
-                        <b> Total: ₹<%=parseFloat(total).toFixed(2)%></b>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <a href="/cart/clear" class="waves-effect waves-light btn red lighten-1 clearCart"><i
-                class="material-icons left">clear_all</i>Clear cart</a>
-        <a href="/cart/payment" class="waves-effect waves-light btn buynow"><i
-                class="material-icons left">shopping_basket</i>Checkout</a>
-
-        <% } else {%>
-        <h5 class="center-align">Your cart is empty</h5>
-        <% }  %>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <a class="tooltipped" data-position="top" data-tooltip="Drop all <%= p.title %>"
+                                href="/cart/update/<%= p.id %>?action=clear"><i class="material-icons icon-grey">delete</i></a>
+                        </div>
+                        <div class="col">
+                            <a class="tooltipped" data-position="top" data-tooltip="Remove"
+                                href="/cart/update/<%= p.id %>?action=remove"><i
+                                    class="material-icons icon-grey">remove</i></a>
+                        </div>
+                        <div class="col">
+                            <%= p.quantity %>
+                        </div>
+                        <div class="col">
+                            <a class="tooltipped" data-position="top" data-tooltip="Add"
+                                href="/cart/update/<%= p.id %>?action=add"><i
+                                    class="material-icons icon-grey">add</i></a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <span>Subtotal: </span><b>₹<%=parseFloat(sub).toFixed(2)%></b>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% }) %>
+    <div class="col s12 m4">
+        <div class="card-panel">
+            <h5><b>Total: ₹<%=parseFloat(total).toFixed(2)%></b></h5>
+            <br>
+            <a href="/cart/payment" class="waves-effect waves-light btn-large buynow"><i
+                    class="material-icons left">shopping_basket</i>Checkout</a>
+        </div>
     </div>
 </div>
+<% } else {%>
+<h5 class="center-align">Your cart is empty</h5>
+<% }  %>
+<div class="row">
+    <div class="col offset-m1">
+        <a href="/cart/clear" class="waves-effect waves-light btn-small red lighten-1 clearCart"><i
+                class="material-icons left">clear_all</i>Clear cart</a>
+    </div>
+</div>
+
 
 <script>
     $(function () {

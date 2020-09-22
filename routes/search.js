@@ -38,15 +38,12 @@ router.post('/products', searchValidator, async (req, res) => {
 })
 
 
-const searchTerms = async () =>{
-    const query = 'SELECT id, title, image FROM product;'   
-    const products = await pool.query(query)
-    let searchTerms = {}
-    products.forEach(p => {
-        terms.p.title = `/product_images /${p.id}/${p.image}`
-    });
-    searchTerms = JSON.stringify(searchTerms)
-}
+// POST search term
+router.post('/filter', (req, res) => {
+    const filter = req.body
+    console.log(filter)
+    res.redirect('/products')
+})
 
 
 module.exports = router
