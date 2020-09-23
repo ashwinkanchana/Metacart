@@ -28,7 +28,7 @@ const { fail } = require('assert')
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs')
-
+app.set('trust proxy', 1)
 
 
 // Set public folder
@@ -52,7 +52,7 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
     store: new MySQLStore(db_credential),
-    cookie: { sameSite:"none", secure:true, maxAge: 5200000 }
+    cookie: { sameSite: "none", secure: true, maxAge: null }
 }))
 
 //Set global error variable
@@ -72,6 +72,10 @@ app.use(passport.session())
 
 
 app.get('*',async(req, res, next) => {
+    //Force https
+    if (!req.secure) {
+        return res.redirect(['https://', req.get('Host'), req.url].join(''));
+    }
     res.locals.cart = req.session.cart
     res.locals.user = req.user
     res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
@@ -126,6 +130,7 @@ const port = process.env.PORT || 3000
 
 if(process.env.NODE_ENV == 'development'){
     //Use self signed SSL certificate for localhost 
+    console.log(chalk.blue("DEVELOPEMENT MODE"))
     const server = https.createServer({
         key: fs.readFileSync('./config/localhost+2-key.pem'),
         cert: fs.readFileSync('./config/localhost+2.pem'),

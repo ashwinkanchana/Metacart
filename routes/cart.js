@@ -63,7 +63,7 @@ router.get('/add/:product', async (req, res) => {
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('back')
+        res.redirect('/')
     }
 })
 
@@ -71,94 +71,106 @@ router.get('/add/:product', async (req, res) => {
 
 // GET checkout page
 router.get('/checkout', async (req, res) => {
-    
-    if (!req.session.cart || req.session.cart.length == 0) {
-        req.flash('grey darken-4', 'Your cart is empty')
-        res.redirect('/products')
-    } else {
-        const sessionCart = req.session.cart
-        let cartItemIds = []
-        sessionCart.forEach(item => {
-            cartItemIds.push(item.id)
-        });
+    try {
+        if (!req.session.cart || req.session.cart.length == 0) {
+            req.flash('grey darken-4', 'Your cart is empty')
+            res.redirect('/products')
+        } else {
+            const sessionCart = req.session.cart
+            let cartItemIds = []
+            sessionCart.forEach(item => {
+                cartItemIds.push(item.id)
+            });
 
-        const query = 'SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id WHERE product.id IN (?)';
-        const filter = [cartItemIds]
-        const productRows = await pool.query(query, filter)
-        let mergedArray = []
-        sessionCart.forEach((item, index) => {
-            const product = productRows.find(row => row.id === item.id);
-            let mergedItem = {
-                ...product,
-                ...item
-            }
-            mergedItem.price = parseFloat(mergedItem.price).toFixed(2)
-            mergedItem.image = `/product_images/${mergedItem.id}/${mergedItem.image}`
-            mergedArray.push(mergedItem)
-        })
+            const query = 'SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id WHERE product.id IN (?)';
+            const filter = [cartItemIds]
+            const productRows = await pool.query(query, filter)
+            let mergedArray = []
+            sessionCart.forEach((item, index) => {
+                const product = productRows.find(row => row.id === item.id);
+                let mergedItem = {
+                    ...product,
+                    ...item
+                }
+                mergedItem.price = parseFloat(mergedItem.price).toFixed(2)
+                mergedItem.image = `/product_images/${mergedItem.id}/${mergedItem.image}`
+                mergedArray.push(mergedItem)
+            })
 
-        res.render('checkout', {
-            title: 'Checkout',
-            cart: mergedArray
-        })
+            res.render('checkout', {
+                title: 'Checkout',
+                cart: mergedArray
+            })
+        }
+    } catch (error) {
+        console.log(error)
+        req.flash('red', 'Something went wrong!')
+        res.redirect('/')
     }
 })
 
 
 // GET update cart product count
 router.get('/update/:product', (req, res) => {
-    const productID = req.params.product
-    const cart = req.session.cart
-    const action = req.query.action
-    if (req.isAuthenticated())
-        userID = req.user.id
-    else userID = -1
-    let updateQuery = ''
-    for (let i = 0; i < cart.length; i++) {
-        if (cart[i].id == productID) {
-            switch (action) {
-                case "add":
-                    cart[i].quantity++
-                    updateQuery = `UPDATE cart SET quantity = quantity + 1 WHERE user_id = ${mysql.escape(userID)}`
-                    break
-                case "remove":
-                    cart[i].quantity--;
-                    if (cart[i].quantity < 1) {
-                        cart.splice(i, 1)
+    try {
+        const productID = req.params.product
+        const cart = req.session.cart
+        const action = req.query.action
+        if (req.isAuthenticated())
+            userID = req.user.id
+        else userID = -1
+        let updateQuery = ''
+        for (let i = 0; i < cart.length; i++) {
+            if (cart[i].id == productID) {
+                switch (action) {
+                    case "add":
+                        cart[i].quantity++
+                        updateQuery = `UPDATE cart SET quantity = quantity + 1 WHERE user_id = ${mysql.escape(userID)}`
+                        break
+                    case "remove":
+                        cart[i].quantity--;
+                        if (cart[i].quantity < 1) {
+                            cart.splice(i, 1)
+                            updateQuery = `DELETE FROM cart WHERE product_id = ${mysql.escape(productID)} AND user_id = ${mysql.escape(userID)};`
+                        }
+                        else {
+                            updateQuery = `UPDATE cart SET quantity = quantity - 1 WHERE user_id = ${mysql.escape(userID)}`
+                        }
+                        break
+                    case "clear":
                         updateQuery = `DELETE FROM cart WHERE product_id = ${mysql.escape(productID)} AND user_id = ${mysql.escape(userID)};`
-                    }
-                    else {
-                        updateQuery = `UPDATE cart SET quantity = quantity - 1 WHERE user_id = ${mysql.escape(userID)}`
-                    }
-                    break
-                case "clear":
-                    updateQuery = `DELETE FROM cart WHERE product_id = ${mysql.escape(productID)} AND user_id = ${mysql.escape(userID)};`
-                    cart.splice(i, 1)
-                    if (cart.length == 0)
-                        delete req.session.cart
-                    break
-                default: console.error('Something went wrong during update cart ')
-            }
-            break
-        }
-    }
-    if (isAuthenticated(req)) {
-        if (userID != -1) {
-            updateCartDB(req, updateQuery, (err, status) => {
-                if (err) {
-                    console.log(err)
+                        cart.splice(i, 1)
+                        if (cart.length == 0)
+                            delete req.session.cart
+                        break
+                    default: console.error('Something went wrong during update cart ')
                 }
+                break
+            }
+        }
+        if (isAuthenticated(req)) {
+            if (userID != -1) {
+                updateCartDB(req, updateQuery, (err, status) => {
+                    if (err) {
+                        console.log(err)
+                    }
+                    req.flash('grey darken-4', `Cart updated`)
+                    res.redirect('/cart/checkout')
+                })
+            } else {
                 req.flash('grey darken-4', `Cart updated`)
                 res.redirect('/cart/checkout')
-            })
+            }
         } else {
             req.flash('grey darken-4', `Cart updated`)
             res.redirect('/cart/checkout')
         }
-    } else {
-        req.flash('grey darken-4', `Cart updated`)
-        res.redirect('/cart/checkout')
+    } catch (error) {
+        console.log(error)
+        req.flash('red', 'Something went wrong!')
+        res.redirect('/')
     }
+    
 })
 
 
@@ -189,118 +201,113 @@ router.get('/clear', (req, res) => {
 
 //GET PayTM payment gateway
 router.get("/payment", ensureAuthenticated, async (req, res) => {
-    let transactionAmount = 0;
-    const orderID = cryptoRandomString({ length: 16, type: 'numeric' })
-    const cart = req.session.cart
-    if (typeof cart != "undefined" && cart.length > 0) {
-        let filter = []
-        cart.forEach(cartItem => {
-            filter.push(cartItem.id)
-        });
-        filter = [filter, req.user.id]
-        const query = 'SELECT id, title, stock, price FROM product WHERE id IN (?);'
-        const products = await pool.query(query, filter)
+    try {
+        let transactionAmount = 0;
+        const orderID = cryptoRandomString({ length: 16, type: 'numeric' })
+        const cart = req.session.cart
+        if (typeof cart != "undefined" && cart.length > 0) {
+            let filter = []
+            cart.forEach(cartItem => {
+                filter.push(cartItem.id)
+            });
+            filter = [filter, req.user.id]
+            const query = 'SELECT id, title, stock, price FROM product WHERE id IN (?);'
+            const products = await pool.query(query, filter)
 
 
-        //Check stocks and prevent overbooking
-        let flash = []
-        let mergedArray = []
-        cart.forEach(cartItem => {
-            const dbProduct = products.find(dbItem => dbItem.id === cartItem.id);
-            if (dbProduct.stock <= 0) {
-                flash.push(`${dbProduct.title} is out of stock`)
-            }
-            else if (dbProduct.stock - cartItem.quantity < 0) {
-                flash.push(`Only ${dbProduct.stock} units of ${dbProduct.title} is available`)
+            //Check stocks and prevent overbooking
+            let flash = []
+            let mergedArray = []
+            cart.forEach(cartItem => {
+                const dbProduct = products.find(dbItem => dbItem.id === cartItem.id);
+                if (dbProduct.stock <= 0) {
+                    flash.push(`${dbProduct.title} is out of stock`)
+                }
+                else if (dbProduct.stock - cartItem.quantity < 0) {
+                    flash.push(`Only ${dbProduct.stock} units of ${dbProduct.title} is available`)
+                } else {
+                    let subTotal = parseFloat(cartItem.quantity * dbProduct.price).toFixed(2)
+                    transactionAmount += +parseFloat(subTotal).toFixed(2)
+                    let mergedItem = {
+                        ...dbProduct,
+                        ...cartItem
+                    }
+                    mergedArray.push(mergedItem)
+                }
+            });
+            if (flash.length > 0) {
+                req.flash('grey darken-4', flash)
+                res.redirect('/cart/checkout')
             } else {
-                let subTotal = parseFloat(cartItem.quantity * dbProduct.price).toFixed(2)
-                transactionAmount += +parseFloat(subTotal).toFixed(2)
-                let mergedItem = {
-                    ...dbProduct,
-                    ...cartItem
-                }
-                mergedArray.push(mergedItem)
+                const userID = req.user.id
+                const query = 'INSERT INTO orders (order_id, user_id, product_count, txnamount) VALUES (?);'
+                const values = [[orderID, userID, mergedArray.length, transactionAmount]]
+                const status = await pool.query(query, values)
+                const query2 = 'INSERT INTO order_item (order_id, product_id, purchase_price, quantity) VALUES ?;'
+                let order_items = []
+                mergedArray.forEach(item => {
+                    order_items.push([orderID, item.id, item.price, item.quantity])
+                })
+                const status2 = await pool.query(query2, [order_items])
+                initPayment(orderID, `${userID}`, transactionAmount).then(
+                    redirectData => {
+                        res.render("paytm_redirect", {
+                            title: 'Payment',
+                            resultData: redirectData,
+                            paytm: process.env.PAYTM_FINAL_URL
+                        })
+                    },
+                    error => {
+                        res.send(error);
+                    }
+                );
             }
-        });
-        if (flash.length > 0) {
-            req.flash('grey darken-4', flash)
-            res.redirect('/cart/checkout')
         } else {
-            const userID = req.user.id
-            const query = 'INSERT INTO orders (order_id, user_id, product_count, txnamount) VALUES (?);'
-            const values = [[orderID, userID, mergedArray.length, transactionAmount]]
-            const status = await pool.query(query, values)
-            const query2 = 'INSERT INTO order_item (order_id, product_id, purchase_price, quantity) VALUES ?;'
-            let order_items = []
-            mergedArray.forEach(item => {
-                order_items.push([orderID, item.id, item.price, item.quantity])
-            })
-            const status2 = await pool.query(query2, [order_items])
-            initPayment(orderID, `${userID}`, transactionAmount).then(
-                redirectData => {
-                    res.render("paytm_redirect", {
-                        title: 'Payment',
-                        resultData: redirectData,
-                        paytm: process.env.PAYTM_FINAL_URL
-                    })
-                },
-                error => {
-                    res.send(error);
-                }
-            );
-        }
-    } else {
-        req.flash('red', `Your cart is empty`)
+            req.flash('red', `Your cart is empty`)
+            res.redirect('/cart/checkout')
+        }    
+    } catch (error) {
+        console.log(error)
+        req.flash('red', 'Something went wrong!')
         res.redirect('/cart/checkout')
     }
-
 })
 
 
 router.post("/paytm-response", (req, res) => {
-    responsePayment(req.body).then(
-        paytm => {
-            console.log(paytm)
-            if (paytm.STATUS == 'TXN_SUCCESS') {
-                res.render('paytm_response');
-                //Decrement ordered items stock
-                //insert order records to db
-                //Clear cart items from session
-                //clear cart items from DB 
+    try {
+        responsePayment(req.body).then(
+            paytm => {
+                console.log(paytm)
+                if (paytm.STATUS == 'TXN_SUCCESS') {
+                    res.render('paytm_response');
+                    //Decrement ordered items stock
+                    //insert order records to db
+                    //Clear cart items from session
+                    //clear cart items from DB 
+                    
+                    // const values = [[orderID, userEmail, mergedArray.length, transactionAmount]]
+                    // const status = await pool.query(query, values)
 
-                // SELECT user.fullname, orders.user_id, cart.product_id
-                // FROM user
-                // INNER JOIN orders ON orders.user_id = user.id
-                // INNER JOIN cart ON orders.user_id = cart.user_id;
+                } else {
+                    //view transaction failure message
+                    res.render('paytm_response', {
+                        title: 'Order',
+                        resultData: "false",
+                        responseData: paytm
+                    });
+                }
 
-                // const query = `select id, fullname FROM user WHERE user_id = (SELECT user_id FROM orders WHERE order_id = '${mysql.escape(paytm.ORDERID)}');`
-                // pool.query(query, (err, rows) => {
-                //     if (err) {
-                //         console.log(err)
-                //     }
-                //     console.log(rows)
-                // })
-                // console.log("---------------PAYTTM REQ-------------------")
-                // console.log(status)
-
-                // const query = 'INSERT INTO orders (order_id, user_email, product_count, txnamount) VALUES (?);'
-                // const values = [[orderID, userEmail, mergedArray.length, transactionAmount]]
-                // const status = await pool.query(query, values)
-
-            } else {
-                //view transaction failure message
-                res.render('paytm_response', {
-                    title: 'Order',
-                    resultData: "false",
-                    responseData: paytm
-                });
+            },
+            error => {
+                res.send(error);
             }
-
-        },
-        error => {
-            res.send(error);
-        }
-    );
+        );    
+    } catch (error) {
+        console.log(error)
+        req.flash('red', 'Something went wrong!')
+        res.redirect('/cart/checkout')
+    }
 });
 
 module.exports = router
