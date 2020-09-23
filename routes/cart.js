@@ -69,8 +69,8 @@ router.get('/add/:product', async (req, res) => {
 
 
 
-// GET checkout page
-router.get('/checkout', async (req, res) => {
+// GET cart page
+router.get('/', async (req, res) => {
     try {
         if (!req.session.cart || req.session.cart.length == 0) {
             req.flash('grey darken-4', 'Your cart is empty')
@@ -97,8 +97,8 @@ router.get('/checkout', async (req, res) => {
                 mergedArray.push(mergedItem)
             })
 
-            res.render('checkout', {
-                title: 'Checkout',
+            res.render('cart', {
+                title: 'Cart',
                 cart: mergedArray
             })
         }
@@ -155,15 +155,15 @@ router.get('/update/:product', (req, res) => {
                         console.log(err)
                     }
                     req.flash('grey darken-4', `Cart updated`)
-                    res.redirect('/cart/checkout')
+                    res.redirect('/cart')
                 })
             } else {
                 req.flash('grey darken-4', `Cart updated`)
-                res.redirect('/cart/checkout')
+                res.redirect('/cart')
             }
         } else {
             req.flash('grey darken-4', `Cart updated`)
-            res.redirect('/cart/checkout')
+            res.redirect('/cart')
         }
     } catch (error) {
         console.log(error)
@@ -194,120 +194,8 @@ router.get('/clear', (req, res) => {
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/cart/checkout')
+        res.redirect('/cart')
     }
 })
-
-
-//GET PayTM payment gateway
-router.get("/payment", ensureAuthenticated, async (req, res) => {
-    try {
-        let transactionAmount = 0;
-        const orderID = cryptoRandomString({ length: 16, type: 'numeric' })
-        const cart = req.session.cart
-        if (typeof cart != "undefined" && cart.length > 0) {
-            let filter = []
-            cart.forEach(cartItem => {
-                filter.push(cartItem.id)
-            });
-            filter = [filter, req.user.id]
-            const query = 'SELECT id, title, stock, price FROM product WHERE id IN (?);'
-            const products = await pool.query(query, filter)
-
-
-            //Check stocks and prevent overbooking
-            let flash = []
-            let mergedArray = []
-            cart.forEach(cartItem => {
-                const dbProduct = products.find(dbItem => dbItem.id === cartItem.id);
-                if (dbProduct.stock <= 0) {
-                    flash.push(`${dbProduct.title} is out of stock`)
-                }
-                else if (dbProduct.stock - cartItem.quantity < 0) {
-                    flash.push(`Only ${dbProduct.stock} units of ${dbProduct.title} is available`)
-                } else {
-                    let subTotal = parseFloat(cartItem.quantity * dbProduct.price).toFixed(2)
-                    transactionAmount += +parseFloat(subTotal).toFixed(2)
-                    let mergedItem = {
-                        ...dbProduct,
-                        ...cartItem
-                    }
-                    mergedArray.push(mergedItem)
-                }
-            });
-            if (flash.length > 0) {
-                req.flash('grey darken-4', flash)
-                res.redirect('/cart/checkout')
-            } else {
-                const userID = req.user.id
-                const query = 'INSERT INTO orders (order_id, user_id, product_count, txnamount) VALUES (?);'
-                const values = [[orderID, userID, mergedArray.length, transactionAmount]]
-                const status = await pool.query(query, values)
-                const query2 = 'INSERT INTO order_item (order_id, product_id, purchase_price, quantity) VALUES ?;'
-                let order_items = []
-                mergedArray.forEach(item => {
-                    order_items.push([orderID, item.id, item.price, item.quantity])
-                })
-                const status2 = await pool.query(query2, [order_items])
-                initPayment(orderID, `${userID}`, transactionAmount).then(
-                    redirectData => {
-                        res.render("paytm_redirect", {
-                            title: 'Payment',
-                            resultData: redirectData,
-                            paytm: process.env.PAYTM_FINAL_URL
-                        })
-                    },
-                    error => {
-                        res.send(error);
-                    }
-                );
-            }
-        } else {
-            req.flash('red', `Your cart is empty`)
-            res.redirect('/cart/checkout')
-        }    
-    } catch (error) {
-        console.log(error)
-        req.flash('red', 'Something went wrong!')
-        res.redirect('/cart/checkout')
-    }
-})
-
-
-router.post("/paytm-response", (req, res) => {
-    try {
-        responsePayment(req.body).then(
-            paytm => {
-                console.log(paytm)
-                if (paytm.STATUS == 'TXN_SUCCESS') {
-                    res.render('paytm_response');
-                    //Decrement ordered items stock
-                    //insert order records to db
-                    //Clear cart items from session
-                    //clear cart items from DB 
-                    
-                    // const values = [[orderID, userEmail, mergedArray.length, transactionAmount]]
-                    // const status = await pool.query(query, values)
-
-                } else {
-                    //view transaction failure message
-                    res.render('paytm_response', {
-                        title: 'Order',
-                        resultData: "false",
-                        responseData: paytm
-                    });
-                }
-
-            },
-            error => {
-                res.send(error);
-            }
-        );    
-    } catch (error) {
-        console.log(error)
-        req.flash('red', 'Something went wrong!')
-        res.redirect('/cart/checkout')
-    }
-});
 
 module.exports = router

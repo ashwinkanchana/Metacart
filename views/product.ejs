@@ -10,7 +10,7 @@
                     <h4 class="page-header"><%= p.title %> </h4>
                     <% if (p.stock != 0 ) { %>
                     <% if (cart && cart.some(el => el.id === p.id)) { %>
-                    <a href="/cart/checkout" class="waves-effect waves-light btn-large"><i
+                    <a href="/cart" class="waves-effect waves-light btn-large"><i
                             class="material-icons left">shopping_cart</i>Go
                         to cart</a>
                     <% }else{ %>

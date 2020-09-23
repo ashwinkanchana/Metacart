@@ -61,11 +61,11 @@
      width: 100%;
  }
 
- .cart-card{
+ .cart-card {
      margin: 6px;
      padding: 6px;
  }
- 
+
  .togglePassword {
      -webkit-user-select: none;
      /* Safari */
@@ -133,3 +133,9 @@
  .noUi-handle-touch-area {
      z-index: 5;
  }
+
+ #add-new-address {
+     padding: 0;
+     border-top: 0;
+ }
+

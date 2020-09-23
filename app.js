@@ -76,6 +76,9 @@ app.get('*',async(req, res, next) => {
     if (!req.secure) {
         return res.redirect(['https://', req.get('Host'), req.url].join(''));
     }
+    //current page for hiding filter button
+    res.locals.currentPage = req.path.split('/')[1]
+    
     res.locals.cart = req.session.cart
     res.locals.user = req.user
     res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
@@ -116,6 +119,9 @@ app.use('/admin/products', ensureAdmin, require('./routes/admin_products'))
 app.use('/search', require('./routes/search'))
 app.use('/products', require('./routes/products'))
 app.use('/cart', require('./routes/cart'))
+app.use('/account', ensureAuthenticated, require('./routes/account'))
+//app.use('/orders', ensureAuthenticated, require('./routes/orders'))
+app.use('/checkout', ensureAuthenticated, require('./routes/checkout'))
 app.use('/auth', require('./routes/auth'))
 app.use('/', require('./routes/pages'))
 

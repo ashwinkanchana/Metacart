@@ -3,7 +3,8 @@ module.exports = {
         if (req.isAuthenticated()) {
             return next()
         }
-        req.flash('red', 'Please login access this resource')
+        req.session.redirectTo = req.originalUrl; 
+        req.flash('red', 'Please login to continue')
         res.redirect('/auth/login')
     },
 
@@ -18,8 +19,6 @@ module.exports = {
     },
 
     ensureAdmin: function (req, res, next) {
-        console.log("ensure admin->")
-        console.log(req.user)
         if (req.isAuthenticated() && req.user.role == 'admin') {
             return next()
         }

@@ -1,15 +1,111 @@
 <%- include('./partials/header'); %>
 
 
-<% if (typeof cart !== "undefined") { %>
-    <div class="row">
-        <div class="col offset-s1 offset-m1">
-        <h5 class="page-title">My Cart</h5>
+<% if (typeof order !== "undefined") { %>
+<div class="row">
+    <div class="col offset-m1">
+        <h4 class="page-title purple-text text-darken-2">Checkout</h4>
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 m6 offset-m1">
+        <h5>Choose delivery address</h5>
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">My Addresses</span>
+                <form action="/checkout/payment" method="POST" id="address">
+                    <% if (address.length>0) { %>
+                    <% let i = 0 %>
+                    <% address.forEach(a => { %>
+                    <br>
+                    <p>
+
+                       
+                            <div class="row">
+                                <label>
+                                <div class="col s10 m8">
+                                    <input name="selected-address" value="<%= a.id %>" type="radio" <% if (i == 0) { %>
+                                        checked <% i = 1 %> <% } %> />
+                                    <span class="grey-text text-darken-3">
+                                        <strong><%=a.fullname%></strong><br>
+                                        <%=a.address%><br>
+                                        <%=a.pincode%><br>
+                                        Phone: <%=a.phone%><br>
+
+                                    </span>
+                                </div>
+                                <div class="col right">
+                                    <a href="/account/edit-address/<%= a.id %>"><i
+                                            class="material-icons right icon-grey tooltipped" data-position="top"
+                                            data-tooltip="Edit address">edit</i></a>
+                                </div>
+                                </label>
+                            </div>
+                        
+
+
+                    </p>
+                    <% }) %>
+                    <% }else{ %>
+                        <div class="input-field">
+                            <span class="helper-text">There are no saved addresses</span>
+                        </div>
+                    
+                    <% } %>
+                </form>
+            </div>
+            <div id="add-new-address" class="card-action">
+                <ul class="collapsible">
+                    <li <% if (open_address_form) { %> class="active" <% } %>>
+                        <div class="collapsible-header"><i class="material-icons">add</i><span
+                                class="purple-text"></span> Add a new address</div>
+                        <div class="collapsible-body">
+                            <form action="/checkout/add-address" method="POST" id="new-address">
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <i class="material-icons prefix">account_circle</i>
+                                        <input id="fullname" name="fullname" type="text">
+                                        <label for="fullname">Full Name <span class="red-text">*</span></label>
+                                    </div>
+
+                                    <div class="input-field col s12">
+                                        <i class="material-icons prefix">location_city</i>
+                                        <textarea id="address" name="address" class="materialize-textarea"
+                                            style="min-height: 100px;"></textarea>
+                                        <label for="address">Address <span class="red-text">*</span></label>
+                                    </div>
+                                    <div class="input-field col s6">
+                                        <i class="material-icons prefix">location_on</i>
+                                        <input id="pin" name="pin" type="text">
+                                        <label for="pin">PIN code <span class="red-text">*</span></label>
+
+                                    </div>
+                                    <div class="input-field col s6">
+                                        <i class="material-icons prefix">phone</i>
+                                        <input id="phone" name="phone" type="tel">
+                                        <label for="phone">Phone <span class="red-text">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" form="new-address"
+                                        class="modal-close waves-effect waves-teal purple-text btn-flat right">Save</button>
+                                </div>
+                                <br>
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
         </div>
     </div>
+</div>
 <% let total = 0 %>
 <div class="row">
-    <% cart.forEach(p => { %>
+    <div class="col s12 m6 offset-m1">
+        <h5>Order items</h5>
+    </div>
+    <% order.forEach(p => { %>
     <% let sub = parseFloat(p.quantity * p.price).toFixed(2) %>
     <% total += +sub %>
     <div class="col s12 m6 offset-m1">
@@ -34,11 +130,12 @@
                     <div class="row">
                         <div class="col">
                             <a class="tooltipped" data-position="top" data-tooltip="Drop all <%= p.title %>"
-                                href="/cart/update/<%= p.id %>?action=clear"><i class="material-icons icon-grey">delete</i></a>
+                                href="/checkout/update/<%= p.id %>?action=clear"><i
+                                    class="material-icons icon-grey">delete</i></a>
                         </div>
                         <div class="col">
                             <a class="tooltipped" data-position="top" data-tooltip="Remove"
-                                href="/cart/update/<%= p.id %>?action=remove"><i
+                                href="/checkout/update/<%= p.id %>?action=remove"><i
                                     class="material-icons icon-grey">remove</i></a>
                         </div>
                         <div class="col">
@@ -46,7 +143,7 @@
                         </div>
                         <div class="col">
                             <a class="tooltipped" data-position="top" data-tooltip="Add"
-                                href="/cart/update/<%= p.id %>?action=add"><i
+                                href="/checkout/update/<%= p.id %>?action=add"><i
                                     class="material-icons icon-grey">add</i></a>
                         </div>
                     </div>
@@ -62,31 +159,16 @@
         <div class="card-panel">
             <h5><b>Total: ₹<%=parseFloat(total).toFixed(2)%></b></h5>
             <br>
-            <a href="/cart/payment" class="waves-effect waves-light btn-large buynow"><i
-                    class="material-icons left">shopping_basket</i>Checkout</a>
+            <a href="/checkout/payment" class="waves-effect waves-light btn-large buynow"><i
+                    class="material-icons left">shopping_basket</i>Place order</a>
         </div>
     </div>
 </div>
 <% } else {%>
-<h5 class="center-align">Your cart is empty</h5>
-<% }  %>
-<div class="row">
-    <div class="col offset-m1">
-        <a href="/cart/clear" class="waves-effect waves-light btn-small red lighten-1 clearCart"><i
-                class="material-icons left">clear_all</i>Clear cart</a>
-    </div>
-</div>
-
-
 <script>
-    $(function () {
-        $('a.clearCart').on('click', function (e) {
-            if (!confirm('Clear all products from cart?'))
-                return false
-        })
-    })
+    window.location.replace("/");
 </script>
-
+<% }  %>
 
 
 <%- include('./partials/footer'); %>

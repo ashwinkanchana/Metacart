@@ -49,15 +49,20 @@ router.get('/signup', ensureGuest, (req, res) => {
 
 // GET google oauth
 router.get('/google',
-    passport.authenticate('google', { scope: ['profile', 'email'] /*accessType: 'offline', approvalPrompt: 'force'*/ }))
+    passport.authenticate('google', { scope: ['profile', 'email']}, 
+    /*accessType: 'offline', approvalPrompt: 'force'*/))
 
 
 // GET google oauth callback
-router.get('/google/callback', passport.authenticate('google', {
-    failureRedirect: '/auth/login',
-    successRedirect: '/'
-    //passReqToCallback: true
-}))
+router.get('/google/callback', passport.authenticate('google'), (req, res) => {
+    if(req.isAuthenticated()){
+        const redirectTO = req.session.redirectTo || '/'
+        delete req.session.redirectTO
+        res.redirect(redirectTO)
+    }else{
+        res.redirect('/')
+    }
+})
 
 // POST signup
 router.post('/signup', ensureGuest, signupValidator, async (req, res) => {
@@ -207,7 +212,10 @@ router.post('/login', ensureGuest, loginValidator, (req, res, next) => {
                         //Merge cart items from session to DB and DB to Session
                         mergeCartOnLogin(req, user, (err, status)=>{
                             req.flash('grey darken-4', `Hi ${user.fullname}!`)
-                            res.redirect('/')
+                            const redirectTo = req.session.redirectTo || '/'
+                            delete req.session.redirectTo;
+                            res.redirect(redirectTo);
+                            
                         })
                     })
                 }
