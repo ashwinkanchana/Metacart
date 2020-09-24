@@ -77,8 +77,8 @@ app.get('*',async(req, res, next) => {
         return res.redirect(['https://', req.get('Host'), req.url].join(''));
     }
     //current page for hiding filter button
-    res.locals.currentPage = req.path.split('/')[1]
-    
+    res.locals.currentPage = req.path.split('/')[1] 
+
     res.locals.cart = req.session.cart
     res.locals.user = req.user
     res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');

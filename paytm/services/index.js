@@ -1,6 +1,5 @@
 const checksum = require('../lib/checksum');
 const config = require('../config');
-const shortid = require('shortid');
 
 const initPayment = function(orderID, userID, amount) {
   return new Promise((resolve, reject) => {
@@ -20,7 +19,7 @@ const initPayment = function(orderID, userID, amount) {
       config.PAYTM_MERCHANT_KEY,
       (err, result) => {
         if (err) {
-          return reject('Error while generating checksum');
+          return reject('Payment failed, Error while generating checksum');
         } else {
           paymentObj.CHECKSUMHASH = result;
           return resolve(paymentObj);
@@ -41,7 +40,7 @@ const responsePayment = function(paymentObject) {
     ) {
       resolve(paymentObject);
     } else {
-      return reject('Error while verifying checksum');
+      return reject('Payment failed, Error while verifying checksum');
     }
   });
 };

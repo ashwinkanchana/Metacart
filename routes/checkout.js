@@ -15,28 +15,8 @@ router.get('/', async (req, res) => {
             req.flash('grey darken-4', 'Your order is empty')
             res.redirect('/products')
         } else {
-            const sessionCart = req.session.cart
-            let cartItemIds = []
-            sessionCart.forEach(item => {
-                cartItemIds.push(item.id)
-            });
-            const addressQuery = 'SELECT * FROM address WHERE user_id = (?);';
-            const addressFilter = [req.user.id]
-            const address = await pool.query(addressQuery, addressFilter)
-            const query = 'SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id WHERE product.id IN (?);';
-            const filter = [cartItemIds]
-            const productRows = await pool.query(query, filter)
-            let mergedArray = []
-            sessionCart.forEach((item, index) => {
-                const product = productRows.find(row => row.id === item.id);
-                let mergedItem = {
-                    ...product,
-                    ...item
-                }
-                mergedItem.price = parseFloat(mergedItem.price).toFixed(2)
-                mergedItem.image = `/product_images/${mergedItem.id}/${mergedItem.image}`
-                mergedArray.push(mergedItem)
-            })
+            const mergedArray = await getCartItems(req.session.cart)
+            const address = await getAddresses(req.user.id)
             let open_address_form;
             if(address.length>0)
                 open_address_form = false
@@ -114,20 +94,24 @@ router.get('/update/:product', (req, res) => {
 router.post('/add-address', newAddressValidator, async (req, res) => {
     try {
         const fullname = req.body.fullname
-        const address = req.body.address
+        const new_address = req.body.address
         const pincode = req.body.pin
         const phone = req.body.phone
         const errors = validationResult(req).array();
         if (errors.length > 0) {
+            const address = await getAddresses(req.user.id)
+            const mergedArray = await getCartItems(req.session.cart)
             res.render('checkout', {
-                errors, fullname, address, pincode, phone,
-                open_address_form: true
+                errors: [errors[0]], fullname, address, new_address, pincode, phone,
+                open_address_form: true,
+                order: mergedArray
             })
         }
         else {
             const query = 'INSERT INTO address (user_id, fullname, address, pincode, phone) VALUES (?);'
-            const values = [[req.user.id, fullname, address, pincode, phone]]
+            const values = [[req.user.id, fullname, new_address, pincode, phone]]
             const status = await pool.query(query, values)
+            req.flash('grey darken-4', 'Added a new address')
             res.redirect('/checkout')
         }
     } catch (error) {
@@ -139,10 +123,63 @@ router.post('/add-address', newAddressValidator, async (req, res) => {
 
 
 
+async function getCartItems(sessionCart){
+    try {
+        let cartItemIds = []
+        sessionCart.forEach(item => {
+            cartItemIds.push(item.id)
+        });
+        const query = 'SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id WHERE product.id IN (?);';
+        const filter = [cartItemIds]
+        const productRows = await pool.query(query, filter)
+        let mergedArray = []
+        sessionCart.forEach((item, index) => {
+            const product = productRows.find(row => row.id === item.id);
+            let mergedItem = {
+                ...product,
+                ...item
+            }
+            mergedItem.price = parseFloat(mergedItem.price).toFixed(2)
+            mergedItem.image = `/product_images/${mergedItem.id}/${mergedItem.image}`
+            mergedArray.push(mergedItem)
+        })
+        return mergedArray
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+
+async function getAddresses(userID){
+    try {
+        const addressQuery = 'SELECT * FROM address WHERE user_id = (?);';
+        const address = await pool.query(addressQuery, [userID])
+        return address
+    } catch (error) {
+        throw new Error(error)
+    }   
+}
+
+//verifying given address id belongs to current user
+async function verifyAddress(userID, addressID) {
+    try {
+        const addressQuery = 'SELECT id FROM address WHERE user_id = ? AND id = ?;';
+        const count = await pool.query(addressQuery, [userID, addressID])
+        return count.length
+    } catch (error) {
+        throw new Error(error)
+    }
+}
+
 
 //GET PayTM payment gateway
 router.post("/payment", async (req, res) => {
     try {
+        const deliveryAddressID = parseInt(req.body.selected_address)
+        if (await verifyAddress(req.user.id, deliveryAddressID) == 0){
+            req.flash('red', `Invalid address`)
+            return req.session.save(()=>{ res.redirect('/checkout')});
+        }
         let transactionAmount = 0;
         const orderID = cryptoRandomString({ length: 16, type: 'numeric' })
         const cart = req.session.cart
@@ -162,10 +199,10 @@ router.post("/payment", async (req, res) => {
             cart.forEach(cartItem => {
                 const dbProduct = products.find(dbItem => dbItem.id === cartItem.id);
                 if (dbProduct.stock <= 0) {
-                    flash.push(`${dbProduct.title} is out of stock`)
+                    flash.push(`${dbProduct.title} is out of stock, please remove ${dbProduct.title} to proceed`)
                 }
                 else if (dbProduct.stock - cartItem.quantity < 0) {
-                    flash.push(`Only ${dbProduct.stock} units of ${dbProduct.title} is available`)
+                    flash.push(`Only ${dbProduct.stock} unit of ${dbProduct.title} is available, please reduce quantity`)
                 } else {
                     let subTotal = parseFloat(cartItem.quantity * dbProduct.price).toFixed(2)
                     transactionAmount += +parseFloat(subTotal).toFixed(2)
@@ -178,11 +215,11 @@ router.post("/payment", async (req, res) => {
             });
             if (flash.length > 0) {
                 req.flash('grey darken-4', flash)
-                res.redirect('/checkout')
+                return req.session.save(() => { res.redirect('/checkout') });
             } else {
                 const userID = req.user.id
-                const query = 'INSERT INTO orders (order_id, user_id, product_count, txnamount) VALUES (?);'
-                const values = [[orderID, userID, mergedArray.length, transactionAmount]]
+                const query = 'INSERT INTO orders (order_id, user_id, address_id, product_count, txnamount) VALUES (?);'
+                const values = [[orderID, userID, deliveryAddressID, mergedArray.length, transactionAmount]]
                 const status = await pool.query(query, values)
                 const query2 = 'INSERT INTO order_item (order_id, product_id, purchase_price, quantity) VALUES ?;'
                 let order_items = []
@@ -199,55 +236,79 @@ router.post("/payment", async (req, res) => {
                         })
                     },
                     error => {
-                        res.send(error);
+                        console.log(error)
+                        res.render('./errors/invalid_checksum', {
+                            paytmError: error
+                        });
                     }
                 );
             }
         } else {
-            req.flash('red', `Your cart is empty`)
-            res.redirect('/cart/checkout')
+            req.flash('red', `Your order is empty`)
+            res.redirect('/checkout')
         }
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/cart/checkout')
+        res.redirect('/')
     }
 })
 
-
+//POST paytm response
 router.post("/paytm-response", (req, res) => {
     try {
         responsePayment(req.body).then(
             paytm => {
-                console.log(paytm)
+                const query = 'UPDATE orders SET txnid = ?, payment_status = ?, respcode = ?, respmsg = ?, gateway = ?, bankname = ?, paymentmode = ? WHERE order_id = ?'
+                const values = [paytm.TXNID, paytm.STATUS, paytm.RESPCODE, paytm.RESPMSG, paytm.GATEWAYNAME, paytm.BANKNAME,  paytm.PAYMENTMODE, paytm.ORDERID]
+                pool.query(query, values, (error, status)=>{
+                    if(error){
+                        console.log(error)
+                        throw new Error(error)
+                    }
+                })
                 if (paytm.STATUS == 'TXN_SUCCESS') {
-                    res.render('paytm_response');
                     //Decrement ordered items stock
                     //insert order records to db
                     //Clear cart items from session
                     //clear cart items from DB 
-                    const query = 'S (order_id, user_id, product_count, txnamount) VALUES (?);'
-                    // const values = [[orderID, userEmail, mergedArray.length, transactionAmount]]
-                    // const status = await pool.query(query, values)
+                    const query = 'UPDATE order_item SET status = payment_success WHERE order_id = ?'
+                    const filter = [paytm.ORDERID]
+                    pool.query(query, filter, (error, status) => {
+                        if (error) {
+                            console.log(error)
+                            throw new Error(error)
+                        }
+                        console.log(status)
+                    })
+                    res.render('paytm_response', {
+                        title: 'Payment Failed',
+                        redirectTo: '/orders',
+                    });
 
                 } else {
                     //view transaction failure message
                     res.render('paytm_response', {
-                        title: 'Order',
-                        resultData: "false",
-                        responseData: paytm
+                        title: 'Payment Failed',
+                        //todo
+                        //if paytm error message is null them redirect to homepage
+                        paytmErrorMessage: paytm.RESPMSG,
+                        redirectTo: '/checkout/payment-failure',
                     });
                 }
-
             },
             error => {
-                res.send(error);
+                //Invalid paytm checksum 
+                console.log(error)
+                res.render('./errors/invalid_checksum', {
+                    paytmError: error
+                });
             }
         );
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/cart/checkout')
+        res.redirect('/checkout')
     }
 });
 

@@ -1,83 +1,83 @@
 </main>
 <!-- Show filter button only on homepage and products route -->
-<% if (currentPage == '' || currentPage == 'products') { %>
-    <div class="fixed-action-btn">
-        <a href="#filter-modal" id="FAB"
-            class="waves-effect waves-light modal-trigger btn-large deep-purple lighten-1">Filters</a>
-    </div>
-    
-    <div id="filter-modal" class="modal bottom-sheet modal-fixed-footer">
-        <form action="/search/filter" method="POST">
-            <div class="modal-content">
-                <h5>Filter and Sort</h5>
-                <p>Browse exactly what you want</p>
-                <div class="row">
-                    <br>
-                    <div class="input-field col s12 m8 offset-m2 form-group">
-                        <select class="form-control" name="category">
-                            <option value="all" disabled selected>All</option>
-                            <% if (typeof categories !== 'undefined') { %>
-                            <% categories.forEach(c => { %>
-                            <li class="collection-item">
-                                <option value="<%= c.slug %>"><%= c.title %></option>
-                            </li>
-                            <% }) %>
-                            <% } %>
-                        </select>
-                        <label>Product Category</label>
-                    </div>
-                    <br><br><br>
-                    <input class="form-control" type="hidden" name="price-min" id="range-min" value="">
-                    <input class="form-control" type="hidden" name="price-max" id="range-max" value="">
-                    <div class="col s12 m8 offset-m2 form-group">
-                        <label>Price range</label>
-                        <br>
-                        <div id="range">
-                        </div>
-                        <br>
-                        <span id="price-min">₹ Minimum</span>
-                        <span><strong> - </strong></span>
-                        <span id="price-max">₹ Maximum</span>
-                    </div>
-                    <br><br><br>
-                    <div class="col s12 m8 offset-m2 form-group">
-                        <br>
-                        <label>Sort</label>
-                        <p>
-                            <label>
-                                <input class="form-control" value="relevance" name="sort" type="radio" checked />
-                                <span>Relevance</span>
-                            </label>
-                        </p>
-                        <p>
-                            <label>
-                                <input class="form-control" value="popularity" name="sort" type="radio" />
-                                <span>Popularity</span>
-                            </label>
-                        </p>
-                        <p>
-                            <label>
-                                <input class="form-control" value="low-to-high" name="sort" type="radio" />
-                                <span>Price: Low to High</span>
-                            </label>
-                        </p>
-                        <p>
-                            <label>
-                                <input class="form-control" value="high-to-low" name="sort" type="radio" />
-                                <span>Price: High to Low</span>
-                            </label>
-                        </p>
-    
-                    </div>
+<% if ((typeof currentPage != 'undefined')  && (currentPage == '' || currentPage == 'products')) { %>
+<div class="fixed-action-btn">
+    <a href="#filter-modal" id="FAB"
+        class="waves-effect waves-light modal-trigger btn-large deep-purple lighten-1">Filters</a>
+</div>
+
+<div id="filter-modal" class="modal bottom-sheet modal-fixed-footer">
+    <form action="/search/filter" method="POST">
+        <div class="modal-content">
+            <h5>Filter and Sort</h5>
+            <p>Browse exactly what you want</p>
+            <div class="row">
+                <br>
+                <div class="input-field col s12 m8 offset-m2 form-group">
+                    <select class="form-control" name="category">
+                        <option value="all" disabled selected>All</option>
+                        <% if (typeof categories !== 'undefined') { %>
+                        <% categories.forEach(c => { %>
+                        <li class="collection-item">
+                            <option value="<%= c.slug %>"><%= c.title %></option>
+                        </li>
+                        <% }) %>
+                        <% } %>
+                    </select>
+                    <label>Product Category</label>
                 </div>
-    
+                <br><br><br>
+                <input class="form-control" type="hidden" name="price-min" id="range-min" value="">
+                <input class="form-control" type="hidden" name="price-max" id="range-max" value="">
+                <div class="col s12 m8 offset-m2 form-group">
+                    <label>Price range</label>
+                    <br>
+                    <div id="range">
+                    </div>
+                    <br>
+                    <span id="price-min">₹ Minimum</span>
+                    <span><strong> - </strong></span>
+                    <span id="price-max">₹ Maximum</span>
+                </div>
+                <br><br><br>
+                <div class="col s12 m8 offset-m2 form-group">
+                    <br>
+                    <label>Sort</label>
+                    <p>
+                        <label>
+                            <input class="form-control" value="relevance" name="sort" type="radio" checked />
+                            <span>Relevance</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input class="form-control" value="popularity" name="sort" type="radio" />
+                            <span>Popularity</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input class="form-control" value="low-to-high" name="sort" type="radio" />
+                            <span>Price: Low to High</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input class="form-control" value="high-to-low" name="sort" type="radio" />
+                            <span>Price: High to Low</span>
+                        </label>
+                    </p>
+
+                </div>
             </div>
-            <div class="modal-footer form-group">
-                <a href="#" class="modal-close waves-effect btn-flat">Cancel</a>
-                <button type="submit" class="modal-close waves-effect waves-teal btn-flat form-control">Apply</button>
-            </div>
-        </form>
-    </div>
+
+        </div>
+        <div class="modal-footer form-group">
+            <a href="#" class="modal-close waves-effect btn-flat">Cancel</a>
+            <button type="submit" class="modal-close waves-effect waves-teal btn-flat form-control">Apply</button>
+        </div>
+    </form>
+</div>
 <% } %>
 
 
@@ -159,7 +159,7 @@
             }
         });
 
-        var carousel= M.Carousel.init({
+        var carousel = M.Carousel.init({
             fullWidth: true,
             indicators: true
         });
@@ -194,6 +194,7 @@
 
     });
 </script>
+
 
 
 <%- messages('messages', locals) %>

@@ -13,44 +13,43 @@
         <div class="card">
             <div class="card-content">
                 <span class="card-title">My Addresses</span>
-                <form action="/checkout/payment" method="POST" id="address">
+                <form action="/checkout/payment" method="POST" id="order">
                     <% if (address.length>0) { %>
                     <% let i = 0 %>
                     <% address.forEach(a => { %>
                     <br>
                     <p>
 
-                       
-                            <div class="row">
-                                <label>
-                                <div class="col s10 m8">
-                                    <input name="selected-address" value="<%= a.id %>" type="radio" <% if (i == 0) { %>
-                                        checked <% i = 1 %> <% } %> />
-                                    <span class="grey-text text-darken-3">
-                                        <strong><%=a.fullname%></strong><br>
-                                        <%=a.address%><br>
-                                        <%=a.pincode%><br>
-                                        Phone: <%=a.phone%><br>
+                    <div class="row">
+                        <label>
+                            <div class="col s10 m8">
+                                <input name="selected_address" value="<%= a.id %>" type="radio" <% if (i == 0) { %>
+                                    checked <% i = 1 %> <% } %> />
+                                <span class="grey-text text-darken-3">
+                                    <strong><%=a.fullname%></strong><br>
+                                    <%=a.address%><br>
+                                    <%=a.pincode%><br>
+                                    Phone: <%=a.phone%><br>
 
-                                    </span>
-                                </div>
-                                <div class="col right">
-                                    <a href="/account/edit-address/<%= a.id %>"><i
-                                            class="material-icons right icon-grey tooltipped" data-position="top"
-                                            data-tooltip="Edit address">edit</i></a>
-                                </div>
-                                </label>
+                                </span>
                             </div>
-                        
+                            <div class="col right">
+                                <a href="/account/edit-address/<%= a.id %>"><i
+                                        class="material-icons right icon-grey tooltipped" data-position="top"
+                                        data-tooltip="Edit address">edit</i></a>
+                            </div>
+                        </label>
+                    </div>
+
 
 
                     </p>
                     <% }) %>
                     <% }else{ %>
-                        <div class="input-field">
-                            <span class="helper-text">There are no saved addresses</span>
-                        </div>
-                    
+                    <div class="input-field">
+                        <span class="helper-text">There are no saved addresses</span>
+                    </div>
+
                     <% } %>
                 </form>
             </div>
@@ -64,26 +63,28 @@
                                 <div class="row">
                                     <div class="input-field col s12">
                                         <i class="material-icons prefix">account_circle</i>
-                                        <input id="fullname" name="fullname" type="text">
+                                        <input id="fullname" name="fullname" type="text" <% if (typeof fullname !== 'undefined') { %> value="<%= fullname %>" <% } %>>
                                         <label for="fullname">Full Name <span class="red-text">*</span></label>
                                     </div>
 
                                     <div class="input-field col s12">
                                         <i class="material-icons prefix">location_city</i>
                                         <textarea id="address" name="address" class="materialize-textarea"
-                                            style="min-height: 100px;"></textarea>
+                                            style="min-height: 100px;"><% if (typeof new_address !== 'undefined') { %> <%= new_address %><% } %></textarea>
                                         <label for="address">Address <span class="red-text">*</span></label>
                                     </div>
                                     <div class="input-field col s6">
                                         <i class="material-icons prefix">location_on</i>
-                                        <input id="pin" name="pin" type="text">
+                                        <input id="pin" name="pin" type="text" <% if (typeof pincode !== 'undefined') { %> value="<%= pincode %>" <% } %>>
                                         <label for="pin">PIN code <span class="red-text">*</span></label>
-
+                                        <span class="helper-text">Must be a 6 digit PIN code</span>
                                     </div>
                                     <div class="input-field col s6">
                                         <i class="material-icons prefix">phone</i>
-                                        <input id="phone" name="phone" type="tel">
+                                        <input id="phone" name="phone" type="tel" <% if (typeof phone !== 'undefined') {%> value="<%= phone %>"
+                                    <% } %> >
                                         <label for="phone">Phone <span class="red-text">*</span></label>
+                                        <span class="helper-text">Must be a 10 digit phone number</span>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -159,8 +160,8 @@
         <div class="card-panel">
             <h5><b>Total: ₹<%=parseFloat(total).toFixed(2)%></b></h5>
             <br>
-            <a href="/checkout/payment" class="waves-effect waves-light btn-large buynow"><i
-                    class="material-icons left">shopping_basket</i>Place order</a>
+            <button type="submit" form="order" href="/checkout/payment" class="waves-effect waves-light btn-large buynow"><i
+                    class="material-icons left">shopping_basket</i>Place order</button>
         </div>
     </div>
 </div>
