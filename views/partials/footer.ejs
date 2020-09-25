@@ -1,6 +1,8 @@
 </main>
 <!-- Show filter button only on homepage and products route -->
+<% let filterRequired = false %>
 <% if ((typeof currentPage != 'undefined')  && (currentPage == '' || currentPage == 'products')) { %>
+    <% filterRequired = true %> 
 <div class="fixed-action-btn">
     <a href="#filter-modal" id="FAB"
         class="waves-effect waves-light modal-trigger btn-large deep-purple lighten-1">Filters</a>
@@ -168,29 +170,30 @@
         var selects = document.querySelectorAll('select');
         var instances = M.FormSelect.init(selects, {});
 
-        var rangeSlider = document.getElementById('range');
-        noUiSlider.create(rangeSlider, {
-            start: [1, 50000],
-            connect: true,
-            step: 1,
-            orientation: 'horizontal',
-            range: {
-                'min': 1,
-                'max': 50000
-            },
-            format: wNumb({
-                decimals: 0
-            })
-        });
-        var priceMin = document.getElementById('price-min')
-        var priceMax = document.getElementById('price-max')
-        range.noUiSlider.on('update', function (values, handle) {
-            priceMin.innerHTML = `₹${parseInt(values[0])}`
-            priceMax.innerHTML = `₹${parseInt(values[1])}`
-            document.getElementById("range-min").value = values[0]
-            document.getElementById("range-max").value = values[1]
-        });
-
+        if('<%filterRequired%>'){
+            var rangeSlider = document.getElementById('range');
+            noUiSlider.create(rangeSlider, {
+                start: [1, 50000],
+                connect: true,
+                step: 1,
+                orientation: 'horizontal',
+                range: {
+                    'min': 1,
+                    'max': 50000
+                },
+                format: wNumb({
+                    decimals: 0
+                })
+            });
+            var priceMin = document.getElementById('price-min')
+            var priceMax = document.getElementById('price-max')
+            range.noUiSlider.on('update', function (values, handle) {
+                priceMin.innerHTML = `₹${parseInt(values[0])}`
+                priceMax.innerHTML = `₹${parseInt(values[1])}`
+                document.getElementById("range-min").value = values[0]
+                document.getElementById("range-max").value = values[1]
+            });
+        }
 
     });
 </script>

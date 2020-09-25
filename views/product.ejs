@@ -8,7 +8,7 @@
         <div class="col s12 m7">
             
                     <h4 class="page-header"><%= p.title %> </h4>
-                    <% if (p.stock != 0 ) { %>
+                    <% if (p.stock > 0 ) { %>
                     <% if (cart && cart.some(el => el.id === p.id)) { %>
                     <a href="/cart" class="waves-effect waves-light btn-large"><i
                             class="material-icons left">shopping_cart</i>Go

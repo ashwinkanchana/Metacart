@@ -8,6 +8,7 @@ const { initPayment, responsePayment } = require('../paytm/services/index')
 const { validationResult } = require('express-validator')
 const { newAddressValidator } = require('../validators/account')
 const { updateCartDB } = require('../controllers/cart')
+const { accessSync } = require('fs-extra')
 // GET checkout page
 router.get('/', async (req, res) => {
     try {
@@ -18,9 +19,9 @@ router.get('/', async (req, res) => {
             const mergedArray = await getCartItems(req.session.cart)
             const address = await getAddresses(req.user.id)
             let open_address_form;
-            if(address.length>0)
+            if (address.length > 0)
                 open_address_form = false
-            else 
+            else
                 open_address_form = true
 
             res.render('checkout', {
@@ -123,7 +124,7 @@ router.post('/add-address', newAddressValidator, async (req, res) => {
 
 
 
-async function getCartItems(sessionCart){
+async function getCartItems(sessionCart) {
     try {
         let cartItemIds = []
         sessionCart.forEach(item => {
@@ -150,14 +151,14 @@ async function getCartItems(sessionCart){
 }
 
 
-async function getAddresses(userID){
+async function getAddresses(userID) {
     try {
         const addressQuery = 'SELECT * FROM address WHERE user_id = (?);';
         const address = await pool.query(addressQuery, [userID])
         return address
     } catch (error) {
         throw new Error(error)
-    }   
+    }
 }
 
 //verifying given address id belongs to current user
@@ -176,9 +177,9 @@ async function verifyAddress(userID, addressID) {
 router.post("/payment", async (req, res) => {
     try {
         const deliveryAddressID = parseInt(req.body.selected_address)
-        if (await verifyAddress(req.user.id, deliveryAddressID) == 0){
+        if (await verifyAddress(req.user.id, deliveryAddressID) == 0) {
             req.flash('red', `Invalid address`)
-            return req.session.save(()=>{ res.redirect('/checkout')});
+            return req.session.save(() => { res.redirect('/checkout') });
         }
         let transactionAmount = 0;
         const orderID = cryptoRandomString({ length: 16, type: 'numeric' })
@@ -260,40 +261,52 @@ router.post("/paytm-response", (req, res) => {
         responsePayment(req.body).then(
             paytm => {
                 const query = 'UPDATE orders SET txnid = ?, payment_status = ?, respcode = ?, respmsg = ?, gateway = ?, bankname = ?, paymentmode = ? WHERE order_id = ?'
-                const values = [paytm.TXNID, paytm.STATUS, paytm.RESPCODE, paytm.RESPMSG, paytm.GATEWAYNAME, paytm.BANKNAME,  paytm.PAYMENTMODE, paytm.ORDERID]
-                pool.query(query, values, (error, status)=>{
-                    if(error){
+                const values = [paytm.TXNID, paytm.STATUS, paytm.RESPCODE, paytm.RESPMSG, paytm.GATEWAYNAME, paytm.BANKNAME, paytm.PAYMENTMODE, paytm.ORDERID]
+                pool.query(query, values, function (error, status) {
+                    if (error) {
                         console.log(error)
                         throw new Error(error)
                     }
                 })
                 if (paytm.STATUS == 'TXN_SUCCESS') {
-                    //Decrement ordered items stock
-                    //insert order records to db
-                    //Clear cart items from session
-                    //clear cart items from DB 
-                    const query = 'UPDATE order_item SET status = payment_success WHERE order_id = ?'
-                    const filter = [paytm.ORDERID]
-                    pool.query(query, filter, (error, status) => {
+                    //update order status in DB
+                    //Clear cart items from DB 
+                    const query = 'UPDATE order_item SET status = \'payment_success\' WHERE order_id = ?; DELETE FROM cart WHERE user_id = ?; SELECT product_id, quantity FROM order_item WHERE order_id = ?'
+                    const filter = [paytm.ORDERID, req.user.id, paytm.ORDERID]
+                    pool.query(query, filter, (error, rows) => {
                         if (error) {
                             console.log(error)
                             throw new Error(error)
                         }
-                        console.log(status)
-                    })
-                    res.render('paytm_response', {
-                        title: 'Payment Failed',
-                        redirectTo: '/orders',
-                    });
+                        orderProducts = rows[2];
 
+                        //Clear cart from session
+                        delete req.session.cart
+
+                        //Decrement ordered product stock
+                        let updateStockQueries = '';
+                        orderProducts.forEach(item => {
+                            updateStockQueries += `UPDATE product SET stock = stock - ${mysql.escape(item.quantity)} WHERE id = ${mysql.escape(item.product_id)} and stock  > 0;`
+                        });
+
+                        console.log(updateStockQueries)
+                        pool.query(updateStockQueries, (err, status) => {
+                            if (err) {
+                                console.log(err)
+                                throw new Error(err)
+                            }
+                            console.log(status)
+                            res.render('paytm_response', {
+                                title: 'Transaction Success',
+                                redirectTo: `/checkout/transaction/${paytm.ORDERID}`
+                            });
+                        })
+                    })
                 } else {
-                    //view transaction failure message
+                    //Go to retry order page
                     res.render('paytm_response', {
-                        title: 'Payment Failed',
-                        //todo
-                        //if paytm error message is null them redirect to homepage
-                        paytmErrorMessage: paytm.RESPMSG,
-                        redirectTo: '/checkout/payment-failure',
+                        title: 'Transaction Failed',
+                        redirectTo: `/checkout/transaction/${paytm.ORDERID}`
                     });
                 }
             },
@@ -311,5 +324,22 @@ router.post("/paytm-response", (req, res) => {
         res.redirect('/checkout')
     }
 });
+
+
+router.get('/transaction/:orderID', async (req, res) => {
+    const orderID = req.params.orderID
+    //verifying order id belongs to user
+    const query = 'SELECT * FROM orders WHERE order_id = ? AND user_id = ?;'
+    const filter = [orderID, req.user.id]
+    const order = await pool.query(query, filter)
+    if (order.length == 0) {
+        req.flash('grey darken-4', 'Invalid ID')
+        return req.session.save(() => { res.redirect('/') });
+    }
+    res.render('transaction', {
+        order: order[0]
+    })
+})
+
 
 module.exports = router

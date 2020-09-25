@@ -18,7 +18,7 @@
                 <div class="chip">
                     • <b>₹<%= parseFloat(p.price).toFixed(2)  %></b>
                 </div>
-                <% if (p.stock==0) { %>
+                <% if (p.stock <= 0) { %>
                 <span class="red-text"><strong>Out of stock</strong></span>
                 <% } %>
             </div>

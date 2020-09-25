@@ -1,0 +1,60 @@
+<%- include('./partials/header'); %>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+<br>
+
+<div class="row">
+    <div class="col s12 m10 offset-m1">
+        <div class="card">
+            <div class="card-content">
+                <% if (typeof order != 'undefined') { %>
+                <% if (order.payment_status == 'TXN_FAILURE') { %>
+                    <div class="row">
+                        <div class="col">
+                            <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_ed9D2z.json" background="transparent" speed="0.4"
+                                style="width: 75px; height: 75px; margin: 0 auto;" autoplay>
+                            </lottie-player>
+                        </div>
+                        <div class="col">
+                            <h5 class="red-text">Transaction failed</h5>
+                        </div>
+                    </div>
+                    <p><%= order.respmsg %></p>
+                <% } else if (order.payment_status == 'TXN_SUCCESS'){  %>
+                    <div class="row">
+                        <div class="col">
+                            <lottie-player src="https://assets10.lottiefiles.com/private_files/lf30_yo2zavgg.json" background="transparent"
+                                speed="0.7" style="width: 60px; height: 60px; margin: 0 auto;" autoplay>
+                            </lottie-player>
+                        </div>
+                        <div class="col">
+                            <h5 class="teal-text">Transaction success</h5>
+                        </div>
+                    </div>
+                    <% } %>
+               
+                <div class="input-field">
+                    <span class="helper-text">Transaction ID: <%= order.txnid %></span>
+                </div>
+                <div class="input-field">
+                    <span class="helper-text">Transaction amount: ₹<%= parseFloat(order.txnamount).toFixed(2) %></span>
+                </div>
+                
+                <% } else { %>
+                <script>
+                    window.location.replace("/");
+                </script>
+                <% } %>
+            </div>
+            <div class="card-action right-align">
+                <% if (order.payment_status == 'TXN_FAILURE') { %>
+                <a href="/checkout" class="purple-text">Retry order</a>
+                <% } else if (order.payment_status == 'TXN_SUCCESS'){  %>
+                <a href="/orders" class="purple-text">Go to orders</a>
+                <% } %>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('./partials/footer'); %>

@@ -12,6 +12,9 @@
 <script src="https://cdn.ckeditor.com/ckeditor5/21.0.0/classic/ckeditor.js"></script>
 <script src="/js/index.js"></script>
 <script>
+    const wysiwyg = document.querySelector('#wysiwyg');
+    ClassicEditor.create(wysiwyg)
+    
     document.addEventListener('DOMContentLoaded', function () {
          M.AutoInit();
          console.log('Auto init')
