@@ -111,6 +111,7 @@ if (process.env.NODE_ENV === 'development') {
 })()
 
 //admin routes
+app.use('/admin/orders', ensureAdmin, require('./routes/admin_orders'))
 app.use('/admin/pages', ensureAdmin, require('./routes/admin_pages'))
 app.use('/admin/categories', ensureAdmin, require('./routes/admin_categories'))
 app.use('/admin/products', ensureAdmin, require('./routes/admin_products'))
@@ -120,7 +121,7 @@ app.use('/search', require('./routes/search'))
 app.use('/products', require('./routes/products'))
 app.use('/cart', require('./routes/cart'))
 app.use('/account', ensureAuthenticated, require('./routes/account'))
-//app.use('/orders', ensureAuthenticated, require('./routes/orders'))
+app.use('/orders', ensureAuthenticated, require('./routes/orders'))
 app.use('/checkout', ensureAuthenticated, require('./routes/checkout'))
 app.use('/auth', require('./routes/auth'))
 app.use('/', require('./routes/pages'))

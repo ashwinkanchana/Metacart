@@ -1,0 +1,53 @@
+<%- include('./partials/header'); %>
+
+<% if (typeof orders !== "undefined") { %>
+<div class="row">
+    <div class="col offset-s1 offset-m1">
+        <h5 class="page-title purple-text text-darken-2">My Orders</h5>
+    </div>
+</div>
+<div class="row">
+    <% orders.forEach(o => { %>
+    <div class="col s12 m10 offset-m1">
+        <div class="card">
+            <p><%= o.created_at %></p>
+            <p><%= o.order_id %></p>
+            <p>Order total: ₹<%=parseFloat(o.txnamount).toFixed(2)%></p> 
+            <p><%= o.product_count %> Product(s)</p>
+            <p>Payment via <%= o.paymentmode %></p>
+            <p>Shipping address</p>
+            <%= o.fullname %> <br>
+            <%= o.address %> <br>
+            <%= o.pincode %> <br>
+            Phone: <%= o.phone %>
+            <div class="row">
+                <div class="col offset-s1 offset-m2">
+                    <% o.items.forEach(item => { %>
+                        <a href="/products/<%= item.category_slug %>/<%= item.slug %>">
+                            <img style="width: 60px;" src="/product_images/<%= item.product_id %>/<%= item.image %>" alt="">
+                        </a> 
+                        <a href="/products/<%= item.category_slug %>/<%= item.slug %>">
+                            <h5><%= item.title %></h5> 
+                        </a>
+                        <br>
+                        X<%= item.quantity %>
+                        <br>
+                        Bought for: ₹<%=parseFloat(item.purchase_price).toFixed(2)%>
+                        <br>
+                    <% }) %>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <% }) %>
+</div>
+<% } else {%>
+<h5 class="center-align">There are no orders</h5>
+<% }  %>
+
+
+
+
+
+<%- include('./partials/footer'); %>

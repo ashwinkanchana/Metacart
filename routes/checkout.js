@@ -332,7 +332,7 @@ router.get('/transaction/:orderID', async (req, res) => {
     const query = 'SELECT * FROM orders WHERE order_id = ? AND user_id = ?;'
     const filter = [orderID, req.user.id]
     const order = await pool.query(query, filter)
-    if (order.length == 0) {
+    if (order.length == 0 || order.txnid == '') {
         req.flash('grey darken-4', 'Invalid ID')
         return req.session.save(() => { res.redirect('/') });
     }

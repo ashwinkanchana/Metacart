@@ -1,8 +1,10 @@
 </main>
 <!-- Show filter button only on homepage and products route -->
 <% let filterRequired = false %>
-<% if ((typeof currentPage != 'undefined')  && (currentPage == '' || currentPage == 'products')) { %>
+<% if ((typeof currentPage != 'undefined')  && (currentPage == '' || currentPage == 'products' || currentPage == 'search')) { %>
     <% filterRequired = true %> 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Dogfalo/materialize@master/extras/noUiSlider/nouislider.css" />
+    <script src="https://cdn.jsdelivr.net/gh/Dogfalo/materialize@master/extras/noUiSlider/nouislider.min.js"></script>
 <div class="fixed-action-btn">
     <a href="#filter-modal" id="FAB"
         class="waves-effect waves-light modal-trigger btn-large deep-purple lighten-1">Filters</a>
@@ -12,9 +14,12 @@
     <form action="/search/filter" method="POST">
         <div class="modal-content">
             <h5>Filter and Sort</h5>
-            <p>Browse exactly what you want</p>
+            <div class="input-field">
+                <span class="helper-text">
+                    Browse exactly what you want
+                </span>
+            </div>
             <div class="row">
-                <br>
                 <div class="input-field col s12 m8 offset-m2 form-group">
                     <select class="form-control" name="category">
                         <option value="all" disabled selected>All</option>
@@ -41,7 +46,16 @@
                     <span><strong> - </strong></span>
                     <span id="price-max">₹ Maximum</span>
                 </div>
-                <br><br><br>
+                <br>
+                <div class="col s12 m8 offset-m2 form-group">
+                    <br>
+                    <p>
+                        <label>
+                            <input type="checkbox" />
+                            <span>Include out of stock</span>
+                        </label>
+                    </p>
+                </div>
                 <div class="col s12 m8 offset-m2 form-group">
                     <br>
                     <label>Sort</label>
@@ -71,6 +85,7 @@
                     </p>
 
                 </div>
+                
             </div>
 
         </div>
@@ -170,7 +185,7 @@
         var selects = document.querySelectorAll('select');
         var instances = M.FormSelect.init(selects, {});
 
-        if('<%filterRequired%>'){
+        if('<%=filterRequired%>' == 'true'){
             var rangeSlider = document.getElementById('range');
             noUiSlider.create(rangeSlider, {
                 start: [1, 50000],

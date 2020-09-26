@@ -16,8 +16,6 @@
     <link rel="shortcut icon" href="https://twemoji.maxcdn.com/2/svg/1f6d2.svg" type="image/x-icon">
     <script src="https://code.jquery.com/jquery-3.5.1.js"
         integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Dogfalo/materialize@master/extras/noUiSlider/nouislider.css"/>
-    <script src="https://cdn.jsdelivr.net/gh/Dogfalo/materialize@master/extras/noUiSlider/nouislider.min.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
 
 </head>
@@ -61,6 +59,12 @@
                         <ul id="account-dropdown" class="dropdown-content">
                             <% if (typeof user !== 'undefined') { %>
                             <li>
+                                <a class="blue-grey-text text-darken-1" href="/orders">
+                                    <i class="material-icons small">local_offer</i>
+                                    My Orders
+                                </a>
+                            </li>
+                            <li>
                                 <a class="blue-grey-text text-darken-1" href="/auth/logout">
                                     <i class="material-icons small">exit_to_app</i>
                                     Logout
@@ -79,7 +83,7 @@
                             <li class="divider" tabindex="-1"></li>
                             <% if (typeof user !== 'undefined' && user.role == 'admin') { %>
                             <li>
-                                <a class="blue-grey-text text-darken-1" href="/admin/pages">
+                                <a class="blue-grey-text text-darken-1" href="/admin/orders">
                                     <i class="material-icons small">security</i>Admin panel
                                 </a>
                             </li>
@@ -180,7 +184,14 @@
                                         </a>
                                     </div>
                                 </li>
-                                <% if (typeof user !== 'undefined') { %>
+        <% if (typeof user !== 'undefined') { %>
+        <li>
+            <div class="collapsible-header">
+                <i class="material-icons small">local_offer</i>
+                <a href="/orders">My Orders</a>
+            </div>
+        </li>
+
         <li>
             <div class="collapsible-header">
                 <i class="material-icons">exit_to_app</i>
@@ -212,7 +223,7 @@
         <li>
             <div class="collapsible-header">
                 <i class="material-icons">security</i>
-                <a href="/admin/pages">
+                <a href="/admin/orders">
                     Admin panel
                 </a>
             </div>
