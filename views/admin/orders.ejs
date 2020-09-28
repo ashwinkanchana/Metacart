@@ -1,9 +1,103 @@
 <%- include('../partials/adminHeader'); %>
 
-<div class="container input-fields">
-    <h4 class="page-title">Orders</h4>
-    
-    
+<!-- ADMIN ORDERS -->
+
+
+<% if (typeof orders !== "undefined" && orders.length != 0) { %>
+<div class="row">
+    <div class="col offset-s1 offset-m1">
+        <h5 class="page-title purple-text text-darken-2">Orders</h5>
+    </div>
 </div>
+<div class="row">
+    <% orders.forEach(o => { %>
+    <div class="col s12 m10 offset-m1">
+        <div class="card">
+            <p><%= o.created_at %></p>
+            <p><%= o.order_id %></p>
+            <p>Order total: ₹<%=parseFloat(o.txnamount).toFixed(2)%></p>
+            <p><%= o.product_count %> Product(s)</p>
+            <p>Payment via <%= o.paymentmode %></p>
+            <p>Shipping address</p>
+            <%= o.fullname %> <br>
+            <%= o.address %> <br>
+            <%= o.pincode %> <br>
+            Phone: <%= o.phone %>
+            <div class="row">
+                <div class="col offset-s1 offset-m2">
+                    <% o.items.forEach(item => { %>
+                    <a href="/products/<%= item.category_slug %>/<%= item.slug %>">
+                        <img style="width: 60px;" src="/product_images/<%= item.product_id %>/<%= item.image %>" alt="">
+                    </a>
+                    <a href="/products/<%= item.category_slug %>/<%= item.slug %>">
+                        <h5><%= item.title %></h5>
+                    </a>
+                    <br>
+                    <%= item.status %>
+                    <br>
+                    X<%= item.quantity %>
+                    <br>
+                    Bought for: ₹<%=parseFloat(item.purchase_price).toFixed(2)%>
+                    <br>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <select id="status">
+                                <optgroup label="Order">
+                                    <option value="1">Confirm</option>
+                                    <option value="2">Dispatched</option>
+                                    <option value="2">Delivered</option>
+                                </optgroup>
+                                <optgroup label="Cancellations">
+                                    <option value="3">Cancelled</option>
+                                </optgroup>
+                                <optgroup label="Returns">
+                                    <option value="3">Return requested</option>
+                                    <option value="4">Returned</option>
+                                </optgroup>
+                            </select>
+                            <label>Optgroups</label>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <% }) %>
+</div>
+<% } else {%>
+<h5 class="center-align">There are no orders</h5>
+<% }  %>
+
+
+
+<script>
+    // document.addEventListener('DOMContentLoaded', function () {
+    //     M.AutoInit();
+
+    //     var dropdown = document.querySelectorAll('.dropdown-trigger');
+    //     var instances = M.Dropdown.init(dropdown, {
+    //         constrainWidth: false,
+    //         hover: true,
+    //         coverTrigger: false
+    //     });
+
+    //     // var selects = document.querySelectorAll('select');
+    //     // var instance = M.FormSelect.init(selects, {});
+
+
+    // });
+
+    $(document).ready(function () {
+        var $select1 = $('select:not(.browser-default)');
+        $select1.material_select();
+        $select1.on('change', function (e) {
+            alert(e.target.value);
+        });
+    });
+
+</script>
+
 
 <%- include('../partials/adminFooter'); %>
