@@ -13,7 +13,7 @@ router.post('/products', searchValidator, async (req, res) => {
         const errors = validationResult(req).array();
         if (errors.length > 0) {
             req.flash('red', errors[0].msg)
-            res.redirect('back')
+            req.session.save(() => {  res.redirect('back') }) 
         }
         else {
             const query = 'SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id  WHERE product.title LIKE ?;'

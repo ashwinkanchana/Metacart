@@ -42,12 +42,12 @@ router.get('/:slug', async (req, res) => {
             })
         } else {
             req.flash('grey darken-4', 'Page doesn\'t exists')
-            res.status(404).render('./errors/404')
+            req.session.save(() => { res.status(404).render('./errors/404') }) 
         }
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/')
+        req.session.save(() => { res.redirect('/') }) 
     }
 })
 

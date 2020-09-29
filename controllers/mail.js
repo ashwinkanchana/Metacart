@@ -29,17 +29,18 @@ exports.sendAccountActivationEmail = function (req, res, user, status) {
         } else if (status == 'UNVERIFIED_LOGIN_ATTEMPT') {
             req.flash('grey darken-4', `Please verify your email, link has been resent to ${user.email}`)
         }
-        res.render('auth', {
+        req.session.save(() => {  res.render('auth', {
             active_tab: 'login',
             open_modal: false
-        })
+        }) }) 
+        
     })
         .catch(err => {
             req.flash('red', 'Something went wrong at our end!')
-            res.render('auth', {
+            req.session.save(() => {  res.render('auth', {
                 active_tab: 'login',
                 open_modal: false
-            })
+            }) })
         })
 },
 
@@ -60,11 +61,12 @@ exports.sendAccountActivationEmail = function (req, res, user, status) {
         sendgrid.send(emailData)
             .then(sent => {
                 req.flash('grey darken-4', `Password reset link has been sent to ${user.email}`)
-                res.redirect('/auth')
+                req.session.save(() => {  res.redirect('/auth') })
+                
             })
             .catch(err => {
                 req.flash('red', 'Something went wrong at our end!')
-                res.render('forgot_password')
+                req.session.save(() => {  res.render('forgot_password') })
             })
     }
 

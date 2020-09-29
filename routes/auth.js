@@ -86,14 +86,15 @@ router.post('/signup', ensureGuest, signupValidator, async (req, res) => {
                 if (user.verified) {
                     if (user.identifier == 'google') {
                         req.flash('grey darken-4', 'Account already exists, Please signin via Google')
-                        res.redirect('/auth/login')
+                        req.session.save(() => { res.redirect('/auth/login') })  
                     } else {
                         req.flash('grey darken-4', 'Account already exists, Please login')
-                        res.render('auth', {
+                        req.session.save(() => { res.render('auth', {
                             emailLogin: email,
                             active_tab: 'login',
                             open_modal: true
-                        })
+                        }) })  
+                        
                     }
                 } else {
                     const status = 'SECOND_SIGNUP_UNVERIFIED_ACCOUNT'
@@ -119,7 +120,7 @@ router.post('/signup', ensureGuest, signupValidator, async (req, res) => {
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/auth')
+        req.session.save(() => { res.redirect('/auth') })  
     }
 })
 
@@ -132,7 +133,7 @@ router.get('/activate/:jwt_token', ensureGuest, (req, res) => {
             if (err) {
                 console.log('Activation token error', err)
                 req.flash('red', `Link is either expired or invalid, Please login again to get new activation link`)
-                res.redirect('/auth')
+                req.session.save(() => { res.redirect('/auth') })  
             } else {
                 const { token } = jwt.decode(jwt_token)
                 const query = 'SELECT * FROM user WHERE verification_token = ? LIMIT 1;'
@@ -147,12 +148,12 @@ router.get('/activate/:jwt_token', ensureGuest, (req, res) => {
                             if (err) {
                                 console.log(err)
                                 req.flash('red', `Something went wrong`)
-                                res.redirect('/auth')
+                                req.session.save(() => { res.redirect('/auth') })  
                             } else {
                                 //Merge cart items from session to DB and DB to Session
                                 mergeCartOnLogin(req, user, (err, status)=>{
                                     req.flash('grey darken-4', `Hi ${user.fullname}!`)
-                                    res.redirect('/')
+                                    req.session.save(() => { res.redirect('/') })  
                                 })
                             }
                         })
@@ -160,14 +161,14 @@ router.get('/activate/:jwt_token', ensureGuest, (req, res) => {
                 } else {
                     console.log("user not found")
                     req.flash('red', `Invalid activation link, Please signup to get new activation link`)
-                    res.redirect('/auth')
+                    req.session.save(() => { res.redirect('/auth') }) 
                 }
             }
         })
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/auth')
+        req.session.save(() => { res.redirect('/auth') }) 
     }
 })
 
@@ -190,11 +191,11 @@ router.post('/login', ensureGuest, loginValidator, (req, res, next) => {
             }
             if (!user) {
                 req.flash('red', info.message)
-                res.render('auth', {
+                req.session.save(() => { res.render('auth', {
                     emailLogin: email,
                     active_tab: 'login',
                     open_modal: true
-                })
+                }) }) 
             }
             else if (user) {
                 if (!user.verified) {
@@ -206,7 +207,7 @@ router.post('/login', ensureGuest, loginValidator, (req, res, next) => {
                         if (err) {
                             console.log(err)
                             req.flash('red', `Something went wrong`)
-                            res.redirect('/auth/login')
+                            req.session.save(() => { res.redirect('/auth/login') }) 
                         }
 
                         //Merge cart items from session to DB and DB to Session
@@ -214,8 +215,7 @@ router.post('/login', ensureGuest, loginValidator, (req, res, next) => {
                             req.flash('grey darken-4', `Hi ${user.fullname}!`)
                             const redirectTo = req.session.redirectTo || '/'
                             delete req.session.redirectTo;
-                            res.redirect(redirectTo);
-                            
+                            req.session.save(() => { res.redirect(redirectTo) }) 
                         })
                     })
                 }
@@ -268,12 +268,12 @@ router.post('/forgot-password', ensureGuest, forgotPasswordValidator, async (req
             } else {
                 //User not found
                 req.flash('red', `Email not registered`)
-                res.render('forgot_password')
+                req.session.save(() => { res.render('forgot_password') }) 
             }
         } catch (error) {
             console.log(error)
             req.flash('red', 'Something went wrong!')
-            res.redirect('/auth')
+            req.session.save(() => { res.redirect('/auth') }) 
         }
     }
 })
@@ -301,7 +301,7 @@ router.post('/reset-password', ensureGuest, resetPasswordValidator, (req, res) =
             if (err) {
                 console.log('Password reset token error', err)
                 req.flash('red', `Link is either expired or invalid, Please use a fresh link`)
-                res.redirect('/auth/login')
+                req.session.save(() => { res.redirect('/auth/login') }) 
             } else {
                 const { token } = jwt.decode(token_jwt)
                 const password = req.body.password
@@ -316,15 +316,15 @@ router.post('/reset-password', ensureGuest, resetPasswordValidator, (req, res) =
                                 if (err) {
                                     console.log(err)
                                     req.flash('red', `Something went wrong`)
-                                    res.redirect('/auth')
+                                    req.session.save(() => {  res.redirect('/auth') }) 
                                 }
                                 if (status.affectedRows == 1) {
                                     req.flash('green', `Successfully changed password`)
-                                    res.redirect('/auth/login')
+                                    req.session.save(() => { res.redirect('/auth/login') }) 
                                 } else {
                                     console.log("User not found by reset token")
                                     req.flash('red', 'Link is either expired or invalid, Please use a valid link')
-                                    res.redirect('/auth/login')
+                                    req.session.save(() => { res.redirect('/auth/login') }) 
                                 }
                             })
                         }

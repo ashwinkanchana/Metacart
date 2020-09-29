@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
     try {
         if (!req.session.cart || req.session.cart.length == 0) {
             req.flash('grey darken-4', 'Your order is empty')
-            res.redirect('/products')
+            req.session.save(() => { res.redirect('/products') })
         } else {
             const mergedArray = await getCartItems(req.session.cart)
             const address = await getAddresses(req.user.id)
@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/')
+        req.session.save(() => { res.redirect('/') })
     }
 })
 
@@ -81,12 +81,12 @@ router.get('/update/:product', (req, res) => {
                 console.log(err)
             }
             req.flash('grey darken-4', `Cart updated`)
-            res.redirect('/checkout')
+            req.session.save(() => { res.redirect('/checkout') })
         })
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/')
+        req.session.save(() => { res.redirect('/') })
     }
 })
 
@@ -113,12 +113,12 @@ router.post('/add-address', newAddressValidator, async (req, res) => {
             const values = [[req.user.id, fullname, new_address, pincode, phone]]
             const status = await pool.query(query, values)
             req.flash('grey darken-4', 'Added a new address')
-            res.redirect('/checkout')
+            req.session.save(() => { res.redirect('/checkout') })
         }
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/')
+        req.session.save(() => { res.redirect('/') })
     }
 })
 
@@ -246,12 +246,12 @@ router.post("/payment", async (req, res) => {
             }
         } else {
             req.flash('red', `Your order is empty`)
-            res.redirect('/checkout')
+            req.session.save(() => { res.redirect('/checkout') }) 
         }
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/')
+        req.session.save(() => { res.redirect('/') }) 
     }
 })
 
@@ -321,7 +321,7 @@ router.post("/paytm-response", (req, res) => {
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/checkout')
+        req.session.save(() => { res.redirect('/checkout') }) 
     }
 });
 

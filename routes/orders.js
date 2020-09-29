@@ -48,7 +48,7 @@ router.get('/', async (req, res) => {
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/')
+        req.session.save(() => { res.redirect('/') }) 
     }
 })
 

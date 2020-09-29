@@ -54,7 +54,7 @@ router.post('/add-product', titleDescPriceImageValidator, async (req, res) => {
             const count = await pool.query(query, filter)
             if (count.length > 0) {
                 req.flash('red', 'Product title already exists, please use a different title')
-                res.render('admin/add_product', { title, desc, categories, category, price })
+                req.session.save(() => { res.render('admin/add_product', { title, desc, categories, category, price }) })
             }
             else {
                 var priceNumber = parseFloat(price).toFixed(2)
@@ -73,18 +73,18 @@ router.post('/add-product', titleDescPriceImageValidator, async (req, res) => {
                             return console.log(err)
                         }
                         req.flash('green', `Successfully added ${insertedProduct.title}`)
-                        res.redirect('/admin/products')
+                        req.session.save(() => { res.redirect('/admin/products') }) 
                     })
                 } else {
                     req.flash('green', `Successfully added ${insertedProduct.title}`)
-                    res.redirect('/admin/products')
+                    req.session.save(() => { res.redirect('/admin/products') }) 
                 }
             }
         }
     } catch (error) {
         console.log(error)
         req.flash('res', `Something went wrong!`)
-        res.redirect('/admin/products')
+        req.session.save(() => { res.redirect('/admin/products') }) 
     }
 })
 
@@ -127,7 +127,7 @@ router.get('/edit-product/:id', async (req, res) => {
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/admin/products')
+        req.session.save(() => { res.redirect('/admin/products') }) 
     }
 })
 
@@ -155,7 +155,7 @@ router.post('/edit-product/:id', titleDescPriceImageValidator, async (req, res) 
             console.log(count)
             if (count.length > 0) {
                 req.flash('red', 'Product title already exists, choose a different title')
-                res.redirect(`admin/products/edit_product/${id}`)
+                req.session.save(() => { res.redirect(`admin/products/edit_product/${id}`) }) 
             } else {
                 //new image is uploaded
                 if (image != "") {
@@ -178,21 +178,21 @@ router.post('/edit-product/:id', titleDescPriceImageValidator, async (req, res) 
                             return console.log(err)
                         }
                         req.flash('green', `Successfully modified ${title}`)
-                        res.redirect(`/admin/products`)
+                        req.session.save(() => { res.redirect(`/admin/products`) }) 
                     })
                 } else {
                     const query = 'UPDATE product SET title = ?, slug = ?,specs = ?, price=?, stock=?, category_id=? WHERE id = ?;'
                     const values = [title, slug, desc, price, stock, category, id]
                     const update = await pool.query(query, values)
                     req.flash('green', `Successfully modified ${title}`)
-                    res.redirect(`/admin/products`)
+                    req.session.save(() => { res.redirect(`/admin/products`) }) 
                 }
             }
         }
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/admin/products')
+        req.session.save(() => { res.redirect('/admin/products') }) 
     }
 })
 
@@ -233,7 +233,7 @@ router.get('/delete-image/:image', (req, res) => {
                     console.log(err)
                 } else {
                     req.flash('grey darken-4', `Successfully removed an image`)
-                    res.redirect(`/admin/products/edit-product/${id}`)
+                    req.session.save(() => { res.redirect(`/admin/products/edit-product/${id}`) })    
                 }
             })
         }
@@ -252,7 +252,7 @@ router.get('/delete-product/:id', (req, res) => {
             const filter = [id, id]
             const product = await pool.query(query, filter)
             req.flash('grey darken-4', `Successfully removed a ${product[0][0].title}`)
-            res.redirect(`/admin/products/`)
+            req.session.save(() => { res.redirect(`/admin/products/`) })  
         }
     })
 })

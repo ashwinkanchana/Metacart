@@ -50,20 +50,21 @@ router.get('/add/:product', async (req, res) => {
                         console.log(err)
                     }
                     req.flash('grey darken-4', `Added ${product.title} to cart`)
-                    res.redirect('back')
+                    req.session.save(() => { res.redirect('back') }) 
                 })
             } else {
                 req.flash('grey darken-4', `Added ${product.title} to cart`)
-                res.redirect('back')
+                req.session.save(() => { res.redirect('back') });
+                
             }
         } else {
             req.flash('red', `Product not found!`)
-            res.redirect('back')
+            req.session.save(() => { res.redirect('back') }) 
         }
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/')
+        req.session.save(() => { res.redirect('/') }) 
     }
 })
 
@@ -74,7 +75,7 @@ router.get('/', async (req, res) => {
     try {
         if (!req.session.cart || req.session.cart.length == 0) {
             req.flash('grey darken-4', 'Your cart is empty')
-            res.redirect('/products')
+            req.session.save(() => { res.redirect('/products') }) 
         } else {
             const sessionCart = req.session.cart
             let cartItemIds = []
@@ -105,7 +106,7 @@ router.get('/', async (req, res) => {
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/')
+        req.session.save(() => { res.redirect('/') }) 
     }
 })
 
@@ -155,20 +156,20 @@ router.get('/update/:product', (req, res) => {
                         console.log(err)
                     }
                     req.flash('grey darken-4', `Cart updated`)
-                    res.redirect('/cart')
+                    req.session.save(() => { res.redirect('/cart') }) 
                 })
             } else {
                 req.flash('grey darken-4', `Cart updated`)
-                res.redirect('/cart')
+                req.session.save(() => { res.redirect('/cart') }) 
             }
         } else {
             req.flash('grey darken-4', `Cart updated`)
-            res.redirect('/cart')
+            req.session.save(() => { res.redirect('/cart') }) 
         }
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/')
+        req.session.save(() => { res.redirect('/') }) 
     }
     
 })
@@ -185,16 +186,16 @@ router.get('/clear', (req, res) => {
                     console.log(err)
                 }
                 req.flash('grey darken-4', `Cart cleared`)
-                res.redirect('/products')
+                req.session.save(() => { res.redirect('/products') }) 
             })
         } else {
             req.flash('grey darken-4', `Cart cleared`)
-            res.redirect('/products')
+            req.session.save(() => { res.redirect('/products') }) 
         }
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/cart')
+        req.session.save(() => { res.redirect('/cart') }) 
     }
 })
 

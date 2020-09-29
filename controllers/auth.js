@@ -5,13 +5,13 @@ module.exports = {
         }
         req.session.redirectTo = req.originalUrl; 
         req.flash('red', 'Please login to continue')
-        res.redirect('/auth/login')
+        req.session.save(() => {  res.redirect('/auth/login') })
     },
 
     ensureGuest: function (req, res, next) {
         if (req.isAuthenticated()) {
             req.flash('red', 'Access denied')
-            res.redirect('/home')
+            req.session.save(() => {  res.redirect('/home') })
         }
         else {
             return next()
@@ -24,7 +24,7 @@ module.exports = {
         }
         else {
             req.flash('red', 'Please login as Admin')
-            res.redirect('/')
+            req.session.save(() => {  res.redirect('/') })
         }
     },
 

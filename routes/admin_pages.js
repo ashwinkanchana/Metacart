@@ -41,14 +41,14 @@ router.post('/add-page', titleContentValidator, async (req, res) => {
             if (page.length > 0) {
                 //slug in use
                 req.flash('red', 'Page slug exists please use a different slug')
-                res.render('admin/add_page', { title, slug, content })
+                req.session.save(() => { res.render('admin/add_page', { title, slug, content }) })
             } else {
                 const insertAndGetAllPage = 'INSERT INTO page (title, slug, content, sorting) VALUES (?); SELECT id, title, slug FROM page ORDER BY sorting;'
                 const pages = await pool.query(insertAndGetAllPage, [[title, slug, content, 100]])
                 /*Defalut sorting ->100*/
                 req.app.locals.pages = pages[1]
                 req.flash('green', `Successfully added ${title} page`)
-                res.redirect('/admin/pages')
+                req.session.save(() => { res.redirect('/admin/pages') })
             }
         }
     } catch (error) {
@@ -130,7 +130,7 @@ router.post('/edit-page/:id', titleContentValidator, async (req, res) => {
             const page = await pool.query(query, filter)
             if (page.length > 0) {
                 req.flash('red', 'Page slug already exists, Please use a different slug')
-                res.render('admin/edit_page', { title, slug, content, id })
+                req.session.save(() => { res.render('admin/edit_page', { title, slug, content, id }) })
             }
             else {
                 const query = 'UPDATE page SET title = ? , slug = ? , content = ? WHERE id = ?; SELECT id, title, slug FROM page ORDER BY sorting;'
@@ -138,7 +138,7 @@ router.post('/edit-page/:id', titleContentValidator, async (req, res) => {
                 const pages = await pool.query(query, updatedData)
                 req.app.locals.pages = pages[1]
                 req.flash('green', `Successfully modified ${title} page`)
-                res.redirect('/admin/pages/')
+                req.session.save(() => { res.redirect('/admin/pages/') })
             }
         }
     } catch (error) {
@@ -154,7 +154,7 @@ router.get('/delete-page/:id', async (req, res) => {
         const pages = await pool.query(query, id)
         req.app.locals.pages = pages[2]
         req.flash('grey darken-4', `Successfully deleted ${pages[0][0].title} page`)
-        res.redirect('/admin/pages')
+        req.session.save(() => { res.redirect('/admin/pages') })
     } catch (error) {
         console.log(error)
     } 

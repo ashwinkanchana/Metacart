@@ -34,13 +34,13 @@ router.get('/:category', async (req, res) => {
             })
         }else{
             req.flash('grey darken-4', 'Category doesn\'t exists')
-            res.redirect('/products')
+            req.session.save(() => {  res.redirect('/products') }) 
         }
         
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/products')
+        req.session.save(() => {  res.redirect('/products') }) 
     }
 })
 
@@ -59,7 +59,7 @@ router.get('/:category/:product', async (req, res) => {
                 if (err) {
                     console.log(err)
                     req.flash('red', 'Something went wrong!')
-                    res.redirect('/products')
+                    req.session.save(() => {  res.redirect('/products') }) 
                 } else {
                     galleryImages = files
                     res.render('product', {
@@ -71,12 +71,12 @@ router.get('/:category/:product', async (req, res) => {
             })
         }else{
             req.flash('grey darken-4', 'Product doesn\'t exists')
-            res.redirect('/products')
+            req.session.save(() => {  res.redirect('/products') }) 
         }
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/products')
+        req.session.save(() => {  res.redirect('/products') }) 
     }
 })
 

@@ -38,7 +38,7 @@ router.post('/add-category', titleValidator, async (req, res) => {
             const count = await pool.query(query, filter)
             if (count.length > 0) {
                 req.flash('red', 'Category already exists please use a different title')
-                res.render('admin/add_category', { title })
+                req.session.save(() => { res.render('admin/add_category', { title }) })
             }
             else {
                 const query = 'INSERT INTO category (title, slug) VALUES (?); SELECT id, title, slug FROM category;'
@@ -46,7 +46,7 @@ router.post('/add-category', titleValidator, async (req, res) => {
                 const insert = await pool.query(query, values)
                 req.app.locals.categories = insert[1]
                 req.flash('green', `Successfully added ${title}`)
-                res.redirect('/admin/categories')
+                req.session.save(() => { res.redirect('/admin/categories') })
             }
         }
     } catch (error) {
@@ -86,7 +86,7 @@ router.post('/edit-category/:id', titleValidator, async (req, res) => {
             const count = await pool.query(query, filter)
             if (count.length > 0) {
                 req.flash('red', 'Category already exists, Please use a different title')
-                res.render('admin/edit_category', { title, id })
+                req.session.save(() => { res.render('admin/edit_category', { title, id }) })
             }
             else {
                 const query = 'UPDATE category SET title = ? , slug = ? WHERE id = ?; SELECT id, title, slug FROM category;'
@@ -94,7 +94,7 @@ router.post('/edit-category/:id', titleValidator, async (req, res) => {
                 const categories = await pool.query(query, updatedData)
                 req.app.locals.categories = categories[1]
                 req.flash('green', `Successfully modified as ${title}`)
-                res.redirect('/admin/categories')
+                req.session.save(() => { res.redirect('/admin/categories') })
             }
         }
     } catch (error) {
@@ -110,7 +110,7 @@ router.get('/delete-category/:id', async (req, res) => {
         const category = await pool.query(query, id)
         req.app.locals.categories = category[2]
         req.flash('grey darken-4', `Successfully deleted ${category[0][0].title}`)
-        res.redirect('/admin/categories')
+        req.session.save(() => { res.redirect('/admin/categories') })
     } catch (error) {
         console.log(error)
     } 

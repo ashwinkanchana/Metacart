@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/')
+        req.session.save(() => { res.redirect('/') })
     }
 })
 
@@ -61,11 +61,11 @@ router.get('/update-order/:orderID/:productID/:status', async (req, res) => {
         const rows = await pool.query(query, values)
         console.log(rows)
         req.flash('grey darken-4', 'Order status updated')
-        return req.session.save(() => { res.redirect('back') });
+        req.session.save(() => { res.redirect('back') });
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        res.redirect('/')
+        req.session.save(() => { res.redirect('/') })
     }
 })
 
