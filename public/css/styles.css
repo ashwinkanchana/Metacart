@@ -139,3 +139,42 @@
      border-top: 0;
  }
 
+
+.helper-txt {
+    position: relative;
+    min-height: 18px;
+    display: block;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.54);
+  }
+
+
+
+
+  .collapsible-header-order-item{
+    padding: 0.4rem;
+    line-height: 1;
+ }
+
+ .collapsible-body-order-item {
+    padding: 1.4rem;
+}
+
+.order-item-title{
+    font-size: 1.3rem;
+    color: #353535;
+}
+
+
+.status-text{
+    font-size: 1.4em;
+    margin-bottom: 32px;
+}
+
+.Confirmed-text{
+    color: rgb(5, 184, 109);
+}
+
+.Cancelled-text{
+    color: rgb(236, 75, 75);
+}

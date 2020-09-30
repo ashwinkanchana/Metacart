@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const mysql = require('mysql')
+const moment = require('moment')
 const { pool } = require('../config/database')
 
 // GET orders page
@@ -10,14 +11,13 @@ router.get('/', async (req, res) => {
         const filter = [req.user.id]
         const orders = await pool.query(query, filter)
         if (orders.length == 0) {
-            return res.render('orders', {
-                orders: []
-            })
+            return res.render('orders')
         }
         let ids = []
        
         orders.forEach((o, index) => {
             orders[index].items = []
+            orders[index].created_at = moment(orders[index].created_at).utcOffset("+05:30").format('MMM Do YYYY, h:mm a');
             ids.push(parseInt(o.order_id)) 
         });
 
@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
             
             orders.forEach((order, index) => {
                 orderItems.forEach(item => {
-                    if(order.order_id == item.order_id && item.status != 'payment_init'){
+                    if(order.order_id == item.order_id && item.status != 'Payment init'){
                         orders[index].items.push(item)
                     }
                 })
@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
                 orders
             })
         })
-    } catch (error) {
+    } catch(error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
         req.session.save(() => { res.redirect('/') }) 

@@ -246,12 +246,12 @@ router.post("/payment", async (req, res) => {
             }
         } else {
             req.flash('red', `Your order is empty`)
-            req.session.save(() => { res.redirect('/checkout') }) 
+            req.session.save(() => { res.redirect('/checkout') })
         }
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        req.session.save(() => { res.redirect('/') }) 
+        req.session.save(() => { res.redirect('/') })
     }
 })
 
@@ -260,8 +260,9 @@ router.post("/paytm-response", (req, res) => {
     try {
         responsePayment(req.body).then(
             paytm => {
+                const paymentmode = getPaymentModeName(paytm.PAYMENTMODE)
                 const query = 'UPDATE orders SET txnid = ?, payment_status = ?, respcode = ?, respmsg = ?, gateway = ?, bankname = ?, paymentmode = ? WHERE order_id = ?'
-                const values = [paytm.TXNID, paytm.STATUS, paytm.RESPCODE, paytm.RESPMSG, paytm.GATEWAYNAME, paytm.BANKNAME, paytm.PAYMENTMODE, paytm.ORDERID]
+                const values = [paytm.TXNID, paytm.STATUS, paytm.RESPCODE, paytm.RESPMSG, paytm.GATEWAYNAME, paytm.BANKNAME, paymentmode, paytm.ORDERID]
                 pool.query(query, values, function (error, status) {
                     if (error) {
                         console.log(error)
@@ -271,7 +272,7 @@ router.post("/paytm-response", (req, res) => {
                 if (paytm.STATUS == 'TXN_SUCCESS') {
                     //update order status in DB
                     //Clear cart items from DB 
-                    const query = 'UPDATE order_item SET status = \'payment_success\' WHERE order_id = ?; DELETE FROM cart WHERE user_id = ?; SELECT product_id, quantity FROM order_item WHERE order_id = ?'
+                    const query = 'UPDATE order_item SET status = \'Payment success\' WHERE order_id = ?; DELETE FROM cart WHERE user_id = ?; SELECT product_id, quantity FROM order_item WHERE order_id = ?'
                     const filter = [paytm.ORDERID, req.user.id, paytm.ORDERID]
                     pool.query(query, filter, (error, rows) => {
                         if (error) {
@@ -321,7 +322,7 @@ router.post("/paytm-response", (req, res) => {
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        req.session.save(() => { res.redirect('/checkout') }) 
+        req.session.save(() => { res.redirect('/checkout') })
     }
 });
 
@@ -341,5 +342,25 @@ router.get('/transaction/:orderID', async (req, res) => {
     })
 })
 
+
+
+function getPaymentModeName(code) {
+    switch (code) {
+        case 'CC':
+            return 'Credit card'
+        case 'DC':
+            return 'Debit card'
+        case 'CC':
+            return 'Credit card'
+        case 'NB':
+            return 'Net Banking'
+        case 'UPI':
+            return 'UPI'
+        case 'PPI':
+            return 'Paytm wallet'
+        case 'PAYTMCC':
+            return 'Postpaid'
+    }
+}
 
 module.exports = router

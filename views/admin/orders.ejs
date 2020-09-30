@@ -1,99 +1,220 @@
 <%- include('../partials/adminHeader'); %>
 
-<!-- ADMIN ORDERS -->
+
+<ul class="tabs center-align">
+    <li class="tab col s3"><a target="_self" href="/admin/orders/new" <% if (orderFilter.status == "New") { %>
+            class="active" <% } %>>New<span class="teal-text">(<%=orderFilter.count.payment_success%>)</span></a></li>
+    <li class="tab col s3"><a target="_self" href="/admin/orders/confirmed"
+            <% if (orderFilter.status == "Confirmed") { %> class="active" <% } %>>Confirmed <span class="teal-text">
+                (<%=orderFilter.count.confirmed%>)</span></a></li>
+    <li class="tab col s3"><a target="_self" href="/admin/orders/dispatched"
+            <% if (orderFilter.status == "Dispatched") { %> class="active" <% } %>>Dispatched <span class="teal-text">
+                (<%=orderFilter.count.dispatched%>)</span></a></li>
+    <li class="tab col s3"><a target="_self" href="/admin/orders/delivered"
+            <% if (orderFilter.status == "Delivered") { %> class="active" <% } %>>Delivered <span class="teal-text">
+                (<%=orderFilter.count.delivered%>)</span></a></li>
+    <li class="tab col s3"><a target="_self" href="/admin/orders/return-requested"
+            <% if (orderFilter.status == "Return requested") { %> class="active" <% } %>>Return requested <span
+                class="teal-text"> (<%=orderFilter.count.return_requested%>)</span></a></li>
+    <li class="tab col s3"><a target="_self" href="/admin/orders/all" <% if (orderFilter.status == "All") { %>
+            class="active" <% } %>>All <span class="teal-text">
+                (<%=orderFilter.count.all%>)</span></span></a></li>
+    <li class="tab col s3"><a target="_self" href="/admin/orders/returned" <% if (orderFilter.status == "Returned") { %>
+            class="active" <% } %>>Returned <span class="teal-text"> (<%=orderFilter.count.returned%>)</span></a></li>
+    <li class="tab col s3"><a target="_self" href="/admin/orders/cancelled"
+            <% if (orderFilter.status == "Cancelled") { %> class="active" <% } %>>Cancelled <span class="teal-text">
+                (<%=orderFilter.count.cancelled%>)</span></a></li>
+</ul>
 
 
-<% if (typeof orders !== "undefined" && orders.length != 0) { %>
 <div class="row">
-    <div class="col offset-s1 offset-m1">
-        <h5 class="page-title purple-text text-darken-2">Orders</h5>
+    <div class="col offset-m1">
+        <blockquote>
+            <% if(orderFilter.status == 'New') {%>
+                <h5 class="page-title purple-text text-darken-2">New Orders</h5>
+            <% } else {%>
+                <h5 class="page-title purple-text text-darken-2"><%=orderFilter.status%></h5>
+            <% } %>
+        </blockquote>
     </div>
 </div>
+
+
 <div class="row">
-    <% orders.forEach(o => { %>
-    <div class="col s12 m10 offset-m1">
+    <div class="col s12 m10  offset-m1">
+        <% if (typeof orders !== "undefined") { %>
+        <br>
+        <% orders.forEach(o => { %>
         <div class="card">
-            <p><%= o.created_at %></p>
-            <p><%= o.order_id %></p>
-            <p>Order total: ₹<%=parseFloat(o.txnamount).toFixed(2)%></p>
-            <p><%= o.product_count %> Product(s)</p>
-            <p>Payment via <%= o.paymentmode %></p>
-            <p>Shipping address</p>
-            <%= o.fullname %> <br>
-            <%= o.address %> <br>
-            <%= o.pincode %> <br>
-            Phone: <%= o.phone %>
-            <div class="row">
-                <div class="col offset-s1 offset-m2">
-                    <% o.items.forEach(item => { %>
-                    <a href="/products/<%= item.category_slug %>/<%= item.slug %>">
-                        <img style="width: 60px;" src="/product_images/<%= item.product_id %>/<%= item.image %>" alt="">
-                    </a>
-                    <a href="/products/<%= item.category_slug %>/<%= item.slug %>">
-                        <h5><%= item.title %></h5>
-                    </a>
-                    <br>
-                    <%= item.status %>
-                    <br>
-                    X<%= item.quantity %>
-                    <br>
-                    Bought for: ₹<%=parseFloat(item.purchase_price).toFixed(2)%>
-                    <br>
-                    <div class="row">
-                        <div class="input-field col s12">
-                            <select id="status">
-                                <optgroup label="Order">
-                                    <option value="1">Confirm</option>
-                                    <option value="2">Dispatched</option>
-                                    <option value="2">Delivered</option>
-                                </optgroup>
-                                <optgroup label="Cancellations">
-                                    <option value="3">Cancelled</option>
-                                </optgroup>
-                                <optgroup label="Returns">
-                                    <option value="3">Return requested</option>
-                                    <option value="4">Returned</option>
-                                </optgroup>
-                            </select>
-                            <label>Optgroups</label>
+            <div class="card-content">
+                <p class="card-title"><i class="material-icons icon-grey left">date_range</i><%= o.created_at %></p>
+                <br>
+                <div class="row">
+                    <div class="col s12 m4">
+                        <p><i class="material-icons icon-grey left">confirmation_number</i><span class="helper-txt">Order ID</span><%= o.order_id %>
+                        </p>
+                        <br>
+                        <p><i class="material-icons icon-grey left">account_balance_wallet</i><span class="helper-txt">Order total</span>
+                            ₹<%=parseFloat(o.txnamount).toFixed(2)%></p>
+                        <br>
+                        <p><i class="material-icons icon-grey left">account_balance</i><span class="helper-txt">Payment Mode</span>
+                            <%= o.paymentmode %></p>
+                        <br>
+                        <p><i class="material-icons icon-grey left">shopping_basket</i><%= o.product_count %> Product(s)
+                        </p>
+                        <br>
+                        <p><i class="material-icons icon-grey left">account_circle</i><span class="helper-txt">Recepient Name</span>
+                                <%=o.fullname%></span></p>
+                        <br>
+                        <p><i class="material-icons icon-grey left">location_city</i><span class="helper-txt">Shipping Address</span>
+                        </p>
+                        <div style="margin-left: 12%;">
+                            <%=o.address%>
                         </div>
+                        <br>
+                        <p><i class="material-icons icon-grey left">location_on</i><span class="helper-txt">PIN code</span><%=o.pincode%>
+                        </p>
+                        <br>
+                        <p><i class="material-icons icon-grey left">phone</i><span class="helper-txt">Phone</span><%=o.phone%></p>
+                        <br>
                     </div>
-                    <% }) %>
+                    <div class="col s12 m7 offset-m1">
+                        <ul class="collapsible">
+                            <% o.items.forEach(item => { %>
+                            <li class="active">
+                                <div class="collapsible-header">
+                                    <div class="row valign-wrapper">
+                                        <div class="col s2">
+                                            <i class="material-icons">expand_more</i>
+                                        </div>
+                                        <div class="col s4">
+                                            <img style="width: 60px;"
+                                                src="/product_images/<%= item.product_id %>/<%= item.image %>" alt="">
+                                        </div>
+                                        <div class="col s6">
+                                            <a href="/products/<%= item.category_slug %>/<%= item.slug %>"><p class="order-item-title"><%= item.title %></p></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="collapsible-body">
+                                    <br>
+                                    <span id="current-status-<%= o.order_id %>-<%= item.product_id %>"
+                                        class="<%=item.status%>-text status-text"><%= item.status %></span>
+                                    <br>
+                                    Order quantity: <%= item.quantity %>
+                                    <br>
+                                    Purchased at: ₹<%=parseFloat(item.purchase_price).toFixed(2)%>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col s12 m5">
+                                            <div class="input-field">
+                                                <select name="<%= o.order_id %>-<%= item.product_id %>" id="status"
+                                                    class="order-item-status">
+                                                    <option selected disabled>Set Status</option>
+                                                    <optgroup label="Order">
+                                                        <option value="Confirmed"
+                                                            <% if (item.status == "Confirmed") { %> selected <% } %>>Confirmed</option>
+                                                        <option value="Dispatched"
+                                                            <% if (item.status == "Dispatched") { %> selected <% } %>>Dispatched</option>
+                                                        <option value="Delivered"
+                                                            <% if (item.status == "Delivered") { %> selected <% } %>>Delivered</option>
+                                                    </optgroup>
+                                                    <optgroup label="Cancellations">
+                                                        <option value="Cancelled"
+                                                            <% if (item.status == "Cancelled") { %> selected <% } %>>Cancelled</option>
+                                                    </optgroup>
+                                                    <optgroup label="Returns">
+                                                        <option value="Return requested"
+                                                            <% if (item.status == "Return requested") { %> selected
+                                                            <% } %>>Return requested</option>
+                                                        <option value="Returned"
+                                                            <% if (item.status == "Returned") { %>selected <% }%>>Returned</option>
+                                                    </optgroup>
+                                                </select>
+                                                <label>Order Status</label>
+                                            </div>
+                                        </div>
+                                        <div class="col s12 m6">
+                                            <div class="row">
+                                                <div class="col s12">
+                                                    <div class="input-field">
+                                                        <i class="material-icons prefix">local_shipping</i>
+                                                        <input id="tracking-id" type="text"
+                                                            value="<%= item.tracking_id %>" disabled>
+                                                        <label for="tracking-id">Shipment Tracking
+                                                            ID</label>
+                                                        <% if (item.status == 'Payment Success') { %>
+                                                            <span class="helper-text">Confirm the order status to auto generate tracking ID</span>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <% }) %>
+                        </ul>
+                    </div>
                 </div>
             </div>
-
         </div>
+        <% }) %>
+        <br>
+        <% } else { %>
+        <h5 class="center-align">
+            <% if (orderFilter.status == "All") { %>
+            <% orderFilter.status = "" %>
+            <% } %>
+            There are no <%=orderFilter.status%> orders
+        </h5>
+        <% } %>
     </div>
-    <% }) %>
 </div>
-<% } else {%>
-<h5 class="center-align">There are no orders</h5>
-<% }  %>
-
 
 
 <script>
-    // document.addEventListener('DOMContentLoaded', function () {
-    //     M.AutoInit();
-
-    //     var dropdown = document.querySelectorAll('.dropdown-trigger');
-    //     var instances = M.Dropdown.init(dropdown, {
-    //         constrainWidth: false,
-    //         hover: true,
-    //         coverTrigger: false
-    //     });
-
-    //     // var selects = document.querySelectorAll('select');
-    //     // var instance = M.FormSelect.init(selects, {});
-
-
-    // });
-
     $(document).ready(function () {
-        var $select1 = $('select:not(.browser-default)');
-        $select1.material_select();
-        $select1.on('change', function (e) {
-            alert(e.target.value);
+        $('.tabs').tabs();
+        $('select').formSelect();
+        $('.collapsible').collapsible({
+            'accordion': false
+        })
+        $(".order-item-status").change(function (e) {
+            const status = e.target.value;
+            const name = e.target.name;
+            const statusUpdate = name.split("-", 2);
+            const data = {
+                orderID: statusUpdate[0],
+                productID: statusUpdate[1],
+                value: status
+            }
+            $.ajax({
+                type: 'POST',
+                url: '/admin/orders/update-order-item',
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (res) {
+                    console.log(res);
+
+                    if (res.message) {
+                        M.toast({
+                            html: res.message,
+                            displayLength: 1000,
+                            classes: 'rounded'
+                        })
+                    }
+                    if (res.success == 1) {
+                        $('#current-status-' + statusUpdate[0] + '-' + statusUpdate[1]).html(status);
+                        document.getElementById('current-status-' + statusUpdate[0] + '-' + statusUpdate[1]).innerHTML = ''
+                        document.getElementById('current-status-' + statusUpdate[0] + '-' + statusUpdate[1]).innerHTML = status
+                        setTimeout(function () {
+                            location.reload()
+                        }, 1100);
+                    }
+                }
+            });
         });
     });
 
