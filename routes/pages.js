@@ -4,27 +4,18 @@ const { pool } = require('../config/database')
 
 // GET home page
 router.get('/', async (req, res) => {
-    //try {
-    //     const pages = req.app.locals.pages
-    //     const query = 'SELECT * FROM page WHERE slug = "home";'
-    //     const homepage = (await pool.query(query))[0]
-    //     if (homepage) {
-    //         res.render('index', {
-    //             pages,
-    //             title: 'Metacart',
-    //             content: homepage.content,
-    //         })
-    //     } else {
-    //         req.flash('grey darken-4', 'Page doesn\'t exists')
-    //         res.status(404).render('./errors/404')
-    //         res.redirect('/')
-    //     }    
-    // } catch (error) {
-    //     console.log(error)
-    //     req.flash('red', 'Something went wrong!')
-    //     res.redirect('/')
-    // }
-    res.render('home')
+    try {
+        const pages = req.app.locals.pages
+        const query = 'SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id ORDER BY RAND() LIMIT 8;'
+        const homepageProducts = await pool.query(query)
+        res.render('home', {
+            homepageProducts
+        })   
+    } catch (error) {
+        console.log(error)
+        req.flash('red', 'Something went wrong!')
+        req.session.save(() => { res.redirect('/') }) 
+    }
 })
 
 // GET page

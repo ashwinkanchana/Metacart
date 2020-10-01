@@ -44,6 +44,28 @@
             this case, is moved at a different speed than the foreground content while scrolling.</p>
     </div>
     <div class="row">
+        <% homepageProducts.forEach(p => { %>
+            <div class="col s6 m4 l3 p">
+                <div class="card small z-depth-2 hoverable">
+                    <div class="card-image">
+                        <a class="pa" href="/products/<%= p.category %>/<%= p.slug %>">
+                            <img class="pimage" src="/product_images/<%= p.id %>/<%= p.image %>" alt="">
+                        </a>
+                    </div>
+                    <div class="card-content">
+                        <a href="/products/<%= p.category %>/<%= p.slug %>">
+                            <h5><%= p.title %></h5>
+                        </a>
+                        <div class="chip">
+                            • <b>₹<%= parseFloat(p.price).toFixed(2)  %></b>
+                        </div>
+                        <% if (p.stock <= 0) { %>
+                        <span class="red-text"><strong>Out of stock</strong></span>
+                        <% } %>
+                    </div>
+                    </div>
+                </div>
+            <% }) %>
         <div class="col s6 m4 l3">
             <div class="card small z-depth-2 hoverable">
                 <div class="card-image">

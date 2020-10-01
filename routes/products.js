@@ -2,9 +2,6 @@ const express = require('express')
 const fs = require('fs-extra')
 const router = express.Router()
 const { pool } = require('../config/database')
-const { query } = require('express')
-
-const { isAuthenticated } = require('../controllers/auth')
 
 // GET all products
 router.get('/', async (req, res) => {

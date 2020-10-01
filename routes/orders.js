@@ -47,8 +47,45 @@ router.get('/', async (req, res) => {
         })
     } catch(error) {
         console.log(error)
-        req.flash('red', 'Something went wrong!')
+         req.flash('red', 'Something went wrong!')
         req.session.save(() => { res.redirect('/') }) 
+    }
+}),
+
+
+// GET order item cancel 
+router.get('/cancel-item/:orderID/:productID', async (req, res) => {
+    try {
+        const orderID = parseInt(req.params.orderID) 
+        const productID = parseInt(req.params.productID) 
+        const userID = parseInt(req.user.id) 
+        const query = `UPDATE order_item SET status = IF((SELECT user_id FROM orders WHERE order_id = ${mysql.escape(orderID)}) = ${mysql.escape(userID)}, 'Cancelled', status) WHERE order_id = ${mysql.escape(orderID)} AND product_id = ${mysql.escape(productID)} AND status IN ('Payment Success', 'Confirmed', 'Dispatched');`
+        const status = await pool.query(query)
+        console.log(status);
+        res.redirect('/orders')
+    } catch(error) {
+        console.log(error)
+        req.flash('red', 'Something went wrong!')
+        req.session.save(() => { res.redirect('/orders') }) 
+    }
+})
+
+
+// GET return reqest for item  
+router.get('/return-item/:orderID/:productID', async (req, res) => {
+    try {
+        const orderID = parseInt(req.params.orderID) 
+        const productID = parseInt(req.params.productID) 
+        const userID = parseInt(req.user.id) 
+        const query = `UPDATE order_item SET status = IF((SELECT user_id FROM orders WHERE order_id = ${mysql.escape(orderID)}) = ${mysql.escape(userID)}, 'Return requested', status) WHERE order_id = ${mysql.escape(orderID)} AND product_id = ${mysql.escape(productID)} AND status IN ('Delivered');`
+        console.log(query)
+        const status = await pool.query(query)
+        console.log(status);
+        res.redirect('/orders')
+    } catch(error) {
+        console.log(error)
+        req.flash('red', 'Something went wrong!')
+        req.session.save(() => { res.redirect('/orders') }) 
     }
 })
 

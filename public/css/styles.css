@@ -178,3 +178,8 @@
 .Cancelled-text{
     color: rgb(236, 75, 75);
 }
+
+.order-action-btn:hover {
+    background-color:transparent !important;
+
+}
