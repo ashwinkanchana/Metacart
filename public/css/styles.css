@@ -12,6 +12,14 @@
      margin-left: 1vw;
  }
 
+
+
+ .home-product-image{
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 50%;
+ }
+
  .input-field input[type=search] {
      height: 64px !important;
  }

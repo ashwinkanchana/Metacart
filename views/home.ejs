@@ -38,18 +38,17 @@
 
 <div id="grad1">
     <div class="row container">
-        <h2 class="header">Parallax</h2>
-        <p class="grey-text text-darken-3 lighten-3">Parallax is an effect where the background content or image
-            in
-            this case, is moved at a different speed than the foreground content while scrolling.</p>
+        <h4 class="header">Heading</h4>
+        <p class="grey-text text-darken-3 lighten-3">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eveniet exercitationem rerum odio iusto iure illum eum?</p>
     </div>
     <div class="row">
-        <% homepageProducts.forEach(p => { %>
+        <% for(i = 0; i<4; i++){ %>
+            <% const p = homepageProducts[i] %>
             <div class="col s6 m4 l3 p">
                 <div class="card small z-depth-2 hoverable">
                     <div class="card-image">
                         <a class="pa" href="/products/<%= p.category %>/<%= p.slug %>">
-                            <img class="pimage" src="/product_images/<%= p.id %>/<%= p.image %>" alt="">
+                            <img class="home-product-image" src="/product_images/<%= p.id %>/<%= p.image %>" alt="">
                         </a>
                     </div>
                     <div class="card-content">
@@ -65,104 +64,37 @@
                     </div>
                     </div>
                 </div>
-            <% }) %>
-        <div class="col s6 m4 l3">
-            <div class="card small z-depth-2 hoverable">
-                <div class="card-image">
-                    <img src="https://picsum.photos/id/584/180/160">
-                </div>
-                <div class="card-content">
-                    <p>Product name</p>
-                    <p><strong>₹499.00</strong></p>
-                </div>
-            </div>
-        </div>
-        <div class="col s6 m4 l3">
-            <div class="card small z-depth-2 hoverable">
-                <div class="card-image">
-                    <img src="https://picsum.photos/id/788/180/160">
-                </div>
-                <div class="card-content">
-                    <p>Product name</p>
-                    <p><strong>₹499.00</strong></p>
-                </div>
-            </div>
-        </div>
-        <div class="col s6 m4 l3">
-            <div class="card small z-depth-2 hoverable">
-                <div class="card-image">
-                    <img src="https://picsum.photos/id/977/180/160">
-                </div>
-                <div class="card-content">
-                    <p>Product name</p>
-                    <p><strong>₹499.00</strong></p>
-                </div>
-            </div>
-        </div>
-        <div class="col s6 m4 l3">
-            <div class="card small z-depth-2 hoverable">
-                <div class="card-image">
-                    <img src="https://picsum.photos/id/1054/180/160">
-                </div>
-                <div class="card-content">
-                    <p>Product name</p>
-                    <p><strong>₹499.00</strong></p>
-                </div>
-            </div>
-        </div>
+            <% } %>
     </div>
 
     <div class="row container">
-        <h2 class="header">Parallax</h2>
-        <p class="grey-text text-darken-3 lighten-3">Parallax is an effect where the background content or image
-            in
-            this case, is moved at a different speed than the foreground content while scrolling.</p>
+        <h4 class="header">Another Heading</h4>
+        <p class="grey-text text-darken-3 lighten-3">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste eius officiis minima rerum quis aliquam numquam non sed! Quae, exercitationem?</p>
     </div>
     <div class="row">
-        <div class="col s6 m4 l3">
-            <div class="card small z-depth-2 hoverable">
-                <div class="card-image">
-                    <img src="https://picsum.photos/id/744/180/160">
+        <% for(i = 4; i<homepageProducts.length; i++){ %>
+            <% const p = homepageProducts[i] %>
+            <div class="col s6 m4 l3 p">
+                <div class="card small z-depth-2 hoverable">
+                    <div class="card-image">
+                        <a class="pa" href="/products/<%= p.category %>/<%= p.slug %>">
+                            <img class="home-product-image" src="/product_images/<%= p.id %>/<%= p.image %>" alt="">
+                        </a>
+                    </div>
+                    <div class="card-content">
+                        <a href="/products/<%= p.category %>/<%= p.slug %>">
+                            <h5><%= p.title %></h5>
+                        </a>
+                        <div class="chip">
+                            • <b>₹<%= parseFloat(p.price).toFixed(2)  %></b>
+                        </div>
+                        <% if (p.stock <= 0) { %>
+                        <span class="red-text"><strong>Out of stock</strong></span>
+                        <% } %>
+                    </div>
+                    </div>
                 </div>
-                <div class="card-content">
-                    <p>Product name</p>
-                    <p><strong>₹499.00</strong></p>
-                </div>
-            </div>
-        </div>
-        <div class="col s6 m4 l3">
-            <div class="card small z-depth-2 hoverable">
-                <div class="card-image">
-                    <img src="https://picsum.photos/id/736/180/160">
-                </div>
-                <div class="card-content">
-                    <p>Product name</p>
-                    <p><strong>₹499.00</strong></p>
-                </div>
-            </div>
-        </div>
-        <div class="col s6 m4 l3">
-            <div class="card small z-depth-2 hoverable">
-                <div class="card-image">
-                    <img src="https://picsum.photos/id/365/180/160">
-                </div>
-                <div class="card-content">
-                    <p>Product name</p>
-                    <p><strong>₹499.00</strong></p>
-                </div>
-            </div>
-        </div>
-        <div class="col s6 m4 l3">
-            <div class="card small z-depth-2 hoverable">
-                <div class="card-image">
-                    <img src="https://picsum.photos/id/694/180/160">
-                </div>
-                <div class="card-content">
-                    <p>Product name</p>
-                    <p><strong>₹499.00</strong></p>
-                </div>
-            </div>
-        </div>
+            <% } %>
     </div>
 </div>
 <%- include('./partials/footer'); %>
