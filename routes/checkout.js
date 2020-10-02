@@ -8,7 +8,6 @@ const { initPayment, responsePayment } = require('../paytm/services/index')
 const { validationResult } = require('express-validator')
 const { newAddressValidator } = require('../validators/account')
 const { updateCartDB } = require('../controllers/cart')
-const { accessSync } = require('fs-extra')
 // GET checkout page
 router.get('/', async (req, res) => {
     try {
@@ -141,7 +140,7 @@ async function getCartItems(sessionCart) {
                 ...item
             }
             mergedItem.price = parseFloat(mergedItem.price).toFixed(2)
-            mergedItem.image = `/product_images/${mergedItem.id}/${mergedItem.image}`
+            mergedItem.image = `https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/${mergedItem.id}/${mergedItem.image}`
             mergedArray.push(mergedItem)
         })
         return mergedArray

@@ -1,11 +1,20 @@
 const express = require('express')
 const { validationResult } = require('express-validator')
-const mkdirp = require('mkdirp')
-const fs = require('fs-extra')
+const nodePath = require('path')
+const { v4: uuidv4 } = require('uuid');
+const AWS = require('aws-sdk')
 const resizeImg = require('resize-img')
 const router = express.Router()
 const { titleDescPriceImageValidator } = require('../validators/admin_product')
 const { pool } = require('../config/database')
+
+const bucketName = process.env.AWS_BUCKET_NAME
+
+//AWS s3 bucket for media storage
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ID,
+    secretAccessKey: process.env.AWS_SECRET
+})
 
 // GET products index
 router.get('/', async (req, res) => {
@@ -37,7 +46,11 @@ router.get('/add-product', async (req, res) => {
 // POST add product
 router.post('/add-product', titleDescPriceImageValidator, async (req, res) => {
     try {
-        const image = req.body.image
+        let imageExtension = null
+        const imageName = req.body.image
+        let imageID = 'thumbs'
+        if (imageName.length > 0)
+            imageExtension = nodePath.extname(imageName)
         const title = req.body.title
         const desc = req.body.desc
         const price = req.body.price
@@ -57,34 +70,38 @@ router.post('/add-product', titleDescPriceImageValidator, async (req, res) => {
                 req.session.save(() => { res.render('admin/add_product', { title, desc, categories, category, price }) })
             }
             else {
+                if (imageExtension)
+                    imageID = imageID + `${imageExtension}`
                 var priceNumber = parseFloat(price).toFixed(2)
-                const newProduct = [[title, slug, desc, priceNumber, category, image], slug]
+                const newProduct = [[title, slug, desc, priceNumber, category, imageID], slug]
                 const query = 'INSERT INTO product (title, slug, specs, price, category_id, image) VALUES (?); SELECT id, title FROM product WHERE slug = ? ;'
                 const insert = await pool.query(query, newProduct)
                 const insertedProduct = insert[1][0]
-                mkdirp.sync(`/public/product_images/${insertedProduct.id}`)
-                mkdirp.sync(`public/product_images/${insertedProduct.id}/gallery`)
-                mkdirp.sync(`public/product_images/${insertedProduct.id}/gallery/thumbs`)
-                if (image != '') {
-                    let productImage = req.files.image
-                    const path = `public/product_images/${insertedProduct.id}/${image}`
-                    productImage.mv(path, (err) => {
-                        if (err) {
-                            return console.log(err)
+                if (imageExtension) {
+                    let productImage = req.files.image.data
+                    const imageKey = `product_images/${insertedProduct.id}/${imageID}`
+                    const params = {
+                        Bucket: bucketName,
+                        Key: imageKey,
+                        Body: productImage
+                    }
+                    s3.upload(params, (error, data) => {
+                        if (error) {
+                            throw new Error(error)
                         }
                         req.flash('green', `Successfully added ${insertedProduct.title}`)
-                        req.session.save(() => { res.redirect('/admin/products') }) 
+                        req.session.save(() => { res.redirect('/admin/products') })
                     })
                 } else {
                     req.flash('green', `Successfully added ${insertedProduct.title}`)
-                    req.session.save(() => { res.redirect('/admin/products') }) 
+                    req.session.save(() => { res.redirect('/admin/products') })
                 }
             }
         }
     } catch (error) {
         console.log(error)
         req.flash('res', `Something went wrong!`)
-        req.session.save(() => { res.redirect('/admin/products') }) 
+        req.session.save(() => { res.redirect('/admin/products') })
     }
 })
 
@@ -101,39 +118,47 @@ router.get('/edit-product/:id', async (req, res) => {
         const filter = [req.params.id]
         let product = await pool.query(query, filter)
         product = product[0]
-        console.log(product)
-        const galleryDir = `public/product_images/${product.id}/gallery`
+        const galleryDir = `./public/product_images/${product.id}/gallery`
         let galleryImages = null;
-        fs.readdir(galleryDir, (err, files) => {
-            if (err) {
-                console.log(err)
-            }
-            else {
-                galleryImages = files
-                res.render('admin/edit_product', {
-                    errors,
-                    id: product.id,
-                    title: product.title,
-                    desc: product.specs,
-                    price: parseFloat(product.price).toFixed(2),
-                    image: product.image,
-                    category: product.category_id,
-                    stock: product.stock,
-                    categories,
-                    galleryImages
-                })
-            }
-        })
+        var params = {
+            Bucket: bucketName,
+            Delimiter: '/',
+            Prefix: `product_images/${product.id}/gallery/`
+        }
+
+        s3.listObjects(params, function (err, files) {
+            if (err)
+                throw err;
+            galleryImages = files.Contents.map(a => a.Key);
+            galleryImages.forEach((a, index) => {
+                let pos = a.lastIndexOf('/')
+                galleryImages[index] = a.substring(pos + 1, a.length)
+            });
+
+            res.render('admin/edit_product', {
+                errors,
+                id: product.id,
+                title: product.title,
+                desc: product.specs,
+                price: parseFloat(product.price).toFixed(2),
+                image: product.image,
+                category: product.category_id,
+                stock: product.stock,
+                categories,
+                galleryImages
+            })
+        });
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        req.session.save(() => { res.redirect('/admin/products') }) 
+        req.session.save(() => { res.redirect('/admin/products') })
     }
 })
 
 // POST edit product
 router.post('/edit-product/:id', titleDescPriceImageValidator, async (req, res) => {
     try {
+        let imageExtension
         const id = req.params.id
         const image = req.body.image
         const title = req.body.title
@@ -142,6 +167,8 @@ router.post('/edit-product/:id', titleDescPriceImageValidator, async (req, res) 
         const category = req.body.category
         const stock = req.body.stock
         const pimage = req.body.pimage
+        if (image != '')
+            imageExtension = nodePath.extname(image)
         const slug = title.replace(/\s+/g, '-').toLowerCase()
         const categories = req.app.locals.categories
         const errors = validationResult(req).array()
@@ -152,110 +179,151 @@ router.post('/edit-product/:id', titleDescPriceImageValidator, async (req, res) 
             const query = 'SELECT slug FROM product WHERE slug = ? AND id != ? LIMIT 1;'
             const filter = [slug, id]
             const count = await pool.query(query, filter)
-            console.log(count)
             if (count.length > 0) {
                 req.flash('red', 'Product title already exists, choose a different title')
-                req.session.save(() => { res.redirect(`admin/products/edit_product/${id}`) }) 
+                req.session.save(() => { res.redirect(`admin/products/edit_product/${id}`) })
             } else {
                 //new image is uploaded
                 if (image != "") {
                     const query = 'UPDATE product SET title = ?, slug = ?,specs = ?, price=?, image = ?, stock=?, category_id=? WHERE id = ?;'
-                    const values = [title, slug, desc, price, image, stock, category, id]
+                    const values = [title, slug, desc, price, `thumbs${imageExtension}`, stock, category, id]
                     const update = await pool.query(query, values)
 
                     //if previous image existed remove it
                     if (pimage != "") {
-                        fs.remove(`public/product_images/${id}/${pimage}`, function (err) {
-                            if (err) {
-                                console.log(err)
-                            }
-                        })
+                        const previousImage = `product_images/${id}/${pimage}`
+                        var deleteParams = { Bucket: bucketName, Key: previousImage };
+                        s3.deleteObject(deleteParams, (err, data) => {
+                            if (err)
+                                throw new Error(err)
+                        });
                     }
-                    let productImage = req.files.image
-                    const path = `public/product_images/${id}/${image}`
-                    productImage.mv(path, function (err) {
-                        if (err) {
-                            return console.log(err)
+                    let productImage = req.files.image.data
+                    const imageKey = `product_images/${id}/thumbs${imageExtension}`
+                    const params = {
+                        Bucket: bucketName,
+                        Key: imageKey,
+                        Body: productImage
+                    }
+                    s3.upload(params, (error, data) => {
+                        if (error) {
+                            throw new Error(error)
                         }
-                        req.flash('green', `Successfully modified ${title}`)
-                        req.session.save(() => { res.redirect(`/admin/products`) }) 
                     })
+                    req.flash('green', `Successfully modified ${title}`)
+                    req.session.save(() => { res.redirect(`/admin/products`) })
                 } else {
                     const query = 'UPDATE product SET title = ?, slug = ?,specs = ?, price=?, stock=?, category_id=? WHERE id = ?;'
                     const values = [title, slug, desc, price, stock, category, id]
                     const update = await pool.query(query, values)
                     req.flash('green', `Successfully modified ${title}`)
-                    req.session.save(() => { res.redirect(`/admin/products`) }) 
+                    req.session.save(() => { res.redirect(`/admin/products`) })
                 }
             }
         }
     } catch (error) {
         console.log(error)
         req.flash('red', 'Something went wrong!')
-        req.session.save(() => { res.redirect('/admin/products') }) 
+        req.session.save(() => { res.redirect('/admin/products') })
     }
 })
 
 // POST product gallery
 router.post('/product-gallery/:id', (req, res) => {
-    const productImage = req.files.file
+    const productImage = req.files.file.data
     const id = req.params.id
-    const path = `public/product_images/${id}/gallery/${req.files.file.name}`
-    const thumbsPath = `public/product_images/${id}/gallery/thumbs/${req.files.file.name}`
-    productImage.mv(path, (err) => {
-        if (err) {
-            console.log(err)
-            res.sendStatus(400);
-        }
-        resizeImg(fs.readFileSync(path), {
-            width: 200,
-        }).then(function (buf) {
-            fs.writeFileSync(thumbsPath, buf)
-            res.sendStatus(200);
-        }).catch(err =>
-            console.log(err))
+    const imageExtension = nodePath.extname(req.files.file.name)
+    const imageID = uuidv4()
+    const imageKey = `product_images/${id}/gallery/${imageID}${imageExtension}`
+    const thumbKey = `product_images/${id}/gallery/thumbs/${imageID}${imageExtension}`
+
+    const imageParams = { Bucket: bucketName, Key: imageKey, Body: productImage }
+    s3.upload(imageParams, (error, data) => {
+        if (error)
+            throw new Error(error)
+    })
+    resizeImg(req.files.file.data, {
+        width: 200,
+    }).then(function (buf) {
+        const thumbParams = { Bucket: bucketName, Key: thumbKey, Body: buf }
+        s3.upload(thumbParams, (error, data) => {
+            if (error)
+                throw new Error(error)
+        })
+        res.sendStatus(200);
+    }).catch((err) => {
+        console.log(err)
+        res.sendStatus(400)
     })
 })
 
 // GET delete product image
-router.get('/delete-image/:image', (req, res) => {
-    const id = req.query.id
-    const img = req.params.image
-    const originalImage = `public/product_images/${id}/gallery/${img}`
-    const thumbImage = `public/product_images/${id}/gallery/thumbs/${img}`
-
-    fs.remove(originalImage, function (err) {
-        if (err) {
-            console.log(err)
-        } else {
-            fs.remove(thumbImage, function (err) {
-                if (err) {
-                    console.log(err)
-                } else {
-                    req.flash('grey darken-4', `Successfully removed an image`)
-                    req.session.save(() => { res.redirect(`/admin/products/edit-product/${id}`) })    
-                }
+router.get('/delete-image/:image/:id', (req, res) => {
+    try {
+        const id = req.params.id
+        const img = req.params.image
+        const originalImage = `product_images/${id}/gallery/${img}`
+        const thumbImage = `product_images/${id}/gallery/thumbs/${img}`
+        console.log(originalImage);
+        console.log(thumbImage);
+        var deleteParams1 = { Bucket: bucketName, Key: originalImage }
+        s3.deleteObject(deleteParams1, (err, data) => {
+            if (err)
+                throw new Error(err)
+            var deleteParams2 = { Bucket: bucketName, Key: thumbImage }
+            s3.deleteObject(deleteParams2, (err, data) => {
+                if (err)
+                    throw new Error(err)
+                req.flash('grey darken-4', `Successfully removed an image`)
+                req.session.save(() => { res.redirect(`/admin/products/edit-product/${id}`) })
             })
-        }
-    })
+        });
+    } catch (error) {
+        console.log(error);
+        req.flash('grey darken-4', `Something went wrong`)
+        req.session.save(() => { res.redirect(`/admin/products`) })
+    }
 })
 
 // GET delete product
-router.get('/delete-product/:id', (req, res) => {
-    const id = req.params.id
-    const path = `public/product_images/${id}`
-    fs.remove(path, async (err)=> {
-        if (err) {
-            console.log(err)
-        } else {
-            const query = 'SELECT title FROM product WHERE id = ?; DELETE FROM product WHERE id = ?;'
-            const filter = [id, id]
-            const product = await pool.query(query, filter)
-            req.flash('grey darken-4', `Successfully removed a ${product[0][0].title}`)
-            req.session.save(() => { res.redirect(`/admin/products/`) })  
-        }
-    })
+router.get('/delete-product/:id', async (req, res) => {
+    try {
+        const id = req.params.id
+        await deleteS3Directory(`product_images/${id}/`)
+        const query = 'SELECT title FROM product WHERE id = ?; DELETE FROM product WHERE id = ?;'
+        const filter = [id, id]
+        const product = await pool.query(query, filter)
+        req.flash('grey darken-4', `Successfully removed a ${product[0][0].title}`)
+        req.session.save(() => { res.redirect(`/admin/products/`) })
+    } catch (error) {
+        console.log(error);
+        req.flash('grey darken-4', `Something went wrong`)
+        req.session.save(() => { res.redirect(`/admin/products`) })
+    }
 })
 
-module.exports = router
+//Delete given directory from S3
+async function deleteS3Directory(dir) {
+    try {
+        const bucket = bucketName
+        const listParams = {
+            Bucket: bucket,
+            Prefix: dir
+        };
+        const listedObjects = await s3.listObjectsV2(listParams).promise();
+        if (listedObjects.Contents.length === 0) return;
+        const deleteParams = {
+            Bucket: bucket,
+            Delete: { Objects: [] }
+        };
+        listedObjects.Contents.forEach(({ Key }) => {
+            deleteParams.Delete.Objects.push({ Key });
+        });
+        await s3.deleteObjects(deleteParams).promise();
+        if (listedObjects.IsTruncated) await deleteS3Directory(bucket, dir);
+    } catch (error) {
+        throw new Error(error)
+    }
+}
 
+module.exports = router

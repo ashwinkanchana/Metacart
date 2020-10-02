@@ -10,7 +10,7 @@
             <% products.forEach(p => { %>
             <div class="col s6  l3 p">
                 <a class="pa" href="/products/<%= p.category %>/<%= p.slug %>">
-                    <img class="pimage" src="/product_images/<%= p.id %>/<%= p.image %>" alt="">
+                    <img class="pimage" src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= p.id %>/<%= p.image %>" alt="">
                 </a>
                 <a href="/products/<%= p.category %>/<%= p.slug %>">
                     <h5><%= p.title %></h5>

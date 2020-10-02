@@ -8,26 +8,28 @@
 <div class="slider">
     <ul class="slides">
         <li>
-            <img src="https://picsum.photos/id/237/800/200"> 
+            <img src="https://picsum.photos/id/237/800/200">
             <div class="caption right-align">
                 <h3>This is our big Tagline!</h3>
                 <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
             </div>
         </li>
         <li>
-            <img src="https://picsum.photos/id/512/800/200"> 
+            <img src="https://picsum.photos/id/512/800/200">
             <div class="caption left-align">
                 <h3>This is our big Tagline!</h3>
                 <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
             </div>
-        </li><li>
-            <img src="https://picsum.photos/id/542/800/200"> 
+        </li>
+        <li>
+            <img src="https://picsum.photos/id/542/800/200">
             <div class="caption center-align">
                 <h3>This is our big Tagline!</h3>
                 <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
             </div>
-        </li><li>
-            <img src="https://picsum.photos/id/754/800/200"> 
+        </li>
+        <li>
+            <img src="https://picsum.photos/id/754/800/200">
             <div class="caption right-align">
                 <h3>This is our big Tagline!</h3>
                 <h5 class="light grey-text text-lighten-3">Here's our small slogan.</h5>
@@ -39,16 +41,20 @@
 <div id="grad1">
     <div class="row container">
         <h4 class="header">Heading</h4>
-        <p class="grey-text text-darken-3 lighten-3">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eveniet exercitationem rerum odio iusto iure illum eum?</p>
+        <p class="grey-text text-darken-3 lighten-3">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eveniet
+            exercitationem rerum odio iusto iure illum eum?</p>
     </div>
     <div class="row">
-        <% for(i = 0; i<4; i++){ %>
+        <% if ((homepageProducts.length)>0) { %>
+            <% for(i = 0; i<(homepageProducts.length)/2; i++){ %>
             <% const p = homepageProducts[i] %>
             <div class="col s6 m4 l3 p">
                 <div class="card small z-depth-2 hoverable">
                     <div class="card-image">
                         <a class="pa" href="/products/<%= p.category %>/<%= p.slug %>">
-                            <img class="home-product-image" src="/product_images/<%= p.id %>/<%= p.image %>" alt="">
+                            <img class="home-product-image"
+                                src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= p.id %>/<%= p.image %>"
+                                alt="">
                         </a>
                     </div>
                     <div class="card-content">
@@ -62,39 +68,45 @@
                         <span class="red-text"><strong>Out of stock</strong></span>
                         <% } %>
                     </div>
-                    </div>
                 </div>
+            </div>
             <% } %>
+        <% } %>
     </div>
 
     <div class="row container">
         <h4 class="header">Another Heading</h4>
-        <p class="grey-text text-darken-3 lighten-3">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste eius officiis minima rerum quis aliquam numquam non sed! Quae, exercitationem?</p>
+        <p class="grey-text text-darken-3 lighten-3">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste eius
+            officiis minima rerum quis aliquam numquam non sed! Quae, exercitationem?</p>
     </div>
     <div class="row">
-        <% for(i = 4; i<homepageProducts.length; i++){ %>
-            <% const p = homepageProducts[i] %>
-            <div class="col s6 m4 l3 p">
-                <div class="card small z-depth-2 hoverable">
-                    <div class="card-image">
-                        <a class="pa" href="/products/<%= p.category %>/<%= p.slug %>">
-                            <img class="home-product-image" src="/product_images/<%= p.id %>/<%= p.image %>" alt="">
-                        </a>
-                    </div>
-                    <div class="card-content">
-                        <a href="/products/<%= p.category %>/<%= p.slug %>">
-                            <h5><%= p.title %></h5>
-                        </a>
-                        <div class="chip">
-                            • <b>₹<%= parseFloat(p.price).toFixed(2)  %></b>
+        <% if ((homepageProducts.length)>2) { %>
+            <% for(i = (homepageProducts.length)/2; i<homepageProducts.length; i++){ %>
+                <% const p = homepageProducts[i] %>
+                <div class="col s6 m4 l3 p">
+                    <div class="card small z-depth-2 hoverable">
+                        <div class="card-image">
+                            <a class="pa" href="/products/<%= p.category %>/<%= p.slug %>">
+                                <img class="home-product-image"
+                                    src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= p.id %>/<%= p.image %>"
+                                    alt="">
+                            </a>
                         </div>
-                        <% if (p.stock <= 0) { %>
-                        <span class="red-text"><strong>Out of stock</strong></span>
-                        <% } %>
-                    </div>
+                        <div class="card-content">
+                            <a href="/products/<%= p.category %>/<%= p.slug %>">
+                                <h5><%= p.title %></h5>
+                            </a>
+                            <div class="chip">
+                                • <b>₹<%= parseFloat(p.price).toFixed(2)  %></b>
+                            </div>
+                            <% if (p.stock <= 0) { %>
+                            <span class="red-text"><strong>Out of stock</strong></span>
+                            <% } %>
+                        </div>
                     </div>
                 </div>
             <% } %>
+        <% } %>
     </div>
 </div>
 <%- include('./partials/footer'); %>

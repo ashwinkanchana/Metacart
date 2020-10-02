@@ -20,10 +20,11 @@
                     <td><%= product.category %></td>
                     <td> <b> ₹<%= parseFloat(product.price).toFixed(2) %> </b> </td>
                     <td>
-                        <% if(product.image == "") {%>
+                        <% console.log(product.image) %> 
+                        <% if(product.image == "thumbs") {%>
                         <img id="productTableImage" src="/images/noimage.png" alt="No image">
                         <% }else{%>
-                        <img id="productTableImage" src="/product_images/<%= product.id %>/<%= product.image %>" alt="<%= product.title %>">
+                        <img id="productTableImage" src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= product.id %>/<%= product.image %>" alt="">
                         <% } %>
                     </td>
                     <td><a class='dropdown-trigger' href='#' data-target='pageOptions'><i

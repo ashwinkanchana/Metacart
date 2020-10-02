@@ -1,5 +1,5 @@
 <%- include('../partials/adminHeader'); %>
-
+<script src="https://cdn.ckeditor.com/ckeditor5/21.0.0/classic/ckeditor.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/basic.css"
     integrity="sha512-Ucip2staDcls3OuwEeh5s9rRVYBsCA4HRr18+qd0Iz3nYpnfUeCIMh/82aHKeYgdaXGebmi9vcREw7YePXsutQ=="
     crossorigin="anonymous" />
@@ -91,10 +91,10 @@
                     <div class="col s6 offset-s3 m6 offset-m3">
                         <div class="card">
                             <div class="card-image row">
-                                <% if (image == "") { %>
+                                <% if (image == "thumbs") { %>
                                 <img class="col s12" src="/images/noimage.png" alt="">
                                 <% } else {%>
-                                <img class="col s12" src="/product_images/<%= id %>/<%= image %>" alt="">
+                                <img class="col s12" src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= id %>/<%= image %>" alt="">
                                 <% } %>
                             </div>
                             <div class="card-content">
@@ -126,11 +126,11 @@
         <div class="col s6 m4 l3">
             <div class="card">
                 <div class="card-image row galleryCard">
-                    <img class="col s12" src="/product_images/<%= id %>/gallery/thumbs/<%= image %>" alt=""
+                    <img class="col s12" src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= id %>/gallery/thumbs/<%= image %>" alt=""
                         onerror="this.onerror=null; this.src='/images/noimage.png'">
                 </div>
                 <div class="card-action">
-                    <a class="confirmDeletion" href="/admin/products/delete-image/<%= image %>?id=<%= id %>"><i class="material-icons icon-grey">delete</i></a>
+                    <a class="confirmDeletion" href="/admin/products/delete-image/<%= image %>/<%= id %>"><i class="material-icons icon-grey">delete</i></a>
                 </div>
             </div>
         </div>
@@ -185,5 +185,8 @@
     };
 
 </script>
-
+<script>
+    const wysiwyg = document.querySelector('#wysiwyg');
+    ClassicEditor.create(wysiwyg)
+</script>
 <%- include('../partials/adminFooter'); %>

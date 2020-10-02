@@ -102,7 +102,7 @@ if (process.env.NODE_ENV === 'development') {
         const products = await pool.query(searchTermsQuery)
         let searchTerms = {}
         products.forEach(p => {
-            searchTerms[`${p.title}`] = `/product_images/${p.id}/${p.image}`
+            searchTerms[`${p.title}`] = `https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/${p.id}/${p.image}`
         });
         app.locals.searchTerms = searchTerms
     } catch (error) {

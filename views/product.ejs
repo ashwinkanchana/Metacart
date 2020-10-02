@@ -3,7 +3,7 @@
     <br>
     <div class="row">
         <div class="col s12 m6 l5">
-            <img class="product-main-image" src="/product_images/<%= p.id %>/<%= p.image %>" alt="">
+            <img class="product-main-image" src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= p.id %>/<%= p.image %>" alt="">
         </div>
         <div class="col s12 m7">
             
@@ -29,8 +29,8 @@
         <% galleryImages.forEach(image => { %>
         <% if (image != "thumbs") { %>
         <div class="col s3">
-            <a data-fancybox="gallery" href="/product_images/<%= p.id %>/gallery/<%= image %>">
-                <img class="product-image-thumb" src="/product_images/<%= p.id %>/gallery/thumbs/<%= image %>"
+            <a data-fancybox="gallery" href="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= p.id %>/gallery/<%= image %>">
+                <img class="product-image-thumb" src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= p.id %>/gallery/thumbs/<%= image %>"
                     alt=""></a>
         </div>
         <% } %>

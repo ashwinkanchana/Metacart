@@ -2,14 +2,9 @@ const express = require('express')
 const router = express.Router()
 const mysql = require('mysql')
 const { pool } = require('../config/database')
-const cryptoRandomString = require('crypto-random-string')
-//PayTM payment gateway
-const { initPayment, responsePayment } = require('../paytm/services/index')
-const { isAuthenticated, ensureAuthenticated } = require('../controllers/auth')
-const { updateCartDB, clearCartDB } = require('../controllers/cart')
-const { accessSync } = require('fs-extra')
-const { query } = require('express')
-const { deserializeUser } = require('passport')
+
+const { isAuthenticated } = require('../controllers/auth')
+const { updateCartDB } = require('../controllers/cart')
 
 // GET add product to cart
 router.get('/add/:product', async (req, res) => {
@@ -94,7 +89,7 @@ router.get('/', async (req, res) => {
                     ...item
                 }
                 mergedItem.price = parseFloat(mergedItem.price).toFixed(2)
-                mergedItem.image = `/product_images/${mergedItem.id}/${mergedItem.image}`
+                mergedItem.image = `https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/${mergedItem.id}/${mergedItem.image}`
                 mergedArray.push(mergedItem)
             })
 
