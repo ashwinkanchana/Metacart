@@ -58,6 +58,11 @@ router.get('/:category/:product', async (req, res) => {
         const query = 'SELECT * from product WHERE slug = ?'
         const filter = [productSlug]
         const product = (await pool.query(query, filter))[0]
+
+        const relatedProductsQuery = `SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, c.slug AS category FROM product INNER JOIN category c ON product.category_id = c.id WHERE c.slug = '${category}' ORDER BY RAND() LIMIT 8;`
+        const relatedProducts = await pool.query(relatedProductsQuery)
+        console.log(relatedProducts);
+        
         if (product) {
             const galleryDir = `product_images/${product.id}/gallery/`
 
@@ -78,7 +83,8 @@ router.get('/:category/:product', async (req, res) => {
                 res.render('product', {
                     title: product.title,
                     p: product,
-                    galleryImages
+                    galleryImages,
+                    relatedProducts
                 })
             })
         } else {

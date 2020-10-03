@@ -44,17 +44,36 @@
         <p class="grey-text text-darken-3 lighten-3">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eveniet
             exercitationem rerum odio iusto iure illum eum?</p>
     </div>
-    <div class="row">
-        
-    </div>
 
-    <div class="row container">
-        <h4 class="header">Another Heading</h4>
-        <p class="grey-text text-darken-3 lighten-3">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Iste eius
-            officiis minima rerum quis aliquam numquam non sed! Quae, exercitationem?</p>
-    </div>
-    <div class="row">
-        
-    </div>
+    <% if (typeof homepageProducts != 'undefined') { %>
+        <div class="container">
+            <div class="row">
+                <% for(i = 0; i<(homepageProducts.length); i++){ %>
+                <% const p = homepageProducts[i] %>
+                <div class="col s6 m4 l3">
+                    <div class="card small z-depth-2 hoverable">
+                        <div class="card-content">
+                            <a href="/products/<%= p.category %>/<%= p.slug %>">
+                                <img class="home-product-image"
+                                    src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= p.id %>/<%= p.image %>"
+                                    alt="">
+                            </a>
+                            <a href="/products/<%= p.category %>/<%= p.slug %>">
+                                <h6><%= p.title %></h6>
+                            </a>
+                            <div class="chip">
+                                • <b>₹<%= parseFloat(p.price).toFixed(2)  %></b>
+                            </div>
+                            <% if (p.stock <= 0) { %>
+                            <p class="red-text"><strong>Out of stock</strong></p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    <% } %>
+
 </div>
 <%- include('./partials/footer'); %>

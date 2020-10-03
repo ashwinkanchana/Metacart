@@ -1,0 +1,157 @@
+<%- include('./partials/header'); %>
+
+<div class="row">
+    <div class="col offset-m1">
+        <h5 class="page-title purple-text text-darken-2">My Account</h5>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col s12 m10  offset-m1">
+        <div class="card">
+            <div class="card-content">
+                <p class="card-title"><i class="material-icons icon-grey left">account_circle</i><%= fullname%></p>
+                <br>
+                <div class="row">
+                    <div class="col s12">
+                        <p><i class="material-icons icon-grey left">mail</i><%= email%>
+                        </p>
+                        <br>
+                        <hr>
+                        <br>
+                        <i class="material-icons icon-grey left">location_city</i><span>Saved
+                            Addresses</span>
+                        <form action="/checkout/payment" method="POST" id="order">
+                            <% if (address.length>0) { %>
+                            <% let i = 0 %>
+                            <% address.forEach(a => { %>
+                            <br>
+                            <p>
+
+                            <div class="row">
+                                <label>
+                                    <div class="col s10 m8">
+                                        <span class="grey-text text-darken-3">
+                                            <strong><%=a.fullname%></strong><br>
+                                            <%=a.address%><br>
+                                            <%=a.pincode%><br>
+                                            Phone: <%=a.phone%><br>
+                                        </span>
+                                    </div>
+                                    <div class="col right">
+                                        <a href="/account/edit-address/<%= a.id %>"><i
+                                                class="material-icons right icon-grey tooltipped" data-position="top"
+                                                data-tooltip="Edit address">edit</i></a>
+                                    </div>
+                                </label>
+                            </div>
+
+
+
+                            </p>
+                            <% }) %>
+                            <% }else{ %>
+                            <div class="input-field">
+                                <span class="helper-text">There are no saved addresses</span>
+                            </div>
+
+                            <% } %>
+                        </form>
+
+                        <div id="add-new-address" class="card-action">
+                            <ul class="collapsible">
+                                <li <% if (open_address_form) { %> class="active" <% } %>>
+                                    <div class="collapsible-header"><i class="material-icons">add</i><span
+                                            class="purple-text"></span><% if (edit_address) { %> Edit saved address
+                                        <% } else{ %>
+                                            Add a new address
+                                            <% } %></div>
+                                    <div class="collapsible-body">
+                                        <form <% if (edit_address) { %> action="/account/edit-address"
+                                            <% } else{ %>
+                                                action="/account/add-address"
+                                                <% } %>  method="POST" id="new-address">
+                                            <div class="row">
+                                                <div class="input-field col s12">
+                                                    <i class="material-icons prefix">account_circle</i>
+                                                    <input id="fullname" name="fullname" type="text"
+                                                        <% if (typeof fullname !== 'undefined') { %>
+                                                        value="<%= fullname %>" <% } %>>
+                                                    <label for="fullname">Full Name <span
+                                                            class="red-text">*</span></label>
+                                                </div>
+
+                                                <div class="input-field col s12">
+                                                    <i class="material-icons prefix">location_city</i>
+                                                    <textarea id="address" name="address" class="materialize-textarea"
+                                                        style="min-height: 100px;"><% if (typeof new_address !== 'undefined') { %> <%= new_address %><% } %></textarea>
+                                                    <label for="address">Address <span class="red-text">*</span></label>
+                                                </div>
+                                                <div class="input-field col s6">
+                                                    <i class="material-icons prefix">location_on</i>
+                                                    <input id="pin" name="pin" type="text"
+                                                        <% if (typeof pincode !== 'undefined') { %>
+                                                        value="<%= pincode %>" <% } %>>
+                                                    <label for="pin">PIN code <span class="red-text">*</span></label>
+                                                    <span class="helper-text">Must be a 6 digit PIN code</span>
+                                                </div>
+                                                <div class="input-field col s6">
+                                                    <i class="material-icons prefix">phone</i>
+                                                    <input id="address_id" name="address_id" type="hidden"
+                                                    <% if (typeof address_id !== 'undefined') {%> value="<%= address_id %>"
+                                                    <% } %>>
+                                                    <input id="phone" name="phone" type="tel"
+                                                        <% if (typeof phone !== 'undefined') {%> value="<%= phone %>"
+                                                        <% } %>>
+                                                    <label for="phone">Phone <span class="red-text">*</span></label>
+                                                    <span class="helper-text">Must be a 10 digit phone number</span>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" form="new-address"
+                                                    class="modal-close waves-effect waves-teal purple-text btn-flat right"><% if (edit_address) { %> Edit
+                                                    <% } else{ %>
+                                                        Save
+                                                        <% } %> </button>
+                                            </div>
+                                            <br>
+                                        </form>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+
+                        <br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<%- include('./partials/footer'); %>

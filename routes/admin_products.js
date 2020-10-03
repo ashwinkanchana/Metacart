@@ -85,14 +85,16 @@ router.post('/add-product', titleDescPriceImageValidator, async (req, res) => {
                         Key: imageKey,
                         Body: productImage
                     }
-                    s3.upload(params, (error, data) => {
+                    s3.upload(params, async (error, data) => {
                         if (error) {
                             throw new Error(error)
                         }
+                        await updateSearchTerms(req)
                         req.flash('green', `Successfully added ${insertedProduct.title}`)
                         req.session.save(() => { res.redirect('/admin/products') })
                     })
                 } else {
+                    await updateSearchTerms(req)
                     req.flash('green', `Successfully added ${insertedProduct.title}`)
                     req.session.save(() => { res.redirect('/admin/products') })
                 }
@@ -216,6 +218,7 @@ router.post('/edit-product/:id', titleDescPriceImageValidator, async (req, res) 
                     const query = 'UPDATE product SET title = ?, slug = ?,specs = ?, price=?, stock=?, category_id=? WHERE id = ?;'
                     const values = [title, slug, desc, price, stock, category, id]
                     const update = await pool.query(query, values)
+                    await updateSearchTerms(req)
                     req.flash('green', `Successfully modified ${title}`)
                     req.session.save(() => { res.redirect(`/admin/products`) })
                 }
@@ -293,6 +296,7 @@ router.get('/delete-product/:id', async (req, res) => {
         const query = 'SELECT title FROM product WHERE id = ?; DELETE FROM product WHERE id = ?;'
         const filter = [id, id]
         const product = await pool.query(query, filter)
+        await updateSearchTerms(req)
         req.flash('grey darken-4', `Successfully removed a ${product[0][0].title}`)
         req.session.save(() => { res.redirect(`/admin/products/`) })
     } catch (error) {
@@ -325,5 +329,22 @@ async function deleteS3Directory(dir) {
         throw new Error(error)
     }
 }
+
+
+async function updateSearchTerms(req) {
+    const searchTermsQuery = 'SELECT id, title, image FROM product;'
+    try {
+        const products = await pool.query(searchTermsQuery)
+        let searchTerms = {}
+        products.forEach(p => {
+            searchTerms[`${p.title}`] = `https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/${p.id}/${p.image}`
+        });
+        req.app.locals.searchTerms = searchTerms
+    } catch (error) {
+        console.log(error)
+        throw new Error(error)
+    }
+}
+
 
 module.exports = router
