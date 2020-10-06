@@ -15,7 +15,7 @@ const s3 = new AWS.S3({
 router.get('/', async (req, res) => {
     try {
         const startIndex = mysql.escape(parseInt(req.query.page - 1 || 0))
-        const limit = mysql.escape(parseInt(req.query.limit || 4))
+        const limit = mysql.escape(parseInt(req.query.limit || 12))
         const skip = startIndex * limit
         const filters = buildFiltersQuery(req)
 
@@ -50,7 +50,7 @@ router.get('/', async (req, res) => {
 router.get('/:category', async (req, res) => {
     try {
         const startIndex = mysql.escape(parseInt(req.query.page - 1 || 0))
-        const limit = mysql.escape(parseInt(req.query.limit || 4))
+        const limit = mysql.escape(parseInt(req.query.limit || 12))
         const skip = startIndex * limit
 
         const category = req.params.category

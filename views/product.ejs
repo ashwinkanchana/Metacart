@@ -55,22 +55,33 @@
             <% for(i = 0; i<(relatedProducts.length); i++){ %>
             <% const p = relatedProducts[i] %>
             <div class="col s6 m4 l3">
-                <div class="card z-depth-2 hoverable">
+                <div class="card z-depth-2 hoverable product-card">
                     <div class="card-content">
                         <a href="/products/<%= p.category %>/<%= p.slug %>">
-                            <img class="home-product-image"
-                                src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= p.id %>/<%= p.image %>"
-                                alt="">
+                            <div class="row">
+                                <div class="col s12">
+                                    <img class="home-product-image"
+                                        src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= p.id %>/<%= p.image %>"
+                                        alt="">
+                                </div>
+                                <div class="col s12">
+                                    <p class="card-product-name"><%= p.title %></h6>
+                                </div>
+                                <br>
+                                <div class="col s12">
+                                    <div class="chip">
+                                        • <b>₹<%= parseFloat(p.price).toFixed(2)  %></b>
+                                    </div>
+                                </div>
+                                <div class="col s12">
+                                    <% if (p.stock <= 0) { %>
+                                    <p class="red-text helper-txt"><strong>Out of stock</strong></p>
+                                    <% } else { %>
+                                    <span class="helper-txt">&nbsp;</span>
+                                    <% } %>
+                                </div>
+                            </div>
                         </a>
-                        <a href="/products/<%= p.category %>/<%= p.slug %>">
-                            <h6><%= p.title %></h6>
-                        </a>
-                        <div class="chip">
-                            • <b>₹<%= parseFloat(p.price).toFixed(2)  %></b>
-                        </div>
-                        <% if (p.stock <= 0) { %>
-                        <span class="red-text"><strong>Out of stock</strong></span>
-                        <% } %>
                     </div>
                 </div>
             </div>

@@ -18,7 +18,7 @@ router.post('/products', searchValidator, async (req, res) => {
         }
         else {
             const startIndex = mysql.escape(parseInt(req.query.page - 1 || 0))
-            const limit = mysql.escape(parseInt(req.query.limit || 4))
+            const limit = mysql.escape(parseInt(req.query.limit || 12))
             const skip = startIndex * limit
             const query = `SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id  WHERE product.title LIKE ? LIMIT ${skip},${limit};SELECT COUNT(*) AS count FROM(SELECT product.id FROM product WHERE product.title LIKE ?) AS count;`
             const filter = [`%${q}%`, `%${q}%`]

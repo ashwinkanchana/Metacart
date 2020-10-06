@@ -1,6 +1,7 @@
 const express = require('express')
 const { validationResult } = require('express-validator')
 const nodePath = require('path')
+const mysql = require('mysql')
 const { v4: uuidv4 } = require('uuid');
 const AWS = require('aws-sdk')
 const resizeImg = require('resize-img')
@@ -16,14 +17,32 @@ const s3 = new AWS.S3({
     secretAccessKey: process.env.AWS_SECRET
 })
 
-// GET products index
+
+// GET products page
 router.get('/', async (req, res) => {
     try {
-        const query = 'SELECT product.id, category.title AS `category`, product.title, product.price, product.image FROM product INNER JOIN category ON product.category_id = category.id;'
+        const categories = req.app.locals.categories
+        console.log(categories);
+        res.render('admin/products', {
+            categories,
+            products: [],
+            selected: 0
+        })
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+// GET products of a category
+router.get('/list/:category', async (req, res) => {
+    try {
+        const categories = req.app.locals.categories
+        const query = `SELECT product.id, category.title AS \`category\`, product.title, product.price, product.image FROM product INNER JOIN category ON product.category_id = category.id WHERE category.slug = ${mysql.escape(req.params.category)} OR  category.id = ${mysql.escape(req.params.category)};`
         const products = await pool.query(query)
         res.render('admin/products', {
             products: products,
-            count: products.length
+            categories,
+            selected: categories
         })
     } catch (error) {
         console.log(error)
@@ -91,12 +110,12 @@ router.post('/add-product', titleDescPriceImageValidator, async (req, res) => {
                         }
                         await updateSearchTerms(req)
                         req.flash('green', `Successfully added ${insertedProduct.title}`)
-                        req.session.save(() => { res.redirect('/admin/products') })
+                        req.session.save(() => { res.redirect(`/admin/products/list/${category}`) })
                     })
                 } else {
                     await updateSearchTerms(req)
                     req.flash('green', `Successfully added ${insertedProduct.title}`)
-                    req.session.save(() => { res.redirect('/admin/products') })
+                    req.session.save(() => { res.redirect(`/admin/products/list/${category}`) })
                 }
             }
         }
@@ -213,14 +232,14 @@ router.post('/edit-product/:id', titleDescPriceImageValidator, async (req, res) 
                         }
                     })
                     req.flash('green', `Successfully modified ${title}`)
-                    req.session.save(() => { res.redirect(`/admin/products`) })
+                    req.session.save(() => { res.redirect(`/admin/products/list/${category}`) })
                 } else {
                     const query = 'UPDATE product SET title = ?, slug = ?,specs = ?, price=?, stock=?, category_id=? WHERE id = ?;'
                     const values = [title, slug, desc, price, stock, category, id]
                     const update = await pool.query(query, values)
                     await updateSearchTerms(req)
                     req.flash('green', `Successfully modified ${title}`)
-                    req.session.save(() => { res.redirect(`/admin/products`) })
+                    req.session.save(() => { res.redirect(`/admin/products/list/${category}`) })
                 }
             }
         }
@@ -267,8 +286,6 @@ router.get('/delete-image/:image/:id', (req, res) => {
         const img = req.params.image
         const originalImage = `product_images/${id}/gallery/${img}`
         const thumbImage = `product_images/${id}/gallery/thumbs/${img}`
-        console.log(originalImage);
-        console.log(thumbImage);
         var deleteParams1 = { Bucket: bucketName, Key: originalImage }
         s3.deleteObject(deleteParams1, (err, data) => {
             if (err)
@@ -293,12 +310,12 @@ router.get('/delete-product/:id', async (req, res) => {
     try {
         const id = req.params.id
         await deleteS3Directory(`product_images/${id}/`)
-        const query = 'SELECT title FROM product WHERE id = ?; DELETE FROM product WHERE id = ?;'
+        const query = 'SELECT title, category_id FROM product WHERE id = ?; DELETE FROM product WHERE id = ?;'
         const filter = [id, id]
         const product = await pool.query(query, filter)
         await updateSearchTerms(req)
         req.flash('grey darken-4', `Successfully removed a ${product[0][0].title}`)
-        req.session.save(() => { res.redirect(`/admin/products/`) })
+        req.session.save(() => { res.redirect(`/admin/products/list/${product[0][0].category_id}`) })
     } catch (error) {
         console.log(error);
         req.flash('grey darken-4', `Something went wrong`)

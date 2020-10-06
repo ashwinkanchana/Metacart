@@ -61,7 +61,8 @@
                                         </div>
                                         <div class="col s4">
                                             <img style="width: 60px;"
-                                                src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= item.product_id %>/<%= item.image %>" alt="">
+                                                src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= item.product_id %>/<%= item.image %>"
+                                                alt="">
                                         </div>
                                         <div class="col s6">
                                             <a href="/products/<%= item.category_slug %>/<%= item.slug %>">
@@ -79,6 +80,10 @@
                                     <br>
                                     Purchased at: ₹<%=parseFloat(item.purchase_price).toFixed(2)%>
                                     <br>
+                                    <% if(item.delivered_at && (item.status == 'Delivered' )) { %>
+                                    Delivered on <%= item.delivered_at %>
+                                    <br>
+                                    <% } %>
                                     <br>
                                     <% if(item.tracking_id && (item.status != 'Return requested' && item.status != 'Returned'&& item.status != 'Cancelled')) { %>
                                     Tracking ID: <%= item.tracking_id %>
@@ -90,44 +95,48 @@
                                             <div class="right">
                                                 <% if (item.status == 'Payment Success' || item.status == 'Confirmed' ||item.status == 'Dispatched') { %>
                                                 <a class="waves-effect waves-red btn-flat btn-small order-action-btn modal-trigger"
-                                                    href="#cancel-confirmation-modal"><i
-                                                        class="material-icons left" style="font-size: 14px">cancel</i>Cancel</a>
+                                                    href="#cancel-confirmation-modal"><i class="material-icons left"
+                                                        style="font-size: 14px">cancel</i>Cancel</a>
 
                                                 <div id="cancel-confirmation-modal" class="modal">
                                                     <div class="modal-content">
                                                         <h5 class="red-text">Order cancellation</h5>
-                                                        <img class="center-align"
-                                                            style="width: 80px; vertical-align:middle;"
+                                                        <div class="order-confirmation-modal">
+                                                            <img class="center-align"
+                                                            style="width: 80px;"
                                                             src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= item.product_id %>/<%= item.image %>"
                                                             alt="">
-                                                        <span>Are you sure you want to cancel <%= item.title %>?</span>
+                                                            <p >Are you sure you want to cancel <%= item.title %>?</p>
+                                                        </div>
                                                     </div>
                                                     <div class="modal-footer">
+                                                        <a href="#" class="modal-close waves-effect btn-flat">Dismiss</a>
                                                         <a href="/orders/cancel-item/<%= o.order_id %>/<%= item.product_id %>"
                                                             class="modal-close waves-effect waves-red btn-flat">Confirm</a>
                                                     </div>
                                                 </div>
-
-
-                                                <% } else if(item.status != 'Return requested' && item.status != 'Returned'&& item.status != 'Cancelled') {%>
+                                                <% } else if(item.status != 'Return requested' && item.status != 'Returned'&& item.status != 'Cancelled' && item.validReturnWindow){%>
                                                 <a class="waves-effect waves-red btn-flat btn-small order-action-btn modal-trigger"
-                                                href="#return-confirmation-modal"><i
+                                                    href="#return-confirmation-modal"><i
                                                         class="material-icons left">exit_to_app</i>Return</a>
 
-                                                        <div id="return-confirmation-modal" class="modal">
-                                                            <div class="modal-content">
-                                                                <h5 class="grey-text text-darken-2">Request return</h5>
-                                                                <img class="center-align"
-                                                                    style="width: 80px; vertical-align:middle;"
-                                                                    src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= item.product_id %>/<%= item.image %>"
-                                                                    alt="">
-                                                                <span>Are you sure you want to request a return pickup for <%= item.title %>?</span>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <a href="/orders/return-item/<%= o.order_id %>/<%= item.product_id %>"
-                                                                    class="modal-close waves-effect waves-red btn-flat">Confirm</a>
-                                                            </div>
+                                                <div id="return-confirmation-modal" class="modal">
+                                                    <div class="modal-content">
+                                                        <h5 class="grey-text text-darken-2">Request return</h5>
+                                                        <div class="order-confirmation-modal">
+                                                            <img style="width: 80px;"
+                                                                src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= item.product_id %>/<%= item.image %>"
+                                                                alt="">
+                                                            <p>Are you sure you want to return <%= item.title %>?</p>
                                                         </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <a href="#" class="modal-close waves-effect btn-flat">Dismiss</a>
+                                                        <a href="/orders/return-item/<%= o.order_id %>/<%= item.product_id %>"
+                                                            class="modal-close waves-effect waves-red btn-flat">Confirm</a>
+
+                                                    </div>
+                                                </div>
 
 
                                                 <% } %>

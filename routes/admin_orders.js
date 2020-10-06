@@ -55,6 +55,9 @@ router.get('/:slug', async (req, res) => {
         orders.forEach(o =>{
             orderItems.forEach(item =>{
                 if (o.order_id == item.order_id && item.status != 'payment_init') {
+                    if(item.delivered_at){
+                        item.delivered_at = moment(item.delivered_at).utcOffset("+05:30").format('MMM Do YYYY, h:mm a')
+                    }
                     o.items.push(item)
                 }
             })
@@ -110,6 +113,9 @@ router.post('/update-order-item', async (req, res) => {
         if(status == 'Confirmed'){
             await generateTrackingID(orderId, productID)
         }
+        if(status == 'Delivered'){
+            await setDeliveryTime(orderId, productID)
+        }
         const query = 'UPDATE order_item SET status = ? WHERE order_id = ? AND product_id = ?;'
         const values = [status, orderId, productID]
         const rows = await pool.query(query, values)
@@ -136,6 +142,20 @@ async function generateTrackingID(orderID, productID){
         const trackingID = cryptoRandomString({ length: 16, type: 'numeric' })
         const query = 'UPDATE order_item SET tracking_id = ? WHERE order_id = ? AND product_id = ?;'
         const values = [trackingID, orderID, productID]
+        const status = await pool.query(query, values)
+        return status.affectedRows
+    } catch (error) {
+        console.log(error)
+        throw new Error(error)
+    }
+}
+
+
+async function setDeliveryTime(orderID, productID){
+    try {
+        const trackingID = cryptoRandomString({ length: 16, type: 'numeric' })
+        const query = 'UPDATE order_item SET delivered_at = NOW() WHERE order_id = ? AND product_id = ?;'
+        const values = [orderID, productID]
         const status = await pool.query(query, values)
         return status.affectedRows
     } catch (error) {

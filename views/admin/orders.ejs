@@ -105,6 +105,10 @@
                                     <br>
                                     Purchased at: ₹<%=parseFloat(item.purchase_price).toFixed(2)%>
                                     <br>
+                                    <% if(item.delivered_at) { %>
+                                        Delivered on <%= item.delivered_at %>
+                                        <% } %>
+                                    <br>
                                     <div class="row">
                                         <div class="col s12 m5">
                                             <div class="input-field">
@@ -196,8 +200,6 @@
                 contentType: "application/json",
                 dataType: 'json',
                 success: function (res) {
-                    console.log(res);
-
                     if (res.message) {
                         M.toast({
                             html: res.message,

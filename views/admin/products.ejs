@@ -1,32 +1,37 @@
 <%- include('../partials/adminHeader'); %>
-<div class="container input-fields">
-    <h4 class="page-title">Products</h4>
+<div class="container">
+    <h4 id="page-title">Products</h4>
     <br>
+    <div class="row">
+        <div class="col s12">
+            <div class="input-field">
+                <select name="category" id="category-select">
+                    <option selected disabled>Category</option>
+                        <% categories.forEach(c => { %>
+                            <option value="<%=c.slug%>"
+                            <% if (selected ==c.slug ) { %> selected <% } %>><%=c.title%></option>
+                        <% }) %>
+                </select>
+                <label>Product Category</label>
+            </div>
+        </div>
+    </div>
 
-    <% if(count > 0) {%>
-        <table class="striped centered responsive-table">
-            <thead>
-                <tr class="home">
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Image</th>
-                </tr>
-            </thead>
+    <% if(products.length > 0) {%>
+        <table class="striped centered">
             <tbody>
                 <% products.forEach(function(product){ %>
                 <tr>
-                    <td><%= product.title %></td>
-                    <td><%= product.category %></td>
-                    <td> <b> ₹<%= parseFloat(product.price).toFixed(2) %> </b> </td>
                     <td>
-                        <% console.log(product.image) %> 
                         <% if(product.image == "thumbs") {%>
                         <img id="productTableImage" src="/images/noimage.png" alt="No image">
                         <% }else{%>
                         <img id="productTableImage" src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= product.id %>/<%= product.image %>" alt="">
                         <% } %>
                     </td>
+                    <td><%= product.title %></td>
+                    <td><%= product.category %></td>
+                    <td> <b> ₹<%= parseFloat(product.price).toFixed(2) %> </b> </td>
                     <td><a class='dropdown-trigger' href='#' data-target='pageOptions'><i
                                 class="material-icons icon-grey">more_horiz</i></a></td>
                     <ul id='pageOptions' class='dropdown-content'>
@@ -44,8 +49,6 @@
             <h5 class="center-align grey-accent-4-text">It's so empty here...</h5>
         </div>
     <%}%>
-
-    
 </div> 
 
 <div class="fixed-action-btn">
@@ -53,4 +56,15 @@
         data-position="left" data-tooltip="Add a new product"><i class="material-icons">add</i></a>
 </div>
 
+<script>
+    $(document).ready(function () {
+        $('select').formSelect();
+        $("select#category-select").change(function (e) {
+            const selectedCategory = e.target.value;
+            window.location.href = `/admin/products/list/${selectedCategory}`;
+        });
+    });
+</script>
+
+<br><br>
 <%- include('../partials/adminFooter'); %>
