@@ -286,7 +286,7 @@ router.post("/paytm-response", (req, res) => {
                         //Decrement ordered product stock
                         let updateStockQueries = '';
                         orderProducts.forEach(item => {
-                            updateStockQueries += `UPDATE product SET stock = stock - ${mysql.escape(item.quantity)} WHERE id = ${mysql.escape(item.product_id)} and stock  > 0;`
+                            updateStockQueries += `UPDATE product SET stock = stock - ${mysql.escape(item.quantity)}, sales = sales + ${mysql.escape(item.quantity)} WHERE id = ${mysql.escape(item.product_id)} and stock  > 0;`
                         });
 
                         console.log(updateStockQueries)

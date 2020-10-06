@@ -1,10 +1,10 @@
 const express = require('express')
 const AWS = require('aws-sdk')
 const router = express.Router()
+const mysql = require('mysql')
 const { pool } = require('../config/database')
 
 const bucketName = process.env.AWS_BUCKET_NAME
-
 //AWS s3 bucket for media storage
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ID,
@@ -14,26 +14,60 @@ const s3 = new AWS.S3({
 // GET all products
 router.get('/', async (req, res) => {
     try {
-        const query = 'SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id;'
+        const startIndex = mysql.escape(parseInt(req.query.page - 1 || 0))
+        const limit = mysql.escape(parseInt(req.query.limit || 4))
+        const skip = startIndex * limit
+        const filters = buildFiltersQuery(req)
+
+        const query = `SELECT COUNT(*) AS count FROM(SELECT p.id FROM product p WHERE ${filters}) AS count; SELECT p.id, p.title, p.slug, p.price, p.image, p.stock, c.slug AS category FROM product p INNER JOIN category c ON p.category_id = c.id WHERE ${filters} LIMIT ${skip},${limit};`
+        console.log("QUERY---->"+query);
+        
         const products = await pool.query(query)
+        const productsCount = products[0][0].count
+        const numPages = Math.ceil(productsCount / limit);
+        const reqQuery = req.query
+        if (reqQuery.page)
+            delete reqQuery.page
+        if (reqQuery.limit)
+            delete reqQuery.limit
+
         res.render('products', {
-            title: 'All products',
-            products
+            reqQuery: new URLSearchParams(req.query).toString(),
+            numPages,
+            limit,
+            currentPage: startIndex,
+            title: 'Products',
+            products: products[1]
         })
     } catch (error) {
         console.log(error)
+        req.flash('red', 'Something went wrong!')
+        req.session.save(() => { res.redirect('/products') })
     }
 })
 
 // GET products by category
 router.get('/:category', async (req, res) => {
     try {
+        const startIndex = mysql.escape(parseInt(req.query.page - 1 || 0))
+        const limit = mysql.escape(parseInt(req.query.limit || 4))
+        const skip = startIndex * limit
+
         const category = req.params.category
-        const query = 'SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id WHERE category.slug = ?; SELECT title FROM category WHERE slug = ?;'
-        const filter = [category, category]
+        const query = `SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id WHERE category.slug = ? LIMIT ${skip},${limit}; SELECT title FROM category WHERE slug = ?; SELECT COUNT(*) AS count FROM(SELECT p.id FROM product p INNER JOIN category c ON p.category_id = c.id WHERE c.slug = ?) AS count;`
+        const filter = [category, category, category]
         const products = await pool.query(query, filter)
+        const productsCount = products[2][0].count
+        console.log("QUERY---->"+query);
+        
+        const numPages = Math.ceil(productsCount / limit);
         if (products[1].length > 0) {
             res.render('products', {
+                category:`${category}`,
+                reqQuery: '',
+                numPages,
+                limit,
+                currentPage: startIndex,
                 title: products[1][0].title,
                 products: products[0]
             })
@@ -62,7 +96,7 @@ router.get('/:category/:product', async (req, res) => {
         const relatedProductsQuery = `SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, c.slug AS category FROM product INNER JOIN category c ON product.category_id = c.id WHERE c.slug = '${category}' ORDER BY RAND() LIMIT 8;`
         const relatedProducts = await pool.query(relatedProductsQuery)
         console.log(relatedProducts);
-        
+
         if (product) {
             const galleryDir = `product_images/${product.id}/gallery/`
 
@@ -78,7 +112,7 @@ router.get('/:category/:product', async (req, res) => {
                 galleryImages = files.Contents.map(a => a.Key);
                 galleryImages.forEach((a, index) => {
                     let pos = a.lastIndexOf('/')
-                    galleryImages[index] = a.substring(pos+1,a.length)
+                    galleryImages[index] = a.substring(pos + 1, a.length)
                 });
                 res.render('product', {
                     title: product.title,
@@ -97,5 +131,53 @@ router.get('/:category/:product', async (req, res) => {
         req.session.save(() => { res.redirect('/products') })
     }
 })
+
+
+function buildFiltersQuery(req) {
+    try {
+        let filters = ''
+        const query = req.query
+        let category = mysql.escape(parseInt(query.category))
+        if (isNaN(category))
+            category = 0
+        const priceMin = mysql.escape(parseInt(query.pricemin) || 1)
+        const priceMax = mysql.escape(parseInt(query.pricemax) || 9999999)
+        const includeOutOfStock = query.stock == 'on' || false
+        const filter2 = `p.price BETWEEN ${priceMin} AND ${priceMax}`
+        let filter3 = ''
+        if (includeOutOfStock) {
+            filter3 = `p.stock >= 0`
+        } else {
+            filter3 = `p.stock > 0`
+        }
+        let filter4 = 'init'
+        switch (query.sort) {
+            case 'popularity':
+                filter4 = 'ORDER BY p.sales';
+                break;
+            case 'low-to-high':
+                filter4 = 'ORDER BY p.price';
+                break;
+            case 'high-to-low':
+                filter4 = 'ORDER BY p.price DESC';
+                break;
+            default:
+                filter4 = 'relevance';
+        }
+        
+        if(category != 0){
+            const filter1 = `p.category_id = ${category}`
+            filters += ` ${filter1} AND`
+        }
+        filters += ` ${filter2} AND ${filter3}`
+        if (filter4 != 'relevance')
+            filters += ` ${filter4}`
+        return filters
+    } catch (error) {
+        console.log(error);
+        throw new Error(error)
+    }
+}
+
 
 module.exports = router

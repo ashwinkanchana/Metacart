@@ -10,7 +10,14 @@
             <% products.forEach(p => { %>
             <div class="col s6  l3 p">
                 <a class="pa" href="/products/<%= p.category %>/<%= p.slug %>">
-                    <img class="pimage" src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= p.id %>/<%= p.image %>" alt="">
+                    <% if ( p.image == 'thumbs') { %>
+                    <img class="pimage" src="./images/noimage.png" alt="">
+                    <% } else { %>
+                    <img class="pimage"
+                        src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= p.id %>/<%= p.image %>"
+                        alt="">
+                    <% } %>
+
                 </a>
                 <a href="/products/<%= p.category %>/<%= p.slug %>">
                     <h5><%= p.title %></h5>
@@ -19,7 +26,7 @@
                     • <b>₹<%= parseFloat(p.price).toFixed(2)  %></b>
                 </div>
                 <% if (p.stock <= 0) { %>
-                <span class="red-text"><strong>Out of stock</strong></span>
+                <p class="red-text"><strong>Out of stock</strong></p>
                 <% } %>
             </div>
             <% }) %>
@@ -30,17 +37,33 @@
     </div>
 </div>
 <div class="row">
-        <div class="center">
-            <ul class="pagination">
-                <li class="disabled"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
-                <li class="active"><a href="#!">1</a></li>
-                <li class="waves-effect"><a href="#!">2</a></li>
-                <li class="waves-effect"><a href="#!">3</a></li>
-                <li class="waves-effect"><a href="#!">4</a></li>
-                <li class="waves-effect"><a href="#!">5</a></li>
-                <li class="waves-effect"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
-            </ul>
-        </div>
+    <div class="center">
+       
+        <ul class="pagination">
+            <li <% if (currentPage == 0) { %> class="disabled"><a href="#"><i
+                        class="material-icons">chevron_left</i></a> <% } else { %>
+                ><a href="/products<% if (typeof category != 'undefined') { %>/<%=category%><% } %>?page=1&limit=<%=limit%>&<%=reqQuery%>"><i
+                        class="material-icons">chevron_left</i></a>
+                <% } %>
+            </li>
+            <% startPage = currentPage - 4 %>
+            <% endPage = +currentPage + 4 %>
+            <% if(startPage < 0) { startPage = 1 }%>
+            <% if (endPage > numPages) { endPage = numPages } %>
+            <% for( let index = Math.max(1,startPage); index <= endPage; index++ ) { %>
+            <li class="waves-effect <% if (index - 1 == currentPage) { %>
+                        active
+                    <% } %>"><a href="/products<% if (typeof category != 'undefined') { %>/<%=category%><% } %>?page=<%=index%>&limit=<%=limit%>&<%=reqQuery%>"><%=index%></a></li>
+            <% } %>
+            <li <% if (currentPage == numPages-1 || numPages == 0 ) { %> class="disabled"><a href="#"><i
+                        class="material-icons">chevron_right</i></a> <% } else { %>
+                ><a href="/products<% if (typeof category != 'undefined') { %>/<%=category%><% } %>?page=<%=numPages%>&limit=<%=limit%>&<%=reqQuery%>"><i
+                        class="material-icons">chevron_right</i></a>
+                <% } %>
+            </li>
+        </ul>
     </div>
 </div>
+</div>
+<%- include('./partials/filterModal'); %>
 <%- include('./partials/footer'); %>

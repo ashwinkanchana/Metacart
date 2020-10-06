@@ -13,6 +13,18 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
          M.AutoInit();
+         var initData = JSON.parse('<%-JSON.stringify(searchTerms)%>');
+
+         var autocompletes = document.querySelectorAll('.autocomplete');
+        var instances = M.Autocomplete.init(autocompletes, {
+            data: initData,
+            minLength: 1,
+            limit: 30,
+            onAutocomplete: function (val) {
+                $('#search, #search-header, #search-mobile').val(val);
+                $("#search-nav").submit();
+            }
+        });
     });
 </script>
 

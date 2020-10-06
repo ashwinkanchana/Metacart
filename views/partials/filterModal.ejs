@@ -1,0 +1,127 @@
+<!-- filter button and bottom modal -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Dogfalo/materialize@master/extras/noUiSlider/nouislider.css" />
+<script src="https://cdn.jsdelivr.net/gh/Dogfalo/materialize@master/extras/noUiSlider/nouislider.min.js"></script>
+<div class="fixed-action-btn">
+    <a href="#filter-modal" id="FAB"
+        class="waves-effect waves-light modal-trigger btn-large deep-purple lighten-1">Filters</a>
+</div>
+
+<div id="filter-modal" class="modal bottom-sheet modal-fixed-footer">
+    <form action="/products" method="GET">
+        <div class="modal-content">
+            <h5>Filter and Sort</h5>
+            <div class="input-field">
+                <span class="helper-text">
+                    Browse exactly what you want
+                </span>
+            </div>
+            <div class="row">
+                <div class="input-field col s12 m8 offset-m2 form-group">
+                    <select name="category">
+                        <option value="0" selected>All</option>
+                        <% if (typeof categories !== 'undefined') { %>
+                        <% categories.forEach(c => { %>
+                        <li class="collection-item">
+                            <option value="<%= c.id %>"><%= c.title %></option>
+                        </li>
+                        <% }) %>
+                        <% } %>
+                    </select>
+                    <label>Product Category</label>
+                </div>
+                <br><br><br>
+                <input type="hidden" name="pricemin" id="range-min" value="">
+                <input type="hidden" name="pricemax" id="range-max" value="">
+                <div class="col s12 m8 offset-m2 form-group">
+                    <label>Price range</label>
+                    <br>
+                    <div id="range">
+                    </div>
+                    <br>
+                    <span id="price-min">₹ Minimum</span>
+                    <span><strong> - </strong></span>
+                    <span id="price-max">₹ Maximum</span>
+                </div>
+                <br>
+                <div class="col s12 m8 offset-m2 form-group">
+                    <br>
+                    <p>
+                        <label>
+                            <input name="stock" type="checkbox" />
+                            <span>Include out of stock</span>
+                        </label>
+                    </p>
+                </div>
+                <div class="col s12 m8 offset-m2 form-group">
+                    <br>
+                    <label>Sort</label>
+                    <p>
+                        <label>
+                            <input value="relevance" name="sort" type="radio" checked />
+                            <span>Relevance</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input value="popularity" name="sort" type="radio" />
+                            <span>Popularity</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input value="low-to-high" name="sort" type="radio" />
+                            <span>Price: Low to High</span>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input value="high-to-low" name="sort" type="radio" />
+                            <span>Price: High to Low</span>
+                        </label>
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect btn-flat">Cancel</a>
+            <button type="submit" class="modal-close waves-effect waves-teal btn-flat">Apply</button>
+        </div>
+    </form>
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        
+
+       
+            var rangeSlider = document.getElementById('range');
+            noUiSlider.create(rangeSlider, {
+                start: [1, 99999],
+                connect: true,
+                step: 1,
+                orientation: 'horizontal',
+                range: {
+                    'min': 1,
+                    'max': 99999
+                },
+                format: wNumb({
+                    decimals: 0
+                })
+            });
+            var priceMin = document.getElementById('price-min')
+            var priceMax = document.getElementById('price-max')
+            range.noUiSlider.on('update', function (values, handle) {
+                priceMin.innerHTML = `₹${parseInt(values[0])}`
+                priceMax.innerHTML = `₹${parseInt(values[1])}`
+                document.getElementById("range-min").value = parseInt(values[0])
+                document.getElementById("range-max").value = parseInt(values[1])
+            });
+        
+    });
+</script>

@@ -48,7 +48,7 @@
 
  a.pa {
      display: inline-block;
-     height: 160px;
+     height: 140px;
  }
 
  .row.products .p {
@@ -196,8 +196,4 @@
 
 }
 
-
-.card.small {
-     height: 220px; 
-}
 
