@@ -96,7 +96,7 @@ router.get('/:category/:product', async (req, res) => {
         const filter = [productSlug]
         const product = (await pool.query(query, filter))[0]
         const relatedProductsQuery = `SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, c.slug AS category FROM product INNER JOIN category c ON product.category_id = c.id WHERE c.slug = '${category}' ORDER BY RAND() LIMIT 8;`
-        //const relatedProducts = await pool.query(relatedProductsQuery)
+        const relatedProducts = await pool.query(relatedProductsQuery)
         
         const reviews = await getProductReviews(req, productSlug)
 
@@ -108,22 +108,22 @@ router.get('/:category/:product', async (req, res) => {
                 Prefix: galleryDir
             }
 
-            // s3.listObjects(params, function (err, files) {
-            //     if (err)
-            //         throw new Error(err)
-            //     galleryImages = files.Contents.map(a => a.Key);
-            //     galleryImages.forEach((a, index) => {
-            //         let pos = a.lastIndexOf('/')
-            //         galleryImages[index] = a.substring(pos + 1, a.length)
-            //     });
+            s3.listObjects(params, function (err, files) {
+                if (err)
+                    throw new Error(err)
+                galleryImages = files.Contents.map(a => a.Key);
+                galleryImages.forEach((a, index) => {
+                    let pos = a.lastIndexOf('/')
+                    galleryImages[index] = a.substring(pos + 1, a.length)
+                });
                 res.render('product', {
                     title: product.title,
                     p: product,
-                    galleryImages: [],
-                    relatedProducts: [],
+                    galleryImages,
+                    relatedProducts,
                     reviews
                 })
-            //})
+            })
         } else {
             req.flash('grey darken-4', 'Product doesn\'t exists')
             req.session.save(() => { res.redirect('/products') })
@@ -181,8 +181,6 @@ function buildFiltersQuery(req) {
         throw new Error(error)
     }
 }
-
-
 
 
 async function getProductReviews(req, productSlug){
