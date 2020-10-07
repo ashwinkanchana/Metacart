@@ -8,7 +8,6 @@ exports.reviewValidator = [
         try {
             const row = await pool.query(query, values)
             if(row.length>0){
-                console.log("VALIDATOR true");
                 return true;
             }else{
                 return false;
