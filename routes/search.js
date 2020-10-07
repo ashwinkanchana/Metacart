@@ -4,12 +4,12 @@ const { check, validationResult } = require('express-validator')
 const router = express.Router()
 const { searchValidator } = require('../validators/search')
 const { pool } = require('../config/database')
-
+const Filter = require('bad-words')
+const wordFilter = new Filter();
 
 // POST search term
 router.post('/products', searchValidator, async (req, res) => {
     const q = req.body.q
-    res.locals.currentPage = req.path.split('/')[1]
     try {
         const errors = validationResult(req).array();
         if (errors.length > 0) {
@@ -25,18 +25,18 @@ router.post('/products', searchValidator, async (req, res) => {
             const products = await pool.query(query, filter)
             const numPages = Math.ceil(products[1][0].count / limit);
             res.render('products', {
-                title: `Search Results for ${q}`,
+                title: `Search Results for ${wordFilter.clean(q)}`,
                 products: products[0],
                 numPages,
                 limit,
                 currentPage: startIndex,
                 reqQuery: ''
             })
-
-
         }
     } catch (error) {
         console.log(error)
+        req.flash('red', 'Something went wrong!')
+        req.session.save(() => { res.redirect('/') })
     }
 })
 

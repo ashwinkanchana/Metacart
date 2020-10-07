@@ -3,15 +3,21 @@ module.exports = {
         if (req.isAuthenticated()) {
             return next()
         }
-        req.session.redirectTo = req.originalUrl; 
-        req.flash('red', 'Please login to continue')
-        req.session.save(() => {  res.redirect('/auth/login') })
+        req.session.redirectTo = req.originalUrl;
+        if (req.xhr) {
+            res.status(403).send({'message': 'Please login to proceed'})
+        } else {
+            req.flash('red', 'Please login to continue')
+            req.session.save(() => { res.redirect('/auth/login') })
+        }
+
+
     },
 
     ensureGuest: function (req, res, next) {
         if (req.isAuthenticated()) {
             req.flash('red', 'Access denied')
-            req.session.save(() => {  res.redirect('/home') })
+            req.session.save(() => { res.redirect('/home') })
         }
         else {
             return next()
@@ -24,7 +30,7 @@ module.exports = {
         }
         else {
             req.flash('red', 'Please login as Admin')
-            req.session.save(() => {  res.redirect('/') })
+            req.session.save(() => { res.redirect('/') })
         }
     },
 
@@ -34,6 +40,6 @@ module.exports = {
         }
         return false
     }
-    
-    
+
+
 }

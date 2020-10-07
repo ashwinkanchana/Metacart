@@ -13,6 +13,7 @@
   "dependencies": {
     "@sendgrid/mail": "^7.2.6",
     "aws-sdk": "^2.765.0",
+    "bad-words": "^3.0.3",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "chalk": "^4.1.0",
@@ -28,6 +29,7 @@
     "express-session": "^1.17.1",
     "express-validator": "^6.6.1",
     "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.20",
     "moment": "^2.29.0",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",

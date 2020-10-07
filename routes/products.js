@@ -3,6 +3,9 @@ const AWS = require('aws-sdk')
 const router = express.Router()
 const mysql = require('mysql')
 const { pool } = require('../config/database')
+const moment = require('moment')
+var _ = require('lodash');
+const { isAuthenticated } = require('../controllers/auth')
 
 const bucketName = process.env.AWS_BUCKET_NAME
 //AWS s3 bucket for media storage
@@ -92,35 +95,35 @@ router.get('/:category/:product', async (req, res) => {
         const query = 'SELECT * from product WHERE slug = ?'
         const filter = [productSlug]
         const product = (await pool.query(query, filter))[0]
-
         const relatedProductsQuery = `SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, c.slug AS category FROM product INNER JOIN category c ON product.category_id = c.id WHERE c.slug = '${category}' ORDER BY RAND() LIMIT 8;`
-        const relatedProducts = await pool.query(relatedProductsQuery)
-        console.log(relatedProducts);
+        //const relatedProducts = await pool.query(relatedProductsQuery)
+        
+        const reviews = await getProductReviews(req, productSlug)
 
         if (product) {
             const galleryDir = `product_images/${product.id}/gallery/`
-
             var params = {
                 Bucket: bucketName,
                 Delimiter: '/',
                 Prefix: galleryDir
             }
 
-            s3.listObjects(params, function (err, files) {
-                if (err)
-                    throw new Error(err)
-                galleryImages = files.Contents.map(a => a.Key);
-                galleryImages.forEach((a, index) => {
-                    let pos = a.lastIndexOf('/')
-                    galleryImages[index] = a.substring(pos + 1, a.length)
-                });
+            // s3.listObjects(params, function (err, files) {
+            //     if (err)
+            //         throw new Error(err)
+            //     galleryImages = files.Contents.map(a => a.Key);
+            //     galleryImages.forEach((a, index) => {
+            //         let pos = a.lastIndexOf('/')
+            //         galleryImages[index] = a.substring(pos + 1, a.length)
+            //     });
                 res.render('product', {
                     title: product.title,
                     p: product,
-                    galleryImages,
-                    relatedProducts
+                    galleryImages: [],
+                    relatedProducts: [],
+                    reviews
                 })
-            })
+            //})
         } else {
             req.flash('grey darken-4', 'Product doesn\'t exists')
             req.session.save(() => { res.redirect('/products') })
@@ -180,4 +183,43 @@ function buildFiltersQuery(req) {
 }
 
 
+
+
+async function getProductReviews(req, productSlug){
+    let reviews = {}
+    let currentUserReview = null
+    const allReviewQuery = `SELECT r.*, u.fullname FROM reviews r INNER JOIN product p ON r.product_id = p.id INNER JOIN user u ON r.user_id = u.id WHERE p.slug = ${mysql.escape(productSlug)};`
+    const allReviews = await pool.query(allReviewQuery)
+    let totalReviews = 0
+    let sum = 0
+    for(let i = allReviews.length-1; i >=0 ; i--){ 
+        sum += allReviews[i].rating
+        totalReviews += +1
+        allReviews[i].created_at = moment(allReviews[i].created_at).utcOffset("+05:30").format('MMM Do YYYY')
+        if(isAuthenticated(req)){
+            if(allReviews[i].user_id == req.user.id){
+                currentUserReview = allReviews[i]
+                allReviews.splice(i,1);
+            }
+        }
+        
+    }
+    reviews.count = totalReviews
+    reviews.avg = parseFloat(sum/totalReviews).toFixed(1)
+    reviews.user = currentUserReview
+    reviews.reviews = allReviews
+    if(!(Array.isArray(reviews.reviews) && reviews.reviews.length)){
+        delete reviews.reviews
+    }
+    if(_.isEmpty(((reviews || {}).user || {})) ){
+        reviews.user = {}
+        reviews.user.rating = 0
+    }
+    console.log(reviews);
+    
+    return reviews
+}
 module.exports = router
+
+
+

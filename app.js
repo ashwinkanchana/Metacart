@@ -17,23 +17,18 @@ dotenv.config({ path: './config/.env' });
 
 const { ensureAuthenticated ,ensureAdmin } = require('./controllers/auth')
 
-// Init app
 const app = express();
 
 //Get DB pool
 const { pool, db_credential } = require('./config/database')
-const { ENGINE_METHOD_NONE } = require('constants')
-const { fail } = require('assert')
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs')
 app.set('trust proxy', 1)
 
-
 // Set public folder
 app.use(express.static(path.join(__dirname, '/public')));
-
 
 //Express fileupload middleware
 app.use(fileUpload())
@@ -44,7 +39,6 @@ app.use(cors())
 // Body parser middleware
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
-
 
 //Express session
 app.use(session({
@@ -70,7 +64,6 @@ require('./config/passport')(passport)
 app.use(passport.initialize())
 app.use(passport.session())
 
-
 app.get('*',async(req, res, next) => {
     //Force https
     if (!req.secure) {
@@ -81,7 +74,6 @@ app.get('*',async(req, res, next) => {
     res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     next()
 })
-
 
 //Development logging
 if (process.env.NODE_ENV === 'development') {
@@ -118,11 +110,11 @@ app.use('/search', require('./routes/search'))
 app.use('/products', require('./routes/products'))
 app.use('/cart', require('./routes/cart'))
 app.use('/account', ensureAuthenticated, require('./routes/account'))
+app.use('/review', ensureAuthenticated, require('./routes/review'))
 app.use('/orders', ensureAuthenticated, require('./routes/orders'))
 app.use('/checkout', ensureAuthenticated, require('./routes/checkout'))
 app.use('/auth', require('./routes/auth'))
 app.use('/', require('./routes/pages'))
-
 
 // Handle errors
 app.use(function (req, res, next) {
@@ -130,7 +122,6 @@ app.use(function (req, res, next) {
 });
 
 const port = process.env.PORT || 3000
-
 
 if(process.env.NODE_ENV == 'development'){
     //Use self signed SSL certificate for localhost 

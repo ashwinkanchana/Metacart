@@ -210,3 +210,29 @@
     align-items: center;
   }
 
+.rating {
+    font-size: 2.5em;
+    font-family: sans-serif;
+}
+
+.rate {
+    font-size: 3.5em;
+    font-family: sans-serif;
+}
+.rate-fixed {
+    font-size: 1.8em;
+    font-family: sans-serif;
+}
+
+.rate-base-layer {
+    color: rgb(168, 168, 168);
+}
+
+.rate-hover-layer {
+    color: orange;
+}
+
+.rate-select-layer {
+    color: orange;
+}
+

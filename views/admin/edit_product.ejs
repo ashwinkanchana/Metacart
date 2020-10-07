@@ -47,12 +47,6 @@
             </div>
         </div>
         <br>
-        <!-- <div class="input-field form-group">
-            <i class="form-control material-icons prefix">description</i>
-            <textarea id="desc" name="desc" class="materialize-textarea"><%= desc %></textarea>
-            <label for="desc">Description</label>
-        </div> -->
-
         <div class="form-group col s10 m12 ">
             <label for="">Description</label>
             <textarea class="form-control" id="wysiwyg" name="desc"><%= desc %></textarea>
@@ -61,11 +55,11 @@
         <div class="row">
             <div class="col m6">
 
-                
+
                 <div class="input-field form-group">
                     <i class="material-icons prefix">assignment</i>
-                    <input id="icon_prefix" type="number" step="1" min="0" name="stock" class="form-control" value="<%= stock %>"
-                        autocomplete="off">
+                    <input id="icon_prefix" type="number" step="1" min="0" name="stock" class="form-control"
+                        value="<%= stock %>" autocomplete="off">
                     <label for="icon_prefix">Avaliable inventory</label>
                 </div>
                 <br>
@@ -76,11 +70,11 @@
                         <input type="file" name="image" id="img">
                     </div>
                     <div class="file-path-wrapper">
-                        <input class="file-path validate form-control" name="image" id="img" autocomplete="off" type="text"
-                            placeholder="Upload a photo">
+                        <input class="file-path validate form-control" name="image" id="img" autocomplete="off"
+                            type="text" placeholder="Upload a photo">
                     </div>
                 </div>
-                
+
 
                 <div class="center-align">
                     <img width="100" src="#" alt="" id="imgPreview">
@@ -94,7 +88,9 @@
                                 <% if (image == "thumbs") { %>
                                 <img class="col s12" src="/images/noimage.png" alt="">
                                 <% } else {%>
-                                <img class="col s12" src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= id %>/<%= image %>" alt="">
+                                <img class="col s12"
+                                    src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= id %>/<%= image %>"
+                                    alt="">
                                 <% } %>
                             </div>
                             <div class="card-content">
@@ -105,9 +101,9 @@
                 </div>
             </div>
         </div>
-       
+
         <br>
-       
+
 
         <input type="hidden" name="pimage" value="<%= image %>">
         <div class="fixed-action-btn">
@@ -125,13 +121,10 @@
         <% if (image != "thumbs") { %>
         <div class="col s6 m4 l3">
             <div class="card">
-                <div class="card-image row galleryCard">
-                    <img class="col s12" src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= id %>/gallery/thumbs/<%= image %>" alt=""
-                        onerror="this.onerror=null; this.src='/images/noimage.png'">
-                </div>
-                <div class="card-action">
-                    <a class="confirmDeletion" href="/admin/products/delete-image/<%= image %>/<%= id %>"><i class="material-icons icon-grey">delete</i></a>
-                </div>
+                <img src="https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/<%= id %>/gallery/thumbs/<%= image %>"
+                    alt="" onerror="this.onerror=null; this.src='/images/noimage.png'">
+                <a class="confirmDeletion" href="/admin/products/delete-image/<%= image %>/<%= id %>"><i
+                        class="material-icons icon-grey">delete</i></a>
             </div>
         </div>
         <% } %>
