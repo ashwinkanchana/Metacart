@@ -20,7 +20,7 @@ router.post('/products', searchValidator, async (req, res) => {
             const startIndex = mysql.escape(parseInt(req.query.page - 1 || 0))
             const limit = mysql.escape(parseInt(req.query.limit || 12))
             const skip = startIndex * limit
-            const query = `SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id  WHERE product.title LIKE ? LIMIT ${skip},${limit};SELECT COUNT(*) AS count FROM(SELECT product.id FROM product WHERE product.title LIKE ?) AS count;`
+            const query = `SELECT p.id, p.title, p.slug, p.price, p.image, p.stock, c.slug AS category, avg(r.rating) as rating, count(r.rating) as count FROM product p INNER JOIN category c ON p.category_id = c.id LEFT JOIN reviews r ON p.id = r.product_id WHERE p.title LIKE ? GROUP BY p.id LIMIT ${skip},${limit}; SELECT COUNT(*) AS count FROM(SELECT product.id FROM product WHERE product.title LIKE ?) AS count;`
             const filter = [`%${q}%`, `%${q}%`]
             const products = await pool.query(query, filter)
             const numPages = Math.ceil(products[1][0].count / limit);

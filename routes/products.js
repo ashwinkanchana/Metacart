@@ -22,10 +22,7 @@ router.get('/', async (req, res) => {
         const limit = mysql.escape(parseInt(req.query.limit || 12))
         const skip = startIndex * limit
         const filters = buildFiltersQuery(req)
-
-        const query = `SELECT COUNT(*) AS count FROM(SELECT p.id FROM product p WHERE ${filters}) AS count; SELECT p.id, p.title, p.slug, p.price, p.image, p.stock, c.slug AS category FROM product p INNER JOIN category c ON p.category_id = c.id WHERE ${filters} LIMIT ${skip},${limit};`
-        console.log("QUERY---->" + query);
-
+        const query = `SELECT COUNT(*) AS count FROM(SELECT p.id FROM product p WHERE ${filters}) AS count; SELECT p.id, p.title, p.slug, p.price, p.image, p.stock, c.slug AS category, avg(r.rating) as rating, count(r.rating) as count FROM product p INNER JOIN category c ON p.category_id = c.id LEFT JOIN reviews r ON p.id = r.product_id WHERE ${filters}  GROUP BY p.id LIMIT ${skip},${limit};`
         const products = await pool.query(query)
         const productsCount = products[0][0].count
         const numPages = Math.ceil(productsCount / limit);
@@ -56,13 +53,11 @@ router.get('/:category', async (req, res) => {
         const startIndex = mysql.escape(parseInt(req.query.page - 1 || 0))
         const limit = mysql.escape(parseInt(req.query.limit || 12))
         const skip = startIndex * limit
-
         const category = req.params.category
-        const query = `SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id WHERE category.slug = ? LIMIT ${skip},${limit}; SELECT title FROM category WHERE slug = ?; SELECT COUNT(*) AS count FROM(SELECT p.id FROM product p INNER JOIN category c ON p.category_id = c.id WHERE c.slug = ?) AS count;`
+        const query = `SELECT p.id, p.title, p.slug, p.price, p.image, p.stock, c.slug AS category, avg(r.rating) as rating, count(r.rating) as count FROM product p INNER JOIN category c ON p.category_id = c.id LEFT JOIN reviews r ON p.id = r.product_id WHERE c.slug = ? GROUP BY p.id LIMIT ${skip},${limit}; SELECT title FROM category WHERE slug = ?; SELECT COUNT(*) AS count FROM(SELECT p.id FROM product p INNER JOIN category c ON p.category_id = c.id WHERE c.slug = ?) AS count;`
         const filter = [category, category, category]
         const products = await pool.query(query, filter)
         const productsCount = products[2][0].count
-
         const numPages = Math.ceil(productsCount / limit);
         if (products[1].length > 0) {
             res.render('products', {
@@ -180,7 +175,6 @@ function buildFiltersQuery(req) {
     }
 }
 
-
 async function getProductReviews(req, productSlug) {
     let reviews = {}
     let currentUserReview = null
@@ -198,7 +192,6 @@ async function getProductReviews(req, productSlug) {
                 allReviews.splice(i, 1);
             }
         }
-
     }
     reviews.count = totalReviews
     reviews.avg = parseFloat(sum / totalReviews).toFixed(1)

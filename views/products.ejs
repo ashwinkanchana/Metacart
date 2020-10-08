@@ -1,4 +1,5 @@
 <%- include('./partials/header'); %>
+<script src="/js/rater.min.js" charset="utf-8"></script>
 <div class="row">
     <div class="col s12 m8 l9 offset-m2 offset-l2">
         <blockquote>
@@ -18,15 +19,44 @@
                         alt="">
                     <% } %>
                 </a>
-                <a href="/products/<%= p.category %>/<%= p.slug %>">
-                    <p><%= p.title %></p>
-                </a>
-                <div class="chip">
-                    • <b>₹<%= parseFloat(p.price).toFixed(2)  %></b>
+                <div class="row">
+                    <div class="col s12">
+                        <a href="/products/<%= p.category %>/<%= p.slug %>">
+                            <p class="card-product-name"><%= p.title %></p>
+                        </a>
+                    </div>
+                    <div class="col s12">
+                        <div class="chip">
+                            • <b>₹<%= parseFloat(p.price).toFixed(2)  %></b>
+                        </div>
+                    </div>
+                    <div class="col s12">
+                        <br style="margin-top: 6px;">
+                        <div class="row" style="height: 18px;">
+                            <div class="col s12">
+                                <% if (p.stock <= 0) { %>
+                                <span class="red-text helper-txt"><strong>Out of stock</strong></span>
+                                <% } else { %>
+                                <div class="float-container">
+                                    <div class="float-child-1">
+                                        <div class="rate-fixed-card"></div>
+                                    </div>
+                                    <span class="helper-txt float-child-2"
+                                        style="padding: 2px;">(<%= (p.count) %>)</span>
+                                    <script>
+                                        var optionsFixed = {
+                                            initial_value: '<%= parseFloat(p.rating).toFixed(2)  %>',
+                                            readonly: true,
+                                            step_size: 0.1
+                                        }
+                                        $(".rate-fixed-card").rate(optionsFixed);
+                                    </script>
+                                </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <% if (p.stock <= 0) { %>
-                <p class="red-text"><strong>Out of stock</strong></p>
-                <% } %>
             </div>
             <% }) %>
             <% }else { %>
@@ -37,11 +67,12 @@
 </div>
 <div class="row">
     <div class="center">
-       
+
         <ul class="pagination">
             <li <% if (currentPage == 0) { %> class="disabled"><a href="#"><i
                         class="material-icons">chevron_left</i></a> <% } else { %>
-                ><a href="/products<% if (typeof category != 'undefined') { %>/<%=category%><% } %>?page=1&limit=<%=limit%>&<%=reqQuery%>"><i
+                ><a
+                    href="/products<% if (typeof category != 'undefined') { %>/<%=category%><% } %>?page=1&limit=<%=limit%>&<%=reqQuery%>"><i
                         class="material-icons">chevron_left</i></a>
                 <% } %>
             </li>
@@ -52,11 +83,14 @@
             <% for( let index = Math.max(1,startPage); index <= endPage; index++ ) { %>
             <li class="waves-effect <% if (index - 1 == currentPage) { %>
                         active
-                    <% } %>"><a href="/products<% if (typeof category != 'undefined') { %>/<%=category%><% } %>?page=<%=index%>&limit=<%=limit%>&<%=reqQuery%>"><%=index%></a></li>
+                    <% } %>"><a
+                    href="/products<% if (typeof category != 'undefined') { %>/<%=category%><% } %>?page=<%=index%>&limit=<%=limit%>&<%=reqQuery%>"><%=index%></a>
+            </li>
             <% } %>
             <li <% if (currentPage == numPages-1 || numPages == 0 ) { %> class="disabled"><a href="#"><i
                         class="material-icons">chevron_right</i></a> <% } else { %>
-                ><a href="/products<% if (typeof category != 'undefined') { %>/<%=category%><% } %>?page=<%=numPages%>&limit=<%=limit%>&<%=reqQuery%>"><i
+                ><a
+                    href="/products<% if (typeof category != 'undefined') { %>/<%=category%><% } %>?page=<%=numPages%>&limit=<%=limit%>&<%=reqQuery%>"><i
                         class="material-icons">chevron_right</i></a>
                 <% } %>
             </li>
