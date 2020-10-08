@@ -259,8 +259,6 @@ router.post("/paytm-response", (req, res) => {
     try {
         responsePayment(req.body).then(
             paytm => {
-                console.log(paytm);
-                
                 const paymentmode = getPaymentModeName(paytm.PAYMENTMODE)
                 const query = 'UPDATE orders SET txnid = ?, payment_status = ?, respcode = ?, respmsg = ?, gateway = ?, bankname = ?, paymentmode = ? WHERE order_id = ?'
                 const values = [paytm.TXNID, paytm.STATUS, paytm.RESPCODE, paytm.RESPMSG, paytm.GATEWAYNAME, paytm.BANKNAME, paymentmode, paytm.ORDERID]

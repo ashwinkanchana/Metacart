@@ -1,4 +1,5 @@
 <%- include('./partials/header'); %>
+<script src="/js/rater.min.js" charset="utf-8"></script>
 </main>
 <style>
     #grad1 {
@@ -38,11 +39,30 @@
                                     </div>
                                 </div>
                                 <div class="col s12">
-                                    <% if (p.stock <= 0) { %>
-                                    <p class="red-text helper-txt"><strong>Out of stock</strong></p>
-                                    <% } else { %>
-                                    <span class="helper-txt">&nbsp;</span>
-                                    <% } %>
+                                    <br style="margin-top: 6px;">
+                                    <div class="row" style="height: 18px;">
+                                        <div class="col s12">
+                                            <% if (p.stock <= 0) { %>
+                                            <span class="red-text helper-txt"><strong>Out of stock</strong></span>
+                                            <% } else { %>
+                                            <div class="float-container">
+                                                <div class="float-child-1">
+                                                    <div class="rate-fixed-card"></div>
+                                                </div>
+                                                <span class="helper-txt float-child-2"
+                                                    style="padding: 2px;">(<%= (p.count) %>)</span>
+                                            </div>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    <script>
+                                        var optionsFixed = {
+                                            initial_value: '<%= parseFloat(p.rating).toFixed(2)  %>',
+                                            readonly: true,
+                                            step_size: 0.1
+                                        }
+                                        $(".rate-fixed-card").rate(optionsFixed);
+                                    </script>
                                 </div>
                             </div>
                         </a>

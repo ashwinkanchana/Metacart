@@ -6,6 +6,7 @@ const { pool } = require('../config/database')
 const moment = require('moment')
 var _ = require('lodash');
 const { isAuthenticated } = require('../controllers/auth')
+const { words } = require('lodash')
 
 const bucketName = process.env.AWS_BUCKET_NAME
 //AWS s3 bucket for media storage
@@ -23,8 +24,8 @@ router.get('/', async (req, res) => {
         const filters = buildFiltersQuery(req)
 
         const query = `SELECT COUNT(*) AS count FROM(SELECT p.id FROM product p WHERE ${filters}) AS count; SELECT p.id, p.title, p.slug, p.price, p.image, p.stock, c.slug AS category FROM product p INNER JOIN category c ON p.category_id = c.id WHERE ${filters} LIMIT ${skip},${limit};`
-        console.log("QUERY---->"+query);
-        
+        console.log("QUERY---->" + query);
+
         const products = await pool.query(query)
         const productsCount = products[0][0].count
         const numPages = Math.ceil(productsCount / limit);
@@ -61,12 +62,11 @@ router.get('/:category', async (req, res) => {
         const filter = [category, category, category]
         const products = await pool.query(query, filter)
         const productsCount = products[2][0].count
-        console.log("QUERY---->"+query);
-        
+
         const numPages = Math.ceil(productsCount / limit);
         if (products[1].length > 0) {
             res.render('products', {
-                category:`${category}`,
+                category: `${category}`,
                 reqQuery: '',
                 numPages,
                 limit,
@@ -92,14 +92,12 @@ router.get('/:category/:product', async (req, res) => {
         const category = req.params.category
         const productSlug = req.params.product
         let galleryImages = null
-        const query = 'SELECT * from product WHERE slug = ?'
-        const filter = [productSlug]
-        const product = (await pool.query(query, filter))[0]
-        const relatedProductsQuery = `SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, c.slug AS category FROM product INNER JOIN category c ON product.category_id = c.id WHERE c.slug = '${category}' ORDER BY RAND() LIMIT 8;`
-        const relatedProducts = await pool.query(relatedProductsQuery)
-        
+        const query = `SELECT * from product WHERE slug = ${mysql.escape(productSlug)}; SELECT p.id, p.title, p.slug, p.price, p.image, p.stock, c.slug AS category, avg(r.rating) as rating, count(r.rating) as count FROM product p 
+        INNER JOIN category c ON p.category_id = c.id LEFT JOIN reviews r ON p.id = r.product_id WHERE c.slug = ${mysql.escape(category)} GROUP BY p.id ORDER BY RAND() LIMIT 8;`
+        const rows = await pool.query(query)
+        const product = rows[0][0]
+        const relatedProducts = rows[1]
         const reviews = await getProductReviews(req, productSlug)
-
         if (product) {
             const galleryDir = `product_images/${product.id}/gallery/`
             var params = {
@@ -167,8 +165,8 @@ function buildFiltersQuery(req) {
             default:
                 filter4 = 'relevance';
         }
-        
-        if(category != 0){
+
+        if (category != 0) {
             const filter1 = `p.category_id = ${category}`
             filters += ` ${filter1} AND`
         }
@@ -183,38 +181,36 @@ function buildFiltersQuery(req) {
 }
 
 
-async function getProductReviews(req, productSlug){
+async function getProductReviews(req, productSlug) {
     let reviews = {}
     let currentUserReview = null
     const allReviewQuery = `SELECT r.*, u.fullname FROM reviews r INNER JOIN product p ON r.product_id = p.id INNER JOIN user u ON r.user_id = u.id WHERE p.slug = ${mysql.escape(productSlug)};`
     const allReviews = await pool.query(allReviewQuery)
     let totalReviews = 0
     let sum = 0
-    for(let i = allReviews.length-1; i >=0 ; i--){ 
+    for (let i = allReviews.length - 1; i >= 0; i--) {
         sum += allReviews[i].rating
         totalReviews += +1
         allReviews[i].created_at = moment(allReviews[i].created_at).utcOffset("+05:30").format('MMM Do YYYY')
-        if(isAuthenticated(req)){
-            if(allReviews[i].user_id == req.user.id){
+        if (isAuthenticated(req)) {
+            if (allReviews[i].user_id == req.user.id) {
                 currentUserReview = allReviews[i]
-                allReviews.splice(i,1);
+                allReviews.splice(i, 1);
             }
         }
-        
+
     }
     reviews.count = totalReviews
-    reviews.avg = parseFloat(sum/totalReviews).toFixed(1)
+    reviews.avg = parseFloat(sum / totalReviews).toFixed(1)
     reviews.user = currentUserReview
     reviews.reviews = allReviews
-    if(!(Array.isArray(reviews.reviews) && reviews.reviews.length)){
+    if (!(Array.isArray(reviews.reviews) && reviews.reviews.length)) {
         delete reviews.reviews
     }
-    if(_.isEmpty(((reviews || {}).user || {})) ){
+    if (_.isEmpty(((reviews || {}).user || {}))) {
         reviews.user = {}
         reviews.user.rating = 0
     }
-    console.log(reviews);
-    
     return reviews
 }
 module.exports = router

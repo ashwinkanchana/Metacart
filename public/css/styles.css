@@ -164,7 +164,7 @@
     position: relative;
     min-height: 18px;
     display: block;
-    font-size: 12px;
+    font-size: 16px;
     color: rgba(0, 0, 0, 0.54);
   }
 
@@ -223,6 +223,25 @@
     font-size: 1.8em;
     font-family: sans-serif;
 }
+
+
+.rate-fixed-card {
+    font-size: 16px;
+    display: inline-block;
+}
+
+.float-container {
+    border: 3px solid #fff;
+}
+.float-child-1 {
+    width: 60%;
+    float: left;
+} 
+.float-child-2 {
+    width: 40%;
+    float: left;
+} 
+
 
 .rate-base-layer {
     color: rgb(168, 168, 168);

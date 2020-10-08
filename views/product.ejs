@@ -9,6 +9,9 @@
                 alt="">
         </div>
         <div class="col s12 m6">
+            <div class="hide-on-med-and-down">
+                <br><br><br><br><br><br>
+            </div>
             <h4 class="page-header"><%= p.title %> </h4>
             <% if (p.stock > 0 ) { %>
             <% if (cart && cart.some(el => el.id === p.id)) { %>
@@ -50,10 +53,8 @@
     </div>
     <div class="row">
         <div class="col s12">
-            <div class="container">
-                <h6>Product Details</h6>
-                <%- p.specs %>
-            </div>
+            <h5 class="purple-text">Product Details</h5>
+            <%- p.specs %>
         </div>
     </div>
     <% if (typeof relatedProducts != 'undefined') { %>
@@ -81,11 +82,29 @@
                                 </div>
                             </div>
                             <div class="col s12">
-                                <% if (p.stock <= 0) { %>
-                                <p class="red-text helper-txt"><strong>Out of stock</strong></p>
-                                <% } else { %>
-                                <span class="helper-txt">&nbsp;</span>
-                                <% } %>
+                                <br style="margin-top: 6px;">
+                                <div class="row" style="height: 18px;">
+                                    <div class="col s12">
+                                        <% if (p.stock <= 0) { %>
+                                            <span class="red-text helper-txt"><strong>Out of stock</strong></span>
+                                        <% } else { %>
+                                            <div class="float-container">
+                                                <div class="float-child-1">
+                                                    <div class="rate-fixed-card"></div>
+                                                </div>
+                                                <span class="helper-txt float-child-2" style="padding: 2px;">(<%= (p.count) %>)</span>
+                                              </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <script>
+                                    var optionsFixed = {
+                                        initial_value: '<%= parseFloat(p.rating).toFixed(2)  %>',
+                                        readonly: true,
+                                        step_size: 0.1
+                                    }
+                                    $(".rate-fixed-card").rate(optionsFixed);
+                                </script>
                             </div>
                         </div>
                     </a>
@@ -110,11 +129,12 @@
                     <textarea style="height: 6rem;" id="review" name="review"
                         class="materialize-textarea"><%=reviews.user.review%></textarea>
                     <label for="review">Review</label>
-                    
+
                     <button type="submit" class="waves-effect waves-light btn center-align right">
                         Edit
                     </button>
-                    <a href="#delete-review"  style="margin-right: 2em;" class="modal-trigger right"><i class="material-icons icon-grey">delete</i></a>
+                    <a href="#delete-review" style="margin-right: 2em;" class="modal-trigger right"><i
+                            class="material-icons icon-grey">delete</i></a>
                     <div id="delete-review" class="modal">
                         <div class="modal-content">
                             <h5 class="grey-text text-darken-2">Delete review</h5>
@@ -158,6 +178,14 @@
             <br style="margin-top: 22px;">
         </div>
         <div class="col s12 offset-m1">
+            <div class="row">
+                <% if (reviews.count > 0) { %>
+                <div class="rating"></div>
+                <span class="helper-txt"> <strong><%=reviews.avg%></strong> - Based on
+                    <strong><%= reviews.count %></strong> ratings</span>
+
+                <% } %>
+            </div>
             <% if (typeof reviews.reviews != 'undefined') { %>
             <% reviews.reviews.forEach((r, index) => { %>
             <div class="row">
@@ -217,7 +245,7 @@
             $(".rate").remove();
             $("#review-helper-txt").remove();
             $("#review-alert-message").text(jxhr.responseJSON.message);
-            $('#review-alert').modal('open'); 
+            $('#review-alert').modal('open');
         });
     });
 </script>
