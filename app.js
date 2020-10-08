@@ -127,8 +127,8 @@ if(process.env.NODE_ENV == 'development'){
     //Use self signed SSL certificate for localhost 
     console.log(chalk.blue("DEVELOPEMENT MODE"))
     const server = https.createServer({
-        key: fs.readFileSync('./config/localhost+2-key.pem'),
-        cert: fs.readFileSync('./config/localhost+2.pem'),
+        cert: process.env.SSL_CERT,
+        key: process.env.SSL_KEY,
         requestCert: false,
         rejectUnauthorized: false,
     }, app).listen(port, async () => {
