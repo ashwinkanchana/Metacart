@@ -30,6 +30,7 @@ router.post('/add-address', newAddressValidator, async (req, res) => {
     if (errors.length > 0) {
       const address = await getAddresses(req.user.id)
       res.render('account', {
+        email: req.user.email,
         errors: [errors[0]], fullname, address, new_address, pincode, phone,
         open_address_form: true,
         edit_address: false
@@ -61,6 +62,7 @@ router.get('/edit-address/:id', async (req, res) => {
     const { fullname, pincode, phone } = editAddress
     const new_address = editAddress.address
     res.render('account', {
+      email: req.user.email,
       address, fullname, new_address, new_address, pincode, phone,
       address_id: req.params.id,
       open_address_form: true,
@@ -86,6 +88,7 @@ router.post('/edit-address', newAddressValidator, async (req, res) => {
     if (errors.length > 0) {
       const address = await getAddresses(req.user.id)
       res.render('account', {
+        email: req.user.email,
         errors: [errors[0]], fullname, address, new_address, pincode, phone,
         open_address_form: true,
         edit_address: true
