@@ -134,11 +134,8 @@
                                                         <a href="#" class="modal-close waves-effect btn-flat">Dismiss</a>
                                                         <a href="/orders/return-item/<%= o.order_id %>/<%= item.product_id %>"
                                                             class="modal-close waves-effect waves-red btn-flat">Confirm</a>
-
                                                     </div>
                                                 </div>
-
-
                                                 <% } %>
                                             </div>
 
@@ -159,28 +156,12 @@
     </div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<script>
+    $(document).ready(function () {
+        $('.collapsible').collapsible({
+            'accordion': false
+        })
+    });
+</script>
 
 <%- include('./partials/footer'); %>

@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
         const limit = mysql.escape(parseInt(req.query.limit || 12))
         const skip = startIndex * limit
         const filters = buildFiltersQuery(req)
-        const query = `SELECT COUNT(*) AS count FROM(SELECT p.id FROM product p WHERE ${filters}) AS count; SELECT p.id, p.title, p.slug, p.price, p.image, p.stock, c.slug AS category, avg(r.rating) as rating, count(r.rating) as count FROM product p INNER JOIN category c ON p.category_id = c.id LEFT JOIN reviews r ON p.id = r.product_id WHERE ${filters}  GROUP BY p.id LIMIT ${skip},${limit};`
+        const query = `SELECT COUNT(*) AS count FROM(SELECT p.id FROM product p WHERE ${filters}) AS count; SELECT p.id, p.title, p.slug, p.price, p.image, p.stock, c.slug AS category, avg(r.rating) as rating, count(r.rating) as count FROM product p INNER JOIN category c ON p.category_id = c.id LEFT JOIN reviews r ON p.id = r.product_id WHERE ${filters}   LIMIT ${skip},${limit};`
         const products = await pool.query(query)
         const productsCount = products[0][0].count
         const numPages = Math.ceil(productsCount / limit);
@@ -166,6 +166,7 @@ function buildFiltersQuery(req) {
             filters += ` ${filter1} AND`
         }
         filters += ` ${filter2} AND ${filter3}`
+        filters += ` GROUP BY p.id `
         if (filter4 != 'relevance')
             filters += ` ${filter4}`
         return filters

@@ -97,18 +97,15 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        
-
-       
             var rangeSlider = document.getElementById('range');
             noUiSlider.create(rangeSlider, {
-                start: [1, 99999],
+                start: [1, 199999],
                 connect: true,
                 step: 1,
                 orientation: 'horizontal',
                 range: {
                     'min': 1,
-                    'max': 99999
+                    'max': 199999
                 },
                 format: wNumb({
                     decimals: 0
