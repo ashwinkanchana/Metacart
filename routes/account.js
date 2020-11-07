@@ -58,7 +58,6 @@ router.get('/edit-address/:id', async (req, res) => {
     const query = `SELECT * FROM address WHERE user_id = ${mysql.escape(req.user.id)} AND id = ${req.params.id};`
     const address = await getAddresses(req.user.id)
     const editAddress = (await pool.query(query))[0]
-    console.log(editAddress);
     const { fullname, pincode, phone } = editAddress
     const new_address = editAddress.address
     res.render('account', {
