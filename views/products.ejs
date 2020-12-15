@@ -36,7 +36,7 @@
                             <div class="col s12">
                                 <% if (p.stock <= 0) { %>
                                 <span class="red-text helper-txt"><strong>Out of stock</strong></span>
-                                <% } else { %>
+                                <% } else if (p.count > 0){ %>
                                 <div class="float-container">
                                     <div class="float-child-1">
                                         <div class="rate-fixed-card"></div>

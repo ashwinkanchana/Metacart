@@ -6,7 +6,7 @@ const { pool } = require('../config/database')
 router.get('/', async (req, res) => {
     try {
         const pages = req.app.locals.pages
-        const query = `SELECT p.id, p.title, p.slug, p.price, p.image, p.stock, c.slug AS category, avg(r.rating) as rating, count(r.rating) as count FROM product p INNER JOIN category c ON p.category_id = c.id LEFT JOIN reviews r ON p.id = r.product_id GROUP BY p.id ORDER BY RAND() LIMIT 8;`
+        const query = `SELECT p.id, p.title, p.slug, p.price, p.image, p.stock, c.slug AS category, avg(r.rating) as rating, count(r.rating) as count FROM product p INNER JOIN category c ON p.category_id = c.id LEFT JOIN reviews r ON p.id = r.product_id WHERE p.stock > 0 GROUP BY p.id ORDER BY RAND() LIMIT 8;`
         // const query = 'SELECT product.id, product.title, product.slug, product.price, product.image, product.stock, category.slug AS category FROM product INNER JOIN category ON product.category_id = category.id ORDER BY RAND() LIMIT 8;'
         const homepageProducts = await pool.query(query)
         res.render('home', {

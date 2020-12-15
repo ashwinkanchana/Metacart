@@ -33,7 +33,7 @@ router.get('/', async (req, res) => {
             delete reqQuery.limit
 
         res.render('products', {
-            reqQuery: new URLSearchParams(req.query).toString(),
+            reqQuery: Object.fromEntries(new URLSearchParams(req.query)),
             numPages,
             limit,
             currentPage: startIndex,

@@ -7,7 +7,7 @@ const { pool } = require('../config/database')
 // GET orders page
 router.get('/', async (req, res) => {
     try {
-        const query = 'SELECT o.order_id, o.created_at, o.txnamount, o.product_count, o.paymentmode, a.fullname, a.address, a.pincode, a.phone FROM orders AS o INNER JOIN address AS a ON o.address_id = a.id WHERE o.user_id = ? ORDER BY o.created_at DESC;'
+        const query = 'SELECT o.order_id, o.created_at, o.txnamount, o.product_count, o.paymentmode, o.fullname, o.address, o.pincode, o.phone FROM orders AS o WHERE o.user_id = ? ORDER BY o.created_at DESC;'
         const filter = [req.user.id]
         const orders = await pool.query(query, filter)
         if (orders.length == 0) {

@@ -8,6 +8,9 @@ const { initPayment, responsePayment } = require('../paytm/services/index')
 const { validationResult } = require('express-validator')
 const { newAddressValidator } = require('../validators/account')
 const { updateCartDB } = require('../controllers/cart')
+const { add } = require('lodash')
+const discountPercentage = 5
+const minItemsRequiredForDiscount = 3;
 // GET checkout page
 router.get('/', async (req, res) => {
     try {
@@ -27,7 +30,9 @@ router.get('/', async (req, res) => {
                 title: 'Checkout',
                 order: mergedArray,
                 address,
-                open_address_form
+                open_address_form,
+                discountPercentage,
+                minItemsRequiredForDiscount
             })
         }
     } catch (error) {
@@ -104,7 +109,9 @@ router.post('/add-address', newAddressValidator, async (req, res) => {
             res.render('checkout', {
                 errors: [errors[0]], fullname, address, new_address, pincode, phone,
                 open_address_form: true,
-                order: mergedArray
+                order: mergedArray,
+                discountPercentage,
+                minItemsRequiredForDiscount
             })
         }
         else {
@@ -139,7 +146,15 @@ async function getCartItems(sessionCart) {
                 ...product,
                 ...item
             }
-            mergedItem.price = parseFloat(mergedItem.price).toFixed(2)
+            //Adding 5% discount if more than 2 products in an order
+            if(cartItemIds.length >=minItemsRequiredForDiscount){
+                mergedItem.discountedPrice = parseFloat((mergedItem.price / 100)* (100-discountPercentage)).toFixed(2)
+                mergedItem.priceReduction = parseFloat(mergedItem.price - mergedItem.discountedPrice).toFixed(2)
+            }else{
+                mergedItem.discountedPrice = parseFloat(mergedItem.price).toFixed(2)
+                mergedItem.priceReduction = parseFloat(0).toFixed(2)
+            }
+            
             mergedItem.image = `https://ecommerce-metacart.s3.ap-south-1.amazonaws.com/product_images/${mergedItem.id}/${mergedItem.image}`
             mergedArray.push(mergedItem)
         })
@@ -161,11 +176,13 @@ async function getAddresses(userID) {
 }
 
 //verifying given address id belongs to current user
-async function verifyAddress(userID, addressID) {
+async function getAddressFromDB(userID, addressID) {
     try {
-        const addressQuery = 'SELECT id FROM address WHERE user_id = ? AND id = ?;';
-        const count = await pool.query(addressQuery, [userID, addressID])
-        return count.length
+        console.log(userID)
+        console.log(addressID)
+        const addressQuery = 'SELECT * FROM address WHERE user_id = ? AND id = ? LIMIT 1;';
+        const address = await pool.query(addressQuery, [userID, addressID])
+        return address
     } catch (error) {
         throw new Error(error)
     }
@@ -176,11 +193,18 @@ async function verifyAddress(userID, addressID) {
 router.post("/payment", async (req, res) => {
     try {
         const deliveryAddressID = parseInt(req.body.selected_address)
-        if (await verifyAddress(req.user.id, deliveryAddressID) == 0) {
+        if (isNaN(deliveryAddressID)) {
+            req.flash('red', `Invalid address`)
+            return req.session.save(() => { res.redirect('/checkout') });
+        }
+        const addressRows = await getAddressFromDB(req.user.id, deliveryAddressID)
+        const address = addressRows[0]
+        if (addressRows.length<=0) {
             req.flash('red', `Invalid address`)
             return req.session.save(() => { res.redirect('/checkout') });
         }
         let transactionAmount = 0;
+        let currentOrderDiscount = 0;
         const orderID = cryptoRandomString({ length: 16, type: 'numeric' })
         const cart = req.session.cart
         if (typeof cart != "undefined" && cart.length > 0) {
@@ -191,7 +215,6 @@ router.post("/payment", async (req, res) => {
             filter = [filter, req.user.id]
             const query = 'SELECT id, title, stock, price FROM product WHERE id IN (?);'
             const products = await pool.query(query, filter)
-
 
             //Check stocks and prevent overbooking
             let flash = []
@@ -204,7 +227,14 @@ router.post("/payment", async (req, res) => {
                 else if (dbProduct.stock - cartItem.quantity < 0) {
                     flash.push(`Only ${dbProduct.stock} unit of ${dbProduct.title} is available, please reduce quantity`)
                 } else {
-                    let subTotal = parseFloat(cartItem.quantity * dbProduct.price).toFixed(2)
+                    let subTotal = 0;
+                    if (cart.length >= minItemsRequiredForDiscount) {
+                        subTotal = parseFloat(cartItem.quantity *((dbProduct.price / 100) * (100 - discountPercentage))).toFixed(2)
+                        dbProduct.price = parseFloat((dbProduct.price / 100) * (100 - discountPercentage)).toFixed(2)
+                        currentOrderDiscount = discountPercentage
+                    } else {
+                        subTotal = parseFloat(cartItem.quantity * dbProduct.price).toFixed(2)
+                    }
                     transactionAmount += +parseFloat(subTotal).toFixed(2)
                     let mergedItem = {
                         ...dbProduct,
@@ -218,13 +248,18 @@ router.post("/payment", async (req, res) => {
                 return req.session.save(() => { res.redirect('/checkout') });
             } else {
                 const userID = req.user.id
-                const query = 'INSERT INTO orders (order_id, user_id, address_id, product_count, txnamount) VALUES (?);'
-                const values = [[orderID, userID, deliveryAddressID, mergedArray.length, transactionAmount]]
-                const status = await pool.query(query, values)
-                const query2 = 'INSERT INTO order_item (order_id, product_id, purchase_price, quantity) VALUES ?;'
+                transactionAmount = parseFloat(transactionAmount).toFixed(2)
+                const values = [[orderID, userID, address.fullname, address.pincode, address.address, address.phone, mergedArray.length, transactionAmount]]
+                // const query = 'INSERT INTO orders (order_id, user_id, fullname, pincode, address, phone, product_count, txnamount) VALUES (?);'
+                //const status = await pool.query(query, values)
+                //STORED PROCEDURE HAS BEEN USED TO REPLACE ABOVE QUERY
+                await pool.query(`CALL initOrder(?);`, values)
+                
+
+                const query2 = 'INSERT INTO order_item (order_id, product_id, purchase_price, quantity, discount_percent) VALUES ?;'
                 let order_items = []
                 mergedArray.forEach(item => {
-                    order_items.push([orderID, item.id, item.price, item.quantity])
+                    order_items.push([orderID, item.id, item.price, item.quantity, currentOrderDiscount])
                 })
                 const status2 = await pool.query(query2, [order_items])
                 initPayment(orderID, `${userID}`, transactionAmount).then(
@@ -283,13 +318,11 @@ router.post("/paytm-response", (req, res) => {
                         //Clear cart from session
                         delete req.session.cart
 
-                        //Decrement ordered product stock
+                        //Decrement ordered product stock and increment sales
                         let updateStockQueries = '';
                         orderProducts.forEach(item => {
                             updateStockQueries += `UPDATE product SET stock = stock - ${mysql.escape(item.quantity)}, sales = sales + ${mysql.escape(item.quantity)} WHERE id = ${mysql.escape(item.product_id)} and stock  > 0;`
                         });
-
-                        console.log(updateStockQueries)
                         pool.query(updateStockQueries, (err, status) => {
                             if (err) {
                                 console.log(err)

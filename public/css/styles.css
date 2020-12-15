@@ -12,24 +12,24 @@
      margin-left: 1vw;
  }
 
-.auth-button{
-    border-radius: 5em;
-}
-
- .home-product-image{
-    width: 50%; 
+ .auth-button {
+     border-radius: 5em;
  }
 
-.card-product-name {
-    line-height:1.5em;
-    min-height:3em;
-    float:left;
-    color: #212121;
-}
+ .home-product-image {
+     width: 50%;
+ }
 
- .product-card{
-    height: 35%;
-}
+ .card-product-name {
+     line-height: 1.5em;
+     min-height: 3em;
+     float: left;
+     color: #212121;
+ }
+
+ .product-card {
+     height: 35%;
+ }
 
  .input-field input[type=search] {
      height: 64px !important;
@@ -129,10 +129,9 @@
      color: #212121;
  }
 
-
  a {
-    color: #212121;
-}
+     color: #212121;
+ }
 
  *:focus {
      outline: none;
@@ -159,99 +158,99 @@
      border-top: 0;
  }
 
+ .helper-txt {
+     position: relative;
+     min-height: 14px;
+     display: block;
+     font-size: 13px;
+     color: rgba(0, 0, 0, 0.54);
+ }
 
-.helper-txt {
-    position: relative;
-    min-height: 18px;
-    display: block;
-    font-size: 16px;
-    color: rgba(0, 0, 0, 0.54);
-  }
+ .helper-txt-small {
+     position: relative;
+     display: block;
+     font-size: 12px;
+     color: rgba(0, 0, 0, 0.54);
+ }
 
-
-
-
-  .collapsible-header-order-item{
-    padding: 0.4rem;
-    line-height: 1;
+ .collapsible-header-order-item {
+     padding: 0.4rem;
+     line-height: 1;
  }
 
  .collapsible-body-order-item {
-    padding: 1.4rem;
-}
+     padding: 1.4rem;
+ }
 
-.order-item-title{
-    font-size: 1.3rem;
-    color: #353535;
-}
+ .order-item-title {
+     font-size: 1.3rem;
+     color: #353535;
+ }
 
+ .status-text {
+     font-size: 1.4em;
+     margin-bottom: 32px;
+ }
 
-.status-text{
-    font-size: 1.4em;
-    margin-bottom: 32px;
-}
+ .Confirmed-text {
+     color: rgb(5, 184, 109);
+ }
 
-.Confirmed-text{
-    color: rgb(5, 184, 109);
-}
+ .Cancelled-text {
+     color: rgb(236, 75, 75);
+ }
 
-.Cancelled-text{
-    color: rgb(236, 75, 75);
-}
+ .order-action-btn:hover {
+     background-color: transparent !important;
+ }
 
-.order-action-btn:hover {
-    background-color:transparent !important;
+ .order-confirmation-modal {
+     display: flex;
+     align-items: center;
+ }
 
-}
+ .rating {
+     font-size: 2.5em;
+     font-family: sans-serif;
+ }
 
+ .rate {
+     font-size: 3.5em;
+     font-family: sans-serif;
+ }
 
-.order-confirmation-modal {
-    display: flex;
-    align-items: center;
-  }
+ .rate-fixed {
+     font-size: 1.8em;
+     font-family: sans-serif;
+ }
 
-.rating {
-    font-size: 2.5em;
-    font-family: sans-serif;
-}
+ .rate-fixed-card {
+     font-size: 16px;
+     display: inline-block;
+ }
 
-.rate {
-    font-size: 3.5em;
-    font-family: sans-serif;
-}
-.rate-fixed {
-    font-size: 1.8em;
-    font-family: sans-serif;
-}
+ .float-container {
+     border: 3px solid #fff;
+ }
 
+ .float-child-1 {
+     width: 60%;
+     float: left;
+ }
 
-.rate-fixed-card {
-    font-size: 16px;
-    display: inline-block;
-}
+ .float-child-2 {
+     width: 40%;
+     float: left;
+ }
 
-.float-container {
-    border: 3px solid #fff;
-}
-.float-child-1 {
-    width: 60%;
-    float: left;
-} 
-.float-child-2 {
-    width: 40%;
-    float: left;
-} 
+ .rate-base-layer {
+     color: rgb(168, 168, 168);
+ }
 
+ .rate-hover-layer {
+     color: orange;
+ }
 
-.rate-base-layer {
-    color: rgb(168, 168, 168);
-}
-
-.rate-hover-layer {
-    color: orange;
-}
-
-.rate-select-layer {
-    color: orange;
-}
-
+ .rate-select-layer {
+     color: orange;
+ }

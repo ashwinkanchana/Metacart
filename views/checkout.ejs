@@ -63,7 +63,9 @@
                                 <div class="row">
                                     <div class="input-field col s12">
                                         <i class="material-icons prefix">account_circle</i>
-                                        <input id="fullname" name="fullname" type="text" <% if (typeof fullname !== 'undefined') { %> value="<%= fullname %>" <% } %>>
+                                        <input id="fullname" name="fullname" type="text"
+                                            <% if (typeof fullname !== 'undefined') { %> value="<%= fullname %>"
+                                            <% } %>>
                                         <label for="fullname">Full Name <span class="red-text">*</span></label>
                                     </div>
 
@@ -75,14 +77,15 @@
                                     </div>
                                     <div class="input-field col s6">
                                         <i class="material-icons prefix">location_on</i>
-                                        <input id="pin" name="pin" type="text" <% if (typeof pincode !== 'undefined') { %> value="<%= pincode %>" <% } %>>
+                                        <input id="pin" name="pin" type="text"
+                                            <% if (typeof pincode !== 'undefined') { %> value="<%= pincode %>" <% } %>>
                                         <label for="pin">PIN code <span class="red-text">*</span></label>
                                         <span class="helper-text">Must be a 6 digit PIN code</span>
                                     </div>
                                     <div class="input-field col s6">
                                         <i class="material-icons prefix">phone</i>
-                                        <input id="phone" name="phone" type="tel" <% if (typeof phone !== 'undefined') {%> value="<%= phone %>"
-                                    <% } %> >
+                                        <input id="phone" name="phone" type="tel"
+                                            <% if (typeof phone !== 'undefined') {%> value="<%= phone %>" <% } %>>
                                         <label for="phone">Phone <span class="red-text">*</span></label>
                                         <span class="helper-text">Must be a 10 digit phone number</span>
                                     </div>
@@ -102,13 +105,15 @@
     </div>
 </div>
 <% let total = 0 %>
+<% let totalWithoutDiscount = 0 %>
 <div class="row">
     <div class="col s12 m6 offset-m1">
         <h5>Order items</h5>
     </div>
     <% order.forEach(p => { %>
     <% let sub = parseFloat(p.quantity * p.price).toFixed(2) %>
-    <% total += +sub %>
+    <% totalWithoutDiscount += +sub %>
+    <% total += ((p.discountedPrice *  p.quantity)) %>
     <div class="col s12 m6 offset-m1">
         <div class="card-panel cart-card">
             <div class="row">
@@ -126,7 +131,15 @@
                         <a href="/products/<%= p.category %>/<%= p.slug %> ">
                             <h5><%= p.title %></h5>
                         </a>
+                        <% if (order.length >= 3) { %>
+                        <p class="grey-text text-darken-2" style="text-decoration: line-through;">₹<%=parseFloat(p.price).toFixed(2)%></p>
+                        ₹<%=parseFloat(p.discountedPrice).toFixed(2)%>
+                        <span class="helper-txt-small teal-text text-darken-2">You save
+                            ₹<%=parseFloat(p.priceReduction *  p.quantity).toFixed(2)%>
+                        </span>
+                        <% }else{ %>
                         ₹<%=parseFloat(p.price).toFixed(2)%>
+                        <% } %>
                     </div>
                     <div class="row">
                         <div class="col">
@@ -149,7 +162,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <span>Subtotal: </span><b>₹<%=parseFloat(sub).toFixed(2)%></b>
+                        <span>Subtotal: </span><b>₹<%=parseFloat((p.discountedPrice *  p.quantity)).toFixed(2)%></b>
                     </div>
                 </div>
             </div>
@@ -158,9 +171,23 @@
     <% }) %>
     <div class="col s12 m4">
         <div class="card-panel">
+            <% if (order.length < 3) { %>
+            <p class="helper-txt" style="font-size: 12px;"><i class="material-icons"
+                    style="font-size: 10px;">info_outline</i> Order
+                more than <%=minItemsRequiredForDiscount - 1%> different products to get <%=discountPercentage%>%
+                discount, Your order has <%= order.length %> products</p>
+            <% }else{ %>
+            <p class="helper-txt-small teal-text text-darken-2"><i class="material-icons tiny"
+                    style="font-size: 10px;">info_outline</i> Your order is eligible for <%=discountPercentage%>%
+                discount</p>
+            <h5><s class="grey-text text-darken-2">₹<%=parseFloat(totalWithoutDiscount).toFixed(2)%></s></h5>
+            <p class="teal-text text-darken-2">Total savings: ₹<%=parseFloat(totalWithoutDiscount-total).toFixed(2)%>
+            </p>
+            <% }%>
             <h5><b>Total: ₹<%=parseFloat(total).toFixed(2)%></b></h5>
             <br>
-            <button type="submit" form="order" href="/checkout/payment" class="waves-effect waves-light btn-large buynow"><i
+            <button type="submit" form="order" href="/checkout/payment"
+                class="waves-effect waves-light btn-large buynow"><i
                     class="material-icons left">shopping_basket</i>Place order</button>
         </div>
     </div>
