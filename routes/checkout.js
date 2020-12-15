@@ -306,7 +306,7 @@ router.post("/paytm-response", (req, res) => {
                 if (paytm.STATUS == 'TXN_SUCCESS') {
                     //update order status in DB
                     //Clear cart items from DB 
-                    const query = 'UPDATE order_item SET status = \'Payment success\' WHERE order_id = ?; DELETE FROM cart WHERE user_id = ?; SELECT product_id, quantity FROM order_item WHERE order_id = ?'
+                    const query = 'UPDATE order_item SET status = \'Payment Success\' WHERE order_id = ?; DELETE FROM cart WHERE user_id = ?; SELECT product_id, quantity FROM order_item WHERE order_id = ?'
                     const filter = [paytm.ORDERID, req.user.id, paytm.ORDERID]
                     pool.query(query, filter, (error, rows) => {
                         if (error) {
@@ -318,22 +318,24 @@ router.post("/paytm-response", (req, res) => {
                         //Clear cart from session
                         delete req.session.cart
 
+                        //MySQL trigger has been used to decrement stock and increment sales
+                        
                         //Decrement ordered product stock and increment sales
-                        let updateStockQueries = '';
-                        orderProducts.forEach(item => {
-                            updateStockQueries += `UPDATE product SET stock = stock - ${mysql.escape(item.quantity)}, sales = sales + ${mysql.escape(item.quantity)} WHERE id = ${mysql.escape(item.product_id)} and stock  > 0;`
+                        // let updateStockQueries = '';
+                        // orderProducts.forEach(item => {
+                        //     updateStockQueries += `UPDATE product SET stock = stock - ${mysql.escape(item.quantity)}, sales = sales + ${mysql.escape(item.quantity)} WHERE id = ${mysql.escape(item.product_id)} and stock  > 0;`
+                        // });
+                        // pool.query(updateStockQueries, (err, status) => {
+                        //     if (err) {
+                        //         console.log(err)
+                        //         throw new Error(err)
+                        //     }
+                        //     console.log(status)
+                        // })
+                        res.render('paytm_response', {
+                            title: 'Transaction Success',
+                            redirectTo: `/checkout/transaction/${paytm.ORDERID}`
                         });
-                        pool.query(updateStockQueries, (err, status) => {
-                            if (err) {
-                                console.log(err)
-                                throw new Error(err)
-                            }
-                            console.log(status)
-                            res.render('paytm_response', {
-                                title: 'Transaction Success',
-                                redirectTo: `/checkout/transaction/${paytm.ORDERID}`
-                            });
-                        })
                     })
                 } else {
                     //Go to retry order page
