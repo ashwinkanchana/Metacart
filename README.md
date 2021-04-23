@@ -1,9 +1,7 @@
 # Metacart
-[![Heroku](https://heroku-badge.herokuapp.com/?app=heroku-badge)](https://metacart.herokuapp.com/)
-[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/ashwinkanchana/)
 
 Metacart is an E-commerce website with admin panel designed and implemented for
-single seller using Node.js and MySQL. Deployed on Heroku with AWS RDS and S3. 
+single seller using Node.js and MySQL and AWS S3. 
 
 #### Demo on Heroku - https://metacart.herokuapp.com  
 
@@ -134,11 +132,7 @@ https://localhost:3000
  &nbsp;
 ### **Make sure app is running on `HTTPS` only, for its operation as intended**
 &nbsp;
-## License
 
-
-
-[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/ashwinkanchana/)
 
 ---
 > May the source be with you
