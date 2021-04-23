@@ -16,7 +16,7 @@ exports.sendAccountActivationEmail = function (req, res, user, status) {
         to: user.email,
         subject: `Account activation link`,
         html: `<h4>please use the following link to activate your account</h4>
-                                            <p>${process.env.CLIENT_URL}/auth/activate/${token}</p><hr>
+                                            <p>${process.env.CLIENT_URL}auth/activate/${token}</p><hr>
                                             <p>This link will expire in 24 hours</p>`
     }
 
@@ -54,7 +54,7 @@ exports.sendAccountActivationEmail = function (req, res, user, status) {
             to: user.email,
             subject: `Password reset link`,
             html: `<h4>please use the following link to reset your password</h4>
-                                            <p>${process.env.CLIENT_URL}/auth/reset-password/${token}</p><hr>
+                                            <p>${process.env.CLIENT_URL}auth/reset-password/${token}</p><hr>
                                             <p>This link will expire in 24 hours</p>`
         }
 
