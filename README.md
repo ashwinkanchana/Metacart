@@ -3,12 +3,9 @@
 Metacart is an E-commerce website with admin panel designed and implemented for
 single seller using Node.js and MySQL and AWS S3. 
 
-#### Demo on Heroku - https://metacart.herokuapp.com  
+### Demo on Heroku - https://metacart.herokuapp.com  
 
-| <img align='center' src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" width=100> | <img align='center' src="https://i.cloudup.com/zfY6lL7eFa-3000x3000.png" width=100> | <img align='center' src="https://www.mysql.com/common/logos/logo-mysql-170x115.png" width=100> | <img align='center' src="https://i.postimg.cc/FRnkcdng/materialize.png" width=100> |
-|-----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| <img align='center' src="https://i.postimg.cc/KjZpKWwg/aws.png" width=120>                                | <img align='center' src="https://i.postimg.cc/ydzZsgrL/paytm.jpg" width=100>        | <img align='center' src="https://i.postimg.cc/4N1wMZnC/oAuth.png" width=130>                   | <img align='center' src="https://i.postimg.cc/L5tvmFT1/sendgrid.png" width=100>    |    |
-
+<img src="https://i.postimg.cc/j25yxnWG/Capture.png"> 
 
 ### Features
 - View catalogue of products, filter by category and price range, sort by
